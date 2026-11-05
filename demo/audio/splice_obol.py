@@ -31,6 +31,16 @@ SPANS = {
     7: (0.08, 0.36),   # "Obol Guard protects..." (Whisper ran the two words together)
     9: (3.42, 3.74),   # "...safely. Obol, in the Hermes Marketplace."
 }
+# Per-beat fit of the single-word take to the sentence around it (targets measured from the voice around the
+# word; confirm by ear after any change):
+# target pitch in Hz (None = leave as recorded) and target length as a multiple of the replaced span.
+# The single word was spoken on its own, so it comes out higher and slower than a word mid-sentence.
+FIT = {
+    4: (110.0, 1.15),  # sentence-final: falls to ~107 Hz in the original take
+    6: (120.0, 1.25),  # voice around it ~120 Hz
+    7: (130.0, 1.25),  # sentence start, voice ~133 Hz
+    9: (None, None),   # approved by ear as first spliced
+}
 SEARCH = 0.06   # look this far either side of each boundary for the quietest cut point
 FADE = 0.012    # crossfade length at each join
 
@@ -67,10 +77,41 @@ def rms(a: np.ndarray) -> float:
     return float(np.sqrt(np.mean(voiced ** 2))) if len(voiced) else 1e-6
 
 
-def splice(take: np.ndarray, word: np.ndarray, start: float, end: float) -> np.ndarray:
+def f0(seg: np.ndarray) -> float:
+    """Median pitch (Hz) over voiced 40 ms frames, by autocorrelation."""
+    n, out = int(0.04 * SR), []
+    for i in range(0, len(seg) - n, n // 2):
+        fr = seg[i:i + n] - seg[i:i + n].mean()
+        if np.sqrt(np.mean(fr ** 2)) < 0.02:
+            continue
+        ac = np.correlate(fr, fr, "full")[n - 1:]
+        lo, hi = int(SR / 350), int(SR / 70)
+        k = lo + int(np.argmax(ac[lo:hi]))
+        if ac[k] > 0.3 * ac[0]:
+            out.append(SR / k)
+    return float(np.median(out)) if out else float("nan")
+
+
+def fit(word: np.ndarray, pitch_hz: float | None, length_s: float | None) -> np.ndarray:
+    """Shift pitch (formants preserved) and stretch length with Rubber Band via ffmpeg."""
+    if pitch_hz is None and length_s is None:
+        return word
+    pitch = (pitch_hz / f0(word)) if pitch_hz else 1.0
+    tempo = (len(word) / SR) / length_s if length_s else 1.0
+    raw = subprocess.run(
+        ["ffmpeg", "-v", "error", "-f", "f32le", "-ar", str(SR), "-ac", "1", "-i", "-",
+         "-af", f"rubberband=pitch={pitch:.4f}:tempo={tempo:.4f}:formant=preserved:pitchq=quality",
+         "-f", "f32le", "-ar", str(SR), "-ac", "1", "-"],
+        input=word.astype(np.float32).tobytes(), capture_output=True, check=True).stdout
+    return np.frombuffer(raw, np.float32).copy()
+
+
+def splice(take: np.ndarray, word: np.ndarray, start: float, end: float,
+           pitch_hz: float | None = None, length_mult: float | None = None) -> np.ndarray:
     env = envelope(take)
     a, b = quietest(env, start), quietest(env, end)
     old = take[a:b]
+    word = fit(word, pitch_hz, (b - a) / SR * length_mult if length_mult else None)
     w = word * (rms(old) / rms(word))            # match loudness to the word being replaced
     f = int(FADE * SR)
     ramp = np.linspace(0.0, 1.0, f, dtype=np.float32)
@@ -95,7 +136,7 @@ def main() -> int:
             print(f"beat{n}: no take yet")
             continue
         if n in SPANS:
-            save(splice(load(src), word, *SPANS[n]), dst)
+            save(splice(load(src), word, *SPANS[n], *FIT.get(n, (None, None))), dst)
             print(f"beat{n}: spliced correct 'Obol' into {src.name}")
         else:
             shutil.copyfile(src, dst)

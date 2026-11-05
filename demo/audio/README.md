@@ -13,3 +13,7 @@ Checked with faster-whisper (small.en): before the splice the sentences transcri
 
 If a take is regenerated, update its span in `SPANS` (Whisper word timestamps) before running.
 
+
+The single-word take was spoken on its own, so it came out higher (139 Hz) and longer (0.55 s) than "Obol"
+mid-sentence (voice around it 110–133 Hz, word about 0.3–0.45 s). For beats 4, 6 and 7 the script now shifts
+its pitch (formants preserved) and length with Rubber Band to fit the sentence (`FIT`); beat 9 is used as spliced.
