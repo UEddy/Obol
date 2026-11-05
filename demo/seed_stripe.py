@@ -28,6 +28,7 @@ from obol_lib.store import Store  # noqa: E402
 from obol_lib.stripe_client import StripeClient, key_mode  # noqa: E402
 
 CLOCK_PREFIX = "obol-demo"
+LEFTOVERS = {"obol-fixture@example.com"}
 DAY = 86400
 
 # (client, email, days ago issued, net days, line items, paid?)
@@ -100,6 +101,10 @@ def invoice(c: StripeClient, store: Store, cus_id: str, net: int, items: list, t
 def main() -> int:
     with StripeClient(key()) as c:
         print(f"deleted {delete_previous(c)} previous demo clock(s)")
+        for inv in c.list_invoices(limit=100, status="open").get("data") or []:
+            if inv.get("customer_email") in LEFTOVERS:   # fixture-recorder / live-test invoices
+                c.void_invoice(inv["id"], idempotency_key=f"obol-seed-void-{inv['id']}")
+                print(f"voided leftover {inv['id']} ({inv['customer_email']})")
         store, settings = Store.memory(), Settings()
         for name, email, days_ago, net, items, paid in BOOK:
             clock = new_clock(c, days_ago, name)

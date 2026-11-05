@@ -22,6 +22,7 @@ class FakeStripe:
         self.items: dict[str, list[dict]] = {}
         self.sent: list[str] = []
         self.events: list[dict] = []
+        self.clocks: dict[str, dict] = {}
         self.calls: list[tuple[str, str]] = []
         self.idem: dict[str, httpx.Response] = {}
         self.fail_queue: list[tuple[str, int]] = []   # (path substring, status) consumed in order
@@ -84,12 +85,23 @@ class FakeStripe:
 
     def _route(self, method: str, path: str, form: dict, query: dict) -> httpx.Response:
         parts = path.strip("/").split("/")[1:]  # drop "v1"
+        if parts == ["test_helpers", "test_clocks"] and method == "GET":
+            return self._json(200, {"object": "list", "data": list(self.clocks.values()), "has_more": False})
+        if parts == ["test_helpers", "test_clocks"] and method == "POST":
+            cid = self._id("clock")
+            self.clocks[cid] = {"id": cid, "name": form.get("name"), "frozen_time": int(form.get("frozen_time", self.now))}
+            return self._json(200, self.clocks[cid])
+        if parts == ["customers"] and method == "GET" and query.get("test_clock"):
+            data = [c for c in self.customers.values() if c.get("test_clock") == query.get("test_clock")]
+            return self._json(200, {"object": "list", "data": data, "has_more": False})
         if parts == ["customers"] and method == "GET":
-            data = [c for c in self.customers.values() if c["email"] == query.get("email")]
+            # Like Stripe: customers on a test clock are hidden unless the clock is named.
+            data = [c for c in self.customers.values() if c["email"] == query.get("email") and not c.get("test_clock")]
             return self._json(200, {"object": "list", "data": data[: int(query.get("limit", 10))], "has_more": False})
         if parts == ["customers"] and method == "POST":
             cid = self._id("cus")
-            self.customers[cid] = {"id": cid, "email": form.get("email"), "name": form.get("name")}
+            self.customers[cid] = {"id": cid, "email": form.get("email"), "name": form.get("name"),
+                                   "test_clock": form.get("test_clock")}
             return self._json(200, self.customers[cid])
         if parts == ["invoices"] and method == "POST":
             cus = self.customers.get(form.get("customer", ""))
@@ -108,6 +120,9 @@ class FakeStripe:
             return self._json(200, self.invoices[iid])
         if parts == ["invoices"] and method == "GET":
             data = sorted(self.invoices.values(), key=lambda i: -i["created"])
+            if not query.get("customer"):
+                clocked = {cid for cid, c in self.customers.items() if c.get("test_clock")}
+                data = [i for i in data if i["customer"] not in clocked]
             if query.get("customer"):
                 data = [i for i in data if i["customer"] == query["customer"]]
             if query.get("status"):

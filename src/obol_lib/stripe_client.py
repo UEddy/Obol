@@ -215,6 +215,14 @@ class StripeClient:
         return self.request("GET", "/v1/invoices", params={
             "limit": limit, "status": status, "customer": customer, "starting_after": starting_after})
 
+    def list_test_clocks(self, limit: int = 100) -> list[dict]:
+        """Test mode only: Stripe test clocks (simulated time)."""
+        return self.request("GET", "/v1/test_helpers/test_clocks", params={"limit": limit}).get("data") or []
+
+    def list_clock_customers(self, clock_id: str, limit: int = 100) -> list[dict]:
+        # Stripe hides test-clock customers from the normal list unless the clock is named.
+        return self.request("GET", "/v1/customers", params={"test_clock": clock_id, "limit": limit}).get("data") or []
+
     def list_events(self, *, types: list[str], created_gte: int, limit: int = 100) -> dict:
         """Account events (Stripe keeps 30 days). Used by the contact-change risk check."""
         return self.request("GET", "/v1/events", params={

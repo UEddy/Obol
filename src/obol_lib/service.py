@@ -237,9 +237,21 @@ def sync(client: StripeClient, store: Store, *, max_pages: int = 5) -> dict:
         if not page.get("has_more") or not data:
             break
         after = data[-1]["id"]
+    if client.mode == "test":
+        fetched.extend(_test_clock_invoices(client))
     _upsert_with_paid_log(store, fetched)
     store.set_meta("last_sync", str(int(time.time())))
     return {"synced": len(fetched)}
+
+
+def _test_clock_invoices(client: StripeClient) -> list[dict]:
+    """Stripe leaves test-clock invoices out of the normal list; include them in test mode so a
+    simulated history (past-due invoices) shows up. Never runs with a live key."""
+    out: list[dict] = []
+    for clock in client.list_test_clocks():
+        for cus in client.list_clock_customers(clock["id"]):
+            out.extend(client.list_invoices(customer=cus["id"], limit=100).get("data") or [])
+    return out
 
 
 def list_invoices(client: Optional[StripeClient], store: Store, args: dict) -> dict:

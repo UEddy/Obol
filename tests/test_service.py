@@ -137,3 +137,15 @@ def test_list_without_client_reads_cache(fake, client, store):
     assert out["count"] == 1 and out["synced_from_stripe"] is None
     with pytest.raises(ValidationError):
         service.list_invoices(None, store, {"status": "bogus"})
+
+
+def test_sync_includes_test_clock_invoices_in_test_mode(fake, client, store):
+    """Stripe hides test-clock customers and invoices from normal lists; test-mode sync walks the clocks."""
+    clock = client.request("POST", "/v1/test_helpers/test_clocks", data={"name": "demo", "frozen_time": fake.now})
+    cus = client.request("POST", "/v1/customers", data={"email": "ap@fernhill.example.com", "name": "Fernhill Books",
+                                                       "test_clock": clock["id"]})
+    inv = client.create_invoice(customer=cus["id"], currency="usd", days_until_due=14, description=None,
+                                metadata={}, idempotency_key="k-inv")
+    assert client.list_invoices()["data"] == []            # hidden from the normal list, as on Stripe
+    assert service.sync(client, store)["synced"] == 1
+    assert store.get(inv["id"])["customer_name"] == "Fernhill Books"

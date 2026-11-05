@@ -44,9 +44,20 @@ def scrub(obj: Any) -> Any:
     return obj
 
 
+def _env_transport() -> httpx.HTTPTransport:
+    """A transport that honours HTTPS_PROXY and SSL_CERT_FILE like a default httpx client does."""
+    import os
+    import ssl
+
+    import certifi
+    proxy = os.environ.get("HTTPS_PROXY") or os.environ.get("https_proxy")
+    ctx = ssl.create_default_context(cafile=os.environ.get("SSL_CERT_FILE") or certifi.where())
+    return httpx.HTTPTransport(proxy=proxy, verify=ctx)
+
+
 class RecordingTransport(httpx.BaseTransport):
     def __init__(self, inner: httpx.BaseTransport | None = None) -> None:
-        self._inner = inner or httpx.HTTPTransport()
+        self._inner = inner or _env_transport()
         self.exchanges: list[dict] = []
 
     def handle_request(self, request: httpx.Request) -> httpx.Response:
