@@ -234,6 +234,9 @@ def test_injection_and_lookalike_reach_the_approval_prompt_and_security_log(herm
         assert needle in d["message"], needle
     body = d["message"].split("\n", 1)[1]                                 # Hermes shows at most 10 rows of ~60
     assert len(body.splitlines()) <= 4 and all(len(l) <= 110 for l in body.splitlines())
+    import textwrap   # Hermes shows at most 10 description rows; at a narrow 40-column box all of it must fit
+    rows = sum(len(textwrap.wrap(line, 40, break_long_words=False, break_on_hyphens=False)) for line in d["message"].splitlines())
+    assert rows <= 10, d["message"]
     created = call("obol_create_invoice", args)
     events = st.security_events()
     linked = [e for e in events if e["invoice_id"] == created["invoice"]["invoice_id"]]

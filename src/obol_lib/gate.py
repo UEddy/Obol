@@ -32,8 +32,8 @@ def describe_create(args: dict, default_currency: str) -> str:
         amount = "an invoice (amount could not be read)"
     who = args.get("customer_name") or args.get("customer_email")
     if args.get("send"):
-        return f"Create and EMAIL {args.get('customer_email')} ({who}) a payment link for {amount}"
-    return f"Create a draft invoice for {who} <{args.get('customer_email')}>: {amount} (not sent yet)"
+        return f"EMAIL a {amount} payment link to {who} <{args.get('customer_email')}>"
+    return f"Draft a {amount} invoice for {who} <{args.get('customer_email')}> (not sent yet)"
 
 
 def describe_existing(tool_name: str, invoice_id: str, row: Optional[dict]) -> str:
@@ -50,7 +50,7 @@ def format_flags(flags: list[dict]) -> str:
     every flag is in the Security tab and ``hermes obol ledger``."""
     if not flags:
         return "Risk checks: none raised."
-    lines = ["RISK CHECKS (details in the Security tab):"]
+    lines = ["RISK CHECKS (details: Security tab):"]
     for f in flags:
         text = f.get("short") or str(f.get("message"))
         if len(text) > 110:
