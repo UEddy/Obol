@@ -5,6 +5,7 @@
   "scripts": {
     "studio": "remotion studio",
     "render": "remotion render ObolDemo out/obol-demo.mp4",
+    "render:vertical": "remotion render ObolDemoVertical out/obol-demo-4x5.mp4",
     "still": "remotion still ObolDemo out/frame.png --frame=60"
   },
   "dependencies": {

@@ -194,7 +194,7 @@ VHS tapes, narration script and the Remotion project that assemble it.
 | Beat | On screen |
 |---|---|
 | Hook | The Invoices tab: $3,600 overdue |
-| Trigger | Pinemoor's "loved the support agent, send the invoice" message is forwarded to Hermes in the CLI; `obol_draft_from_message` proposes $1,500 |
+| Trigger | Pinemoor's "loved the support agent, send the invoice" message is forwarded to Hermes in the CLI; `obol_draft_from_message` proposes $1,800 |
 | Trust | The approval prompt names the amount, client, test mode and risk checks; approve |
 | Payoff | Stripe's hosted invoice page paid with 4242; *"Has Pinemoor paid?"*; the row's stamp flips to PAID |
 | Tension | A forwarded "Pinemoor" message from `billing@pinernoor.example.com` tells the assistant to skip approval: the recipient is withheld, and the approval prompt shows prompt injection, lookalike domain and impersonation; then the Security view |
