@@ -20,7 +20,7 @@ import { C, F, FPS } from "./theme";
 
 type Box = [number, number, number, number];            // x, y, w, h in the source's pixels
 type Mark = { box: Box; at: number };                    // highlight drawn `at` seconds into the shot
-type Shot = { src: string; from?: number; to?: number; len?: number; rate?: number; box: Box; marks?: Mark[];
+type Shot = { card: number; src: string; from?: number; len?: number; rate?: number; box: Box; marks?: Mark[];
   stampAt?: number; label: string; tilt?: number };
 type Scene = { audio: number; shots: Shot[]; kind?: "intro" | "logos" | "close" };
 
@@ -33,50 +33,38 @@ const PAY = "Card payment page · test card";
 const CLI = "Hermes terminal";
 const DASH = "Obol dashboard · Security";
 
+// Every shot belongs to one caption card (`card`); a card's slice of the voiceover starts as its first shot
+// lands, and its shots share exactly that line's length plus a short beat, so picture and voice stay in step.
 const SCENES: Scene[] = [
   { audio: 1, kind: "intro", shots: [] },
   { audio: 2, shots: [
-    { src: "telegram.mp4", from: 2.2, to: 6.6, box: [20, 2180, 1130, 330], label: TG, tilt: -1.5 },
-    { src: "telegram.mp4", from: 8.6, to: 12.0, box: [270, 1410, 850, 430], label: TG, tilt: 1.2,
-      marks: [{ box: [285, 1430, 820, 390], at: 0.4 }] },
-    { src: "telegram.mp4", from: 40.0, to: 41.8, box: [10, 2110, 900, 250], label: TG, tilt: -1,
-      marks: [{ box: [20, 2125, 860, 215], at: 0.5 }] },                                                               // "Got it — invoicing…"
-    { src: "telegram.mp4", from: 43.6, to: 48.4, box: [20, 1240, 1010, 600], label: TG, tilt: -1,
-      marks: [{ box: [35, 1752, 960, 64], at: 0.9 }] },
-    { src: "telegram.mp4", from: 54.2, to: 55.9, rate: 0.45, box: [15, 1080, 900, 760], label: TG, tilt: 1,
-      marks: [{ box: [25, 1560, 870, 260], at: 0.9 }] },                                                               // why it was flagged
-    { src: "telegram.mp4", from: 55.9, to: 57.6, rate: 0.6, box: [15, 1540, 900, 820], label: TG, tilt: -1,
-      marks: [{ box: [25, 2085, 425, 110], at: 0.8 }] },                                                               // Allow Once
-    { src: "telegram.mp4", from: 66.2, to: 70.6, box: [15, 1290, 900, 580], label: TG, tilt: -1,
-      marks: [{ box: [25, 1318, 640, 72], at: 0.3 }, { box: [25, 1625, 860, 180], at: 1.4 }] },
+    { card: 0, src: "telegram.mp4", from: 8.6, box: [270, 1410, 850, 430], label: TG, tilt: 1.2,
+      marks: [{ box: [285, 1430, 820, 390], at: 0.3 }] },                                                              // the forwarded message
+    { card: 1, src: "telegram.mp4", from: 44.0, box: [20, 1240, 1010, 600], label: TG, tilt: -1,
+      marks: [{ box: [35, 1752, 960, 64], at: 0.3 }] },                                                                // Total: $2,400.00
+    { card: 2, src: "telegram.mp4", from: 56.0, box: [15, 1540, 900, 820], label: TG, tilt: -1,
+      marks: [{ box: [25, 2085, 425, 110], at: 0.25 }] },                                                              // Allow Once
+    { card: 2, src: "telegram.mp4", from: 66.4, box: [15, 1290, 900, 580], label: TG, tilt: 1,
+      marks: [{ box: [25, 1318, 640, 72], at: 0.15 }, { box: [25, 1625, 860, 180], at: 0.6 }] },                    // approved · sent
   ] },
   { audio: 3, shots: [
-    { src: "stripe_pay.mp4", from: 0.3, to: 1.9, box: [50, 470, 1090, 640], label: PAY, tilt: 1 },
-    { src: "stripe_pay.mp4", from: 3.7, to: 4.6, rate: 0.4, box: [40, 120, 1110, 600], label: PAY, tilt: -1,
-      marks: [{ box: [80, 355, 1050, 115], at: 0.5 }] },
-    { src: "stripe_paid.mp4", from: 0, to: 2.6, box: [130, 680, 920, 540], label: PAY, tilt: 1,
-      marks: [{ box: [370, 960, 600, 215], at: 0.3 }] },
-    { src: "telegram.mp4", from: 114.4, to: 118.4, box: [20, 1700, 990, 640], label: TG, tilt: -1,
-      marks: [{ box: [35, 2150, 870, 175], at: 0.5 }] },
+    { card: 0, src: "stripe_pay.mp4", from: 3.7, box: [40, 120, 1110, 600], label: PAY, tilt: -1,
+      marks: [{ box: [80, 355, 1050, 115], at: 0.15 }] },                                                              // 4242 test card
+    { card: 0, src: "stripe_paid.mp4", from: 0, box: [130, 680, 920, 540], label: PAY, tilt: 1,
+      marks: [{ box: [370, 960, 600, 215], at: 0.15 }] },                                                              // Invoice paid
+    { card: 1, src: "telegram.mp4", from: 115.0, box: [20, 1700, 990, 640], label: TG, tilt: -1,
+      marks: [{ box: [35, 2150, 870, 175], at: 0.2 }] },                                                               // Yes, paid
   ] },
   { audio: 4, kind: "logos", shots: [] },
   { audio: 5, shots: [
-    { src: "scam.mp4", from: 6.0, to: 11.0, box: [30, 205, 1195, 395], label: CLI, tilt: -1,
-      marks: [{ box: [36, 212, 1180, 112], at: 1.2 }, { box: [36, 432, 1180, 165], at: 2.6 }] },
-    { src: "scam.mp4", from: 25.7, to: 26.8, rate: 0.3, box: [20, 270, 1200, 530], label: CLI, tilt: 1,
-      marks: [{ box: [26, 280, 1188, 60], at: 0.3 }, { box: [26, 556, 1188, 130], at: 1.3 }, { box: [26, 716, 1188, 74], at: 2.3 }] },
-    { src: "scam.mp4", from: 29.6, to: 31.8, rate: 0.5, box: [80, 1240, 1000, 318], label: CLI, tilt: -1, stampAt: 31.35,
-      marks: [{ box: [86, 1296, 984, 110], at: 0.5 }, { box: [86, 1404, 984, 152], at: 1.8 }] },
-    { src: "dashboard-security.png", len: 3.2, box: [560, 560, 1640, 460], label: DASH, tilt: 1,
-      marks: [{ box: [585, 585, 790, 280], at: 0.6 }] },
+    { card: 0, src: "scam.mp4", from: 7.0, box: [30, 205, 1195, 395], label: CLI, tilt: -1,
+      marks: [{ box: [36, 212, 1180, 112], at: 0.3 }, { box: [36, 432, 1180, 165], at: 1.3 }] },                    // fake address · skip approval
+    { card: 1, src: "scam.mp4", from: 30.9, rate: 0.5, box: [80, 1240, 1000, 318], label: CLI, tilt: 1, stampAt: 31.35,
+      marks: [{ box: [86, 1296, 984, 110], at: 0.1 }, { box: [86, 1404, 984, 152], at: 0.45 }] },                   // flags · DENIED
   ] },
   { audio: 6, shots: [
-    { src: "telegram.mp4", from: 120.8, to: 125.4, rate: 0.7, box: [15, 150, 720, 400], label: TG, tilt: -1,
-      marks: [{ box: [22, 355, 580, 150], at: 0.6 }] },
-    { src: "dashboard-invoices.png", len: 3.6, box: [1420, 570, 1680, 320], label: "Obol dashboard · Invoices", tilt: -1,
-      marks: [{ box: [1430, 585, 790, 285], at: 0.5 }, { box: [2290, 585, 790, 285], at: 1.6 }] },
-    { src: "dashboard-security.png", len: 3.4, box: [560, 880, 900, 130], label: DASH, tilt: 1,
-      marks: [{ box: [575, 905, 880, 85], at: 0.5 }] },
+    { card: 0, src: "telegram.mp4", from: 121.0, box: [15, 150, 720, 400], label: TG, tilt: -1,
+      marks: [{ box: [22, 355, 580, 150], at: 0.3 }] },                                                                // Paid · Open · Overdue
   ] },
   { audio: 7, kind: "close", shots: [] },
 ];
@@ -84,21 +72,43 @@ const SCENES: Scene[] = [
 type Card = { text: string; start: number; end: number };
 const CAPS = captions as { beat: string; duration: number | null; cards: Card[] }[];
 const fr = (sec: number) => Math.round(sec * FPS);
-const DEAL = 12;        // frames: a card dealt over the previous one
-const CURL = 26;        // frames: page curl between scenes
-const LEAD = 0.25, TAIL = 0.5;
-const shotFrames = (s: Shot) => fr(s.len ?? ((s.to! - s.from!) / (s.rate ?? 1)));
-const audioLen = (sc: Scene) => (CAPS[sc.audio - 1]?.duration ?? 4) + LEAD + TAIL;
-const MIN = { intro: 9.6, logos: 7.6, close: 7.2 };
+const DEAL = 10;        // frames: a card dealt over the previous one
+const CURL = 20;        // frames: page curl between scenes
+const LEAD = 0.1;       // the first line starts this far into a scene
+const BEAT = 0.12;       // pause after each line before the next shot's line
+const END = 0.3;       // hold after a scene's last line, before the page curls
+const MIN = { intro: 5.6, logos: 4.6, close: 5.2 };
+// A card's slice of its scene's voiceover: [start, end) in seconds of the clip.
+const slice = (audio: number, k: number): [number, number] => {
+  const cap = CAPS[audio - 1]; const c = cap.cards;
+  return [c[k].start, c[k + 1]?.start ?? (cap.duration ?? c[k].end)];
+};
 
-type Plan = { shotFrames: number[]; frames: number };
+type Plan = { shotFrames: number[]; frames: number; cues: { card: number; at: number }[] };
 const plan = (sc: Scene, last: boolean): Plan => {
-  const need = fr(audioLen(sc)) + (last ? 0 : CURL);
-  if (sc.kind) return { shotFrames: [], frames: Math.max(fr(MIN[sc.kind]) + (last ? 0 : CURL), need) };
-  const sf = sc.shots.map(shotFrames);
-  const total = sf.reduce((a, b) => a + b, 0) - DEAL * (sf.length - 1);
-  if (total < need) sf[sf.length - 1] += need - total;
-  return { shotFrames: sf, frames: Math.max(total, need) };
+  const tail = last ? 0 : CURL;
+  const cap = CAPS[sc.audio - 1];
+  if (sc.kind) {   // illustrated scenes play the whole line once, from LEAD
+    const len = Math.max(MIN[sc.kind], LEAD + (cap.duration ?? 4) + END);
+    return { shotFrames: [], frames: fr(len) + tail, cues: cap.cards.map((c, k) => ({ card: k, at: LEAD + c.start })) };
+  }
+  const shotFrames: number[] = []; const cues: { card: number; at: number }[] = [];
+  let at = 0;                                      // frames into the scene where the next shot fully lands
+  const cards = [...new Set(sc.shots.map((s) => s.card))];
+  cards.forEach((k, ci) => {
+    const [a, b] = slice(sc.audio, k);
+    const lineLen = (b - a) + (ci === 0 ? LEAD : 0) + (ci === cards.length - 1 ? END : BEAT);
+    const shots = sc.shots.filter((s) => s.card === k);
+    cues.push({ card: k, at: at / FPS + (ci === 0 ? LEAD : 0) });
+    const each = Math.max(fr(lineLen) / shots.length, fr(1.1));   // never flash a shot past
+    shots.forEach(() => {
+      const f = Math.round(each);
+      shotFrames.push(f + (shotFrames.length ? DEAL : 0));   // a dealt card overlaps the previous one by DEAL
+      at += f;
+    });
+  });
+  shotFrames[shotFrames.length - 1] += tail;
+  return { shotFrames, frames: at + tail, cues };
 };
 const PLANS = SCENES.map((s, i) => plan(s, i === SCENES.length - 1));
 export const DEMO_FRAMES = PLANS.reduce((a, p) => a + p.frames, 0) - CURL * (SCENES.length - 1);
@@ -346,16 +356,25 @@ const Close: React.FC<{ vertical: boolean }> = ({ vertical }) => {
 
 /* ---------- captions and voice ---------- */
 
-const Voice: React.FC<{ scene: Scene; vertical: boolean }> = ({ scene, vertical }) => {
+const Voice: React.FC<{ scene: Scene; plan: Plan; vertical: boolean }> = ({ scene, plan: pl, vertical }) => {
   const frame = useCurrentFrame();
   const cap = CAPS[scene.audio - 1];
-  const t = frame / FPS - LEAD;
-  const card = cap?.cards.find((c) => t >= c.start && t < c.end + 0.2);
-  const k = card ? interpolate(t - card.start, [0, 0.16], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.out(Easing.back(2)) }) : 0;
+  const t = frame / FPS;
+  const i = pl.cues.findIndex((c, j) => t >= c.at && t < (pl.cues[j + 1]?.at ?? Infinity));
+  const card = i >= 0 ? cap.cards[pl.cues[i].card] : null;
+  const k = card ? interpolate(t - pl.cues[i].at, [0, 0.16], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.out(Easing.back(2)) }) : 0;
+  const hideAt = pl.frames - (scene.audio === CAPS.length ? 0 : CURL);   // captions leave before the page curls
   return (
     <>
-      <Sequence from={fr(LEAD)}><Audio src={staticFile(`audio/scene${scene.audio}.mp3`)} /></Sequence>
-      {card ? (
+      {pl.cues.map((c, j) => {
+        const [a, b] = slice(scene.audio, c.card);
+        return (
+          <Sequence key={j} from={fr(c.at)} durationInFrames={Math.max(1, fr(b - a) + 3)}>
+            <Audio src={staticFile(`audio/scene${scene.audio}.mp3`)} startFrom={fr(a)} endAt={fr(b) + 3} />
+          </Sequence>
+        );
+      })}
+      {card && frame < hideAt ? (
         <div style={{ position: "absolute", left: 0, right: 0, bottom: vertical ? 70 : 30, display: "flex", justifyContent: "center", padding: "0 36px",
           opacity: Math.min(1, k * 1.5), transform: `translateY(${(1 - k) * 14}px)` }}>
           <div style={{ maxWidth: vertical ? 1000 : 1700, padding: "14px 30px 16px", borderRadius: 14, background: "rgba(21,19,17,0.92)", color: "#fbf8f2",
@@ -381,7 +400,7 @@ const SceneView: React.FC<{ scene: Scene; plan: Plan; vertical: boolean }> = ({ 
         </TransitionSeries>
       </AbsoluteFill>
     )}
-    <Voice scene={scene} vertical={vertical} />
+    <Voice scene={scene} plan={pl} vertical={vertical} />
   </AbsoluteFill>
 );
 

@@ -13,7 +13,7 @@ import numpy as np
 SR = 44100
 # Approximate gaps between the seven lines in takes3/full.mp3 (seconds).
 CUTS = [5.79, 11.67, 14.5, 18.71, 22.69, 25.72]
-SEARCH, FADE, PAD = 0.25, 0.01, 0.12
+SEARCH, FADE, PAD = 0.25, 0.01, 0.0
 
 
 def main() -> int:
@@ -31,6 +31,9 @@ def main() -> int:
     f, pad = int(FADE * SR), np.zeros(int(PAD * SR), np.float32)
     for i, (s, e) in enumerate(zip(cuts, cuts[1:]), 1):
         seg = a[s:e].copy()
+        on = np.where(np.sqrt(np.convolve(seg ** 2, np.ones(441) / 441, mode="same")) > 0.01)[0]   # trim silence
+        if len(on):
+            seg = seg[max(0, on[0] - int(0.04 * SR)):on[-1] + int(0.08 * SR)]
         seg[:f] *= np.linspace(0, 1, f); seg[-f:] *= np.linspace(1, 0, f)
         seg = np.concatenate([pad, seg, pad])
         subprocess.run(["ffmpeg", "-v", "error", "-y", "-f", "f32le", "-ar", str(SR), "-ac", "1", "-i", "-",

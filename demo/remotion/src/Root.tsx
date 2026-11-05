@@ -3,7 +3,7 @@ import { Composition, registerRoot } from "remotion";
 import { Demo, DEMO_FRAMES } from "./Demo";
 import { FPS, H, W } from "./theme";
 
-// Total stays under 90 s (hackathon limit); it follows the narration clips (about 81 s).
+// Length follows the voiceover: each shot lasts as long as its line (about 33 s).
 const frames = DEMO_FRAMES;
 
 const Root: React.FC = () => (

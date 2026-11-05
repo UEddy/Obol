@@ -1,103 +1,103 @@
 [
  {
   "beat": "1 What it is",
-  "duration": 6.04,
+  "duration": 5.42,
   "cards": [
    {
     "text": "Obol lets Hermes send your invoices from any chat,",
     "start": 0.0,
-    "end": 3.02
+    "end": 2.86
    },
    {
     "text": "and stops scams before money moves.",
-    "start": 3.02,
-    "end": 6.04
+    "start": 2.86,
+    "end": 5.42
    }
   ]
  },
  {
   "beat": "2 Send an invoice",
-  "duration": 6.35,
+  "duration": 5.71,
   "cards": [
    {
     "text": "Forward a client's message.",
     "start": 0.0,
-    "end": 2.16
+    "end": 1.96
    },
    {
     "text": "Obol drafts the invoice.",
-    "start": 2.16,
-    "end": 4.0
+    "start": 1.96,
+    "end": 3.8
    },
    {
     "text": "Nothing is sent until you approve.",
-    "start": 4.0,
-    "end": 6.35
+    "start": 3.8,
+    "end": 5.71
    }
   ]
  },
  {
   "beat": "3 Get paid",
-  "duration": 2.91,
+  "duration": 2.34,
   "cards": [
    {
     "text": "Your client pays.",
     "start": 0.0,
-    "end": 1.52
+    "end": 1.38
    },
    {
     "text": "Hermes tells you.",
-    "start": 1.52,
-    "end": 2.91
+    "start": 1.38,
+    "end": 2.34
    }
   ]
  },
  {
   "beat": "4 Works anywhere",
-  "duration": 4.54,
+  "duration": 4.01,
   "cards": [
    {
     "text": "Works in Telegram, WhatsApp, Slack, email and your terminal.",
     "start": 0.0,
-    "end": 4.54
+    "end": 4.01
    }
   ]
  },
  {
   "beat": "5 Stop a scam",
-  "duration": 4.07,
+  "duration": 3.47,
   "cards": [
    {
     "text": "A scammer pretends to be your client.",
     "start": 0.0,
-    "end": 2.62
+    "end": 2.46
    },
    {
     "text": "Obol catches it.",
-    "start": 2.62,
-    "end": 4.07
+    "start": 2.46,
+    "end": 3.47
    }
   ]
  },
  {
   "beat": "6 See everything",
-  "duration": 3.44,
+  "duration": 3.2,
   "cards": [
    {
     "text": "Paid, open and overdue, in one command.",
     "start": 0.0,
-    "end": 3.44
+    "end": 3.2
    }
   ]
  },
  {
   "beat": "7 Close",
-  "duration": 4.68,
+  "duration": 3.89,
   "cards": [
    {
     "text": "Obol, a security-first invoicing plugin for Hermes Agent.",
     "start": 0.0,
-    "end": 4.68
+    "end": 3.89
    }
   ]
  }
