@@ -162,6 +162,17 @@ python -m pytest                               # unit tests (fake Stripe + recor
 hermes plugins validate . --install-deps && hermes plugins doctor . --ci
 ```
 
+`tests/test_stripe_live.py` runs the invoice operations end to end against the real Stripe API
+(create, send, remind, list, void, delete) whenever a **test** key is set as `STRIPE_API_KEY`
+or `STRIPE_SECRET_KEY`. It refuses live keys, uses a fresh `@example.com` customer each run, and
+voids or deletes everything it creates (Stripe keeps voided invoices; they can't be deleted).
+Without a key it skips. In CI, add a repository secret named `STRIPE_API_KEY` holding an
+`sk_test_` key to turn it on.
+
+```bash
+STRIPE_API_KEY=sk_test_... python -m pytest tests/test_stripe_live.py -v
+```
+
 Re-record the Stripe fixtures against your own test account (test keys only; account names and
 invoice links are scrubbed):
 
@@ -182,7 +193,7 @@ src/obol_lib/
   intake.py             forwarded-message extraction      store.py    SQLite cache
 dashboard/              manifest.json, plugin_api.py (FastAPI routes), dist/ (plugin-SDK React, no build)
 skills/invoicing/       the obol:invoicing skill
-tests/                  unit, recorded-response, dashboard-API and Hermes integration tests
+tests/                  unit, recorded-response, Stripe test-mode, dashboard-API and Hermes integration tests
 scripts/                Stripe fixture recorder
 video/                  Remotion source for the demo video (not loaded by Hermes)
 ```

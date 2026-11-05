@@ -20,4 +20,7 @@ jobs:
         # Same httpx version Hermes pins; fastapi for the dashboard-API tests.
         run: pip install "httpx==0.28.1" "fastapi>=0.115,<1" "pytest>=8,<10"
       - name: Run tests
+        # The Stripe test-mode suite runs only when a STRIPE_API_KEY (sk_test_) secret is set.
+        env:
+          STRIPE_API_KEY: ${{ secrets.STRIPE_API_KEY }}
         run: python -m pytest -q
