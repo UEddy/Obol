@@ -1,0 +1,11 @@
+VHS v0.12.1: `Wait+Screen` reads rows 0..N from the top of the scrollback instead of the visible
+viewport, so once output scrolls it only ever sees the oldest lines. Read from the viewport instead.
+Build: cp -r $(go env GOMODCACHE)/github.com/charmbracelet/vhs@v0.12.1 vhs && cd vhs && patch -p1 < ../vhs-screen-wait.patch && go build -o vhs-patched .
+
+--- a/testing.go
++++ b/testing.go
+@@ -67,5 +67,5 @@
+ func (v *VHS) Buffer() ([]string, error) {
+ 	// Get the current buffer.
+-	buf, err := v.Page.Eval("() => Array(term.rows).fill(0).map((e, i) => term.buffer.active.getLine(i).translateToString().trimEnd())")
++	buf, err := v.Page.Eval("() => Array(term.rows).fill(0).map((e, i) => term.buffer.active.getLine(term.buffer.active.viewportY + i).translateToString().trimEnd())")
