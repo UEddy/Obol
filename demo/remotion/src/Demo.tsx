@@ -26,7 +26,7 @@ type Scene = { audio: number; shots: Shot[]; kind?: "intro" | "logos" | "close" 
 
 const SIZE: Record<string, [number, number]> = {
   "telegram.mp4": [1170, 2532], "stripe_pay.mp4": [1170, 2532], "stripe_paid.mp4": [1170, 2532],
-  "scam.mp4": [1240, 2000], "dashboard-security.png": [3200, 2000],
+  "scam.mp4": [1240, 2000], "dashboard-security.png": [3200, 2000], "dashboard-invoices.png": [3200, 2000],
 };
 const TG = "Telegram · Hermes gateway · live";
 const PAY = "Card payment page · test card";
@@ -39,6 +39,8 @@ const SCENES: Scene[] = [
     { src: "telegram.mp4", from: 2.2, to: 6.6, box: [20, 2180, 1130, 330], label: TG, tilt: -1.5 },
     { src: "telegram.mp4", from: 8.6, to: 12.0, box: [270, 1410, 850, 430], label: TG, tilt: 1.2,
       marks: [{ box: [285, 1430, 820, 390], at: 0.4 }] },
+    { src: "telegram.mp4", from: 40.0, to: 41.8, box: [10, 2110, 900, 250], label: TG, tilt: -1,
+      marks: [{ box: [20, 2125, 860, 215], at: 0.5 }] },                                                               // "Got it — invoicing…"
     { src: "telegram.mp4", from: 43.6, to: 48.4, box: [20, 1240, 1010, 600], label: TG, tilt: -1,
       marks: [{ box: [35, 1752, 960, 64], at: 0.9 }] },
     { src: "telegram.mp4", from: 54.2, to: 55.9, rate: 0.45, box: [15, 1080, 900, 760], label: TG, tilt: 1,
@@ -63,7 +65,7 @@ const SCENES: Scene[] = [
       marks: [{ box: [36, 212, 1180, 112], at: 1.2 }, { box: [36, 432, 1180, 165], at: 2.6 }] },
     { src: "scam.mp4", from: 25.7, to: 26.8, rate: 0.3, box: [20, 270, 1200, 530], label: CLI, tilt: 1,
       marks: [{ box: [26, 280, 1188, 60], at: 0.3 }, { box: [26, 556, 1188, 130], at: 1.3 }, { box: [26, 716, 1188, 74], at: 2.3 }] },
-    { src: "scam.mp4", from: 29.6, to: 32.6, rate: 0.5, box: [80, 1240, 1000, 318], label: CLI, tilt: -1, stampAt: 31.85,
+    { src: "scam.mp4", from: 29.6, to: 31.8, rate: 0.5, box: [80, 1240, 1000, 318], label: CLI, tilt: -1, stampAt: 31.35,
       marks: [{ box: [86, 1296, 984, 110], at: 0.5 }, { box: [86, 1404, 984, 152], at: 1.8 }] },
     { src: "dashboard-security.png", len: 3.2, box: [560, 560, 1640, 460], label: DASH, tilt: 1,
       marks: [{ box: [585, 585, 790, 280], at: 0.6 }] },
@@ -71,8 +73,10 @@ const SCENES: Scene[] = [
   { audio: 6, shots: [
     { src: "telegram.mp4", from: 120.8, to: 125.4, rate: 0.7, box: [15, 150, 720, 400], label: TG, tilt: -1,
       marks: [{ box: [22, 355, 580, 150], at: 0.6 }] },
-    { src: "dashboard-security.png", len: 3.4, box: [560, 890, 1440, 110], label: DASH, tilt: 1,
-      marks: [{ box: [575, 905, 1410, 85], at: 0.5 }] },
+    { src: "dashboard-invoices.png", len: 3.6, box: [1420, 570, 1680, 320], label: "Obol dashboard · Invoices", tilt: -1,
+      marks: [{ box: [1430, 585, 790, 285], at: 0.5 }, { box: [2290, 585, 790, 285], at: 1.6 }] },
+    { src: "dashboard-security.png", len: 3.4, box: [560, 880, 900, 130], label: DASH, tilt: 1,
+      marks: [{ box: [575, 905, 880, 85], at: 0.5 }] },
   ] },
   { audio: 7, kind: "close", shots: [] },
 ];
@@ -85,7 +89,7 @@ const CURL = 26;        // frames: page curl between scenes
 const LEAD = 0.25, TAIL = 0.5;
 const shotFrames = (s: Shot) => fr(s.len ?? ((s.to! - s.from!) / (s.rate ?? 1)));
 const audioLen = (sc: Scene) => (CAPS[sc.audio - 1]?.duration ?? 4) + LEAD + TAIL;
-const MIN = { intro: 8.5, logos: 6.6, close: 6.2 };
+const MIN = { intro: 9.6, logos: 7.6, close: 7.2 };
 
 type Plan = { shotFrames: number[]; frames: number };
 const plan = (sc: Scene, last: boolean): Plan => {
