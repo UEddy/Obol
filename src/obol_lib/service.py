@@ -242,8 +242,41 @@ def sync(client: StripeClient, store: Store, *, max_pages: int = 5) -> dict:
     if client.mode == "test":
         fetched.extend(_test_clock_invoices(client))
     _upsert_with_paid_log(store, fetched)
+    check_payment_risk(client, store)
     store.set_meta("last_sync", str(int(time.time())))
     return {"synced": len(fetched)}
+
+
+ELEVATED_RADAR = ("elevated", "highest")
+
+
+def check_payment_risk(client: StripeClient, store: Store, limit: int = 25) -> int:
+    """Read-only: Stripe Radar's risk level and any dispute for paid invoices not checked yet."""
+    checked = 0
+    for row in store.unchecked_paid(limit):
+        try:
+            charge = client.get_charge(row["charge_id"])
+            outcome = charge.get("outcome") or {}
+            disputes = client.list_disputes(row["charge_id"]) if charge.get("disputed") else []
+        except StripeError:
+            continue  # try again on the next sync
+        level, score = outcome.get("risk_level"), outcome.get("risk_score")
+        d = disputes[0] if disputes else {}
+        store.set_payment_risk(row["id"], risk_level=level, risk_score=score, disputed=bool(charge.get("disputed")),
+                               dispute_status=d.get("status"), dispute_reason=d.get("reason"))
+        who = row.get("customer_name") or row.get("customer_email")
+        amount = money.fmt(row["amount_paid"], row["currency"])
+        if level in ELEVATED_RADAR:
+            store.record_security("payment_risk", "high" if level == "highest" else "medium", "flagged",
+                                  f"Stripe Radar rated the {amount} payment from {who} '{level}' risk"
+                                  + (f" (score {score})" if score is not None else "") + ".", invoice_id=row["id"])
+        if charge.get("disputed") and not row.get("disputed"):  # report each dispute once
+            store.record_security("dispute", "high", "flagged",
+                                  f"{who} disputed the {amount} payment"
+                                  + (f" ({d.get('reason')}, {d.get('status')})" if d else "") + ".", invoice_id=row["id"])
+            store.log("disputed", row["id"], f"{amount} by {who}")
+        checked += 1
+    return checked
 
 
 def _test_clock_invoices(client: StripeClient) -> list[dict]:

@@ -24,6 +24,8 @@ _SCRUB_KEYS = {
     "statement_descriptor": None,
     "footer": None,
     "account_tax_ids": None,
+    "fingerprint": "REDACTED",        # card fingerprint (stable card identifier)
+    "receipt_number": None,
 }
 _URL_RE = re.compile(r"https://(invoice|pay)\.stripe\.com/[^\s\"']+")
 

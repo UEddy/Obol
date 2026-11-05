@@ -222,6 +222,12 @@ class StripeClient:
         return self.request("GET", "/v1/invoices", params={
             "limit": limit, "status": status, "customer": customer, "starting_after": starting_after})
 
+    def get_charge(self, charge_id: str) -> dict:
+        return self.request("GET", f"/v1/charges/{charge_id}")
+
+    def list_disputes(self, charge_id: str) -> list[dict]:
+        return self.request("GET", "/v1/disputes", params={"charge": charge_id, "limit": 10}).get("data") or []
+
     def list_test_clocks(self, limit: int = 100) -> list[dict]:
         """Test mode only: Stripe test clocks (simulated time)."""
         return self.request("GET", "/v1/test_helpers/test_clocks", params={"limit": limit}).get("data") or []

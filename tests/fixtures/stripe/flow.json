@@ -1,5 +1,5 @@
 {
- "recorded_at": 1793878661,
+ "recorded_at": 1793879249,
  "api_version": "2024-06-20",
  "source": "Stripe test mode",
  "exchanges": [
@@ -35,7 +35,7 @@
        "created_by": "obol"
       },
       "name": "Acme Co",
-      "next_invoice_sequence": 3,
+      "next_invoice_sequence": 5,
       "phone": null,
       "preferred_locales": [],
       "shipping": null,
@@ -52,7 +52,7 @@
    "path": "/v1/invoices",
    "status": 200,
    "body": {
-    "id": "in_1UYOz16XTmyOc4m6IcusSo0U",
+    "id": "in_1UYP8U6XTmyOc4m6YxUqev3s",
     "object": "invoice",
     "account_country": "US",
     "account_name": "Obol Test Account",
@@ -78,7 +78,7 @@
     "billing_reason": "manual",
     "charge": null,
     "collection_method": "send_invoice",
-    "created": 1793878651,
+    "created": 1793879238,
     "currency": "usd",
     "custom_fields": null,
     "customer": "cus_VZXFm0SLDZzbVt",
@@ -96,7 +96,7 @@
     "description": "Obol fixture recording",
     "discount": null,
     "discounts": [],
-    "due_date": 1795088251,
+    "due_date": 1795088838,
     "effective_at": null,
     "ending_balance": null,
     "footer": null,
@@ -113,7 +113,7 @@
      "data": [],
      "has_more": false,
      "total_count": 0,
-     "url": "/v1/invoices/in_1UYOz16XTmyOc4m6IcusSo0U/lines"
+     "url": "/v1/invoices/in_1UYP8U6XTmyOc4m6YxUqev3s/lines"
     },
     "livemode": false,
     "metadata": {
@@ -131,8 +131,8 @@
      "payment_method_options": null,
      "payment_method_types": null
     },
-    "period_end": 1793878651,
-    "period_start": 1793878651,
+    "period_end": 1793879238,
+    "period_start": 1793879238,
     "post_payment_credit_notes_amount": 0,
     "pre_payment_credit_notes_amount": 0,
     "quote": null,
@@ -171,7 +171,7 @@
     "total_tax_amounts": [],
     "total_taxes": [],
     "transfer_data": null,
-    "webhooks_delivered_at": 1793878651
+    "webhooks_delivered_at": 1793879238
    }
   },
   {
@@ -179,25 +179,25 @@
    "path": "/v1/invoiceitems",
    "status": 200,
    "body": {
-    "id": "ii_1UYOz16XTmyOc4m6eeRfNM6D",
+    "id": "ii_1UYP8V6XTmyOc4m6monLZuo5",
     "object": "invoiceitem",
     "amount": 120000,
     "currency": "usd",
     "customer": "cus_VZXFm0SLDZzbVt",
     "customer_account": null,
-    "date": 1793878651,
+    "date": 1793879239,
     "description": "October consulting",
     "discountable": true,
     "discounts": [],
     "frozen_fields": [],
-    "invoice": "in_1UYOz16XTmyOc4m6IcusSo0U",
+    "invoice": "in_1UYP8U6XTmyOc4m6YxUqev3s",
     "invoicing_rules": [],
     "livemode": false,
     "metadata": {},
     "parent": null,
     "period": {
-     "end": 1793878651,
-     "start": 1793878651
+     "end": 1793879239,
+     "start": 1793879239
     },
     "plan": null,
     "price": {
@@ -241,10 +241,10 @@
   },
   {
    "method": "GET",
-   "path": "/v1/invoices/in_1UYOz16XTmyOc4m6IcusSo0U",
+   "path": "/v1/invoices/in_1UYP8U6XTmyOc4m6YxUqev3s",
    "status": 200,
    "body": {
-    "id": "in_1UYOz16XTmyOc4m6IcusSo0U",
+    "id": "in_1UYP8U6XTmyOc4m6YxUqev3s",
     "object": "invoice",
     "account_country": "US",
     "account_name": "Obol Test Account",
@@ -270,7 +270,7 @@
     "billing_reason": "manual",
     "charge": null,
     "collection_method": "send_invoice",
-    "created": 1793878651,
+    "created": 1793879238,
     "currency": "usd",
     "custom_fields": null,
     "customer": "cus_VZXFm0SLDZzbVt",
@@ -288,7 +288,7 @@
     "description": "Obol fixture recording",
     "discount": null,
     "discounts": [],
-    "due_date": 1795088251,
+    "due_date": 1795088838,
     "effective_at": null,
     "ending_balance": null,
     "footer": null,
@@ -304,7 +304,7 @@
      "object": "list",
      "data": [
       {
-       "id": "il_1UYOz16XTmyOc4m6gCQyGNYL",
+       "id": "il_1UYP8V6XTmyOc4m63bH81Rqm",
        "object": "line_item",
        "amount": 120000,
        "amount_excluding_tax": 120000,
@@ -313,13 +313,13 @@
        "discount_amounts": [],
        "discountable": true,
        "discounts": [],
-       "invoice": "in_1UYOz16XTmyOc4m6IcusSo0U",
-       "invoice_item": "ii_1UYOz16XTmyOc4m6eeRfNM6D",
+       "invoice": "in_1UYP8U6XTmyOc4m6YxUqev3s",
+       "invoice_item": "ii_1UYP8V6XTmyOc4m6monLZuo5",
        "livemode": false,
        "metadata": {},
        "parent": {
         "invoice_item_details": {
-         "invoice_item": "ii_1UYOz16XTmyOc4m6eeRfNM6D",
+         "invoice_item": "ii_1UYP8V6XTmyOc4m6monLZuo5",
          "proration": false,
          "proration_details": {
           "credited_items": null
@@ -331,8 +331,8 @@
         "type": "invoice_item_details"
        },
        "period": {
-        "end": 1793878651,
-        "start": 1793878651
+        "end": 1793879239,
+        "start": 1793879239
        },
        "plan": null,
        "pretax_credit_amounts": [],
@@ -382,7 +382,7 @@
      ],
      "has_more": false,
      "total_count": 1,
-     "url": "/v1/invoices/in_1UYOz16XTmyOc4m6IcusSo0U/lines"
+     "url": "/v1/invoices/in_1UYP8U6XTmyOc4m6YxUqev3s/lines"
     },
     "livemode": false,
     "metadata": {
@@ -400,8 +400,8 @@
      "payment_method_options": null,
      "payment_method_types": null
     },
-    "period_end": 1793878651,
-    "period_start": 1793878651,
+    "period_end": 1793879238,
+    "period_start": 1793879238,
     "post_payment_credit_notes_amount": 0,
     "pre_payment_credit_notes_amount": 0,
     "quote": null,
@@ -440,15 +440,15 @@
     "total_tax_amounts": [],
     "total_taxes": [],
     "transfer_data": null,
-    "webhooks_delivered_at": 1793878651
+    "webhooks_delivered_at": 1793879238
    }
   },
   {
    "method": "GET",
-   "path": "/v1/invoices/in_1UYOz16XTmyOc4m6IcusSo0U",
+   "path": "/v1/invoices/in_1UYP8U6XTmyOc4m6YxUqev3s",
    "status": 200,
    "body": {
-    "id": "in_1UYOz16XTmyOc4m6IcusSo0U",
+    "id": "in_1UYP8U6XTmyOc4m6YxUqev3s",
     "object": "invoice",
     "account_country": "US",
     "account_name": "Obol Test Account",
@@ -474,7 +474,7 @@
     "billing_reason": "manual",
     "charge": null,
     "collection_method": "send_invoice",
-    "created": 1793878651,
+    "created": 1793879238,
     "currency": "usd",
     "custom_fields": null,
     "customer": "cus_VZXFm0SLDZzbVt",
@@ -492,7 +492,7 @@
     "description": "Obol fixture recording",
     "discount": null,
     "discounts": [],
-    "due_date": 1795088251,
+    "due_date": 1795088838,
     "effective_at": null,
     "ending_balance": null,
     "footer": null,
@@ -508,7 +508,7 @@
      "object": "list",
      "data": [
       {
-       "id": "il_1UYOz16XTmyOc4m6gCQyGNYL",
+       "id": "il_1UYP8V6XTmyOc4m63bH81Rqm",
        "object": "line_item",
        "amount": 120000,
        "amount_excluding_tax": 120000,
@@ -517,13 +517,13 @@
        "discount_amounts": [],
        "discountable": true,
        "discounts": [],
-       "invoice": "in_1UYOz16XTmyOc4m6IcusSo0U",
-       "invoice_item": "ii_1UYOz16XTmyOc4m6eeRfNM6D",
+       "invoice": "in_1UYP8U6XTmyOc4m6YxUqev3s",
+       "invoice_item": "ii_1UYP8V6XTmyOc4m6monLZuo5",
        "livemode": false,
        "metadata": {},
        "parent": {
         "invoice_item_details": {
-         "invoice_item": "ii_1UYOz16XTmyOc4m6eeRfNM6D",
+         "invoice_item": "ii_1UYP8V6XTmyOc4m6monLZuo5",
          "proration": false,
          "proration_details": {
           "credited_items": null
@@ -535,8 +535,8 @@
         "type": "invoice_item_details"
        },
        "period": {
-        "end": 1793878651,
-        "start": 1793878651
+        "end": 1793879239,
+        "start": 1793879239
        },
        "plan": null,
        "pretax_credit_amounts": [],
@@ -586,7 +586,7 @@
      ],
      "has_more": false,
      "total_count": 1,
-     "url": "/v1/invoices/in_1UYOz16XTmyOc4m6IcusSo0U/lines"
+     "url": "/v1/invoices/in_1UYP8U6XTmyOc4m6YxUqev3s/lines"
     },
     "livemode": false,
     "metadata": {
@@ -604,8 +604,8 @@
      "payment_method_options": null,
      "payment_method_types": null
     },
-    "period_end": 1793878651,
-    "period_start": 1793878651,
+    "period_end": 1793879238,
+    "period_start": 1793879238,
     "post_payment_credit_notes_amount": 0,
     "pre_payment_credit_notes_amount": 0,
     "quote": null,
@@ -644,15 +644,15 @@
     "total_tax_amounts": [],
     "total_taxes": [],
     "transfer_data": null,
-    "webhooks_delivered_at": 1793878651
+    "webhooks_delivered_at": 1793879238
    }
   },
   {
    "method": "POST",
-   "path": "/v1/invoices/in_1UYOz16XTmyOc4m6IcusSo0U/finalize",
+   "path": "/v1/invoices/in_1UYP8U6XTmyOc4m6YxUqev3s/finalize",
    "status": 200,
    "body": {
-    "id": "in_1UYOz16XTmyOc4m6IcusSo0U",
+    "id": "in_1UYP8U6XTmyOc4m6YxUqev3s",
     "object": "invoice",
     "account_country": "US",
     "account_name": "Obol Test Account",
@@ -678,7 +678,7 @@
     "billing_reason": "manual",
     "charge": null,
     "collection_method": "send_invoice",
-    "created": 1793878651,
+    "created": 1793879238,
     "currency": "usd",
     "custom_fields": null,
     "customer": "cus_VZXFm0SLDZzbVt",
@@ -696,8 +696,8 @@
     "description": "Obol fixture recording",
     "discount": null,
     "discounts": [],
-    "due_date": 1795088251,
-    "effective_at": 1793878652,
+    "due_date": 1795088838,
+    "effective_at": 1793879239,
     "ending_balance": 0,
     "footer": null,
     "from_invoice": null,
@@ -712,7 +712,7 @@
      "object": "list",
      "data": [
       {
-       "id": "il_1UYOz16XTmyOc4m6gCQyGNYL",
+       "id": "il_1UYP8V6XTmyOc4m63bH81Rqm",
        "object": "line_item",
        "amount": 120000,
        "amount_excluding_tax": 120000,
@@ -721,13 +721,13 @@
        "discount_amounts": [],
        "discountable": true,
        "discounts": [],
-       "invoice": "in_1UYOz16XTmyOc4m6IcusSo0U",
-       "invoice_item": "ii_1UYOz16XTmyOc4m6eeRfNM6D",
+       "invoice": "in_1UYP8U6XTmyOc4m6YxUqev3s",
+       "invoice_item": "ii_1UYP8V6XTmyOc4m6monLZuo5",
        "livemode": false,
        "metadata": {},
        "parent": {
         "invoice_item_details": {
-         "invoice_item": "ii_1UYOz16XTmyOc4m6eeRfNM6D",
+         "invoice_item": "ii_1UYP8V6XTmyOc4m6monLZuo5",
          "proration": false,
          "proration_details": {
           "credited_items": null
@@ -739,8 +739,8 @@
         "type": "invoice_item_details"
        },
        "period": {
-        "end": 1793878651,
-        "start": 1793878651
+        "end": 1793879239,
+        "start": 1793879239
        },
        "plan": null,
        "pretax_credit_amounts": [],
@@ -790,26 +790,26 @@
      ],
      "has_more": false,
      "total_count": 1,
-     "url": "/v1/invoices/in_1UYOz16XTmyOc4m6IcusSo0U/lines"
+     "url": "/v1/invoices/in_1UYP8U6XTmyOc4m6YxUqev3s/lines"
     },
     "livemode": false,
     "metadata": {
      "created_by": "obol"
     },
     "next_payment_attempt": null,
-    "number": "5RGXOJBG-0003",
+    "number": "5RGXOJBG-0005",
     "on_behalf_of": null,
     "paid": false,
     "paid_out_of_band": false,
     "parent": null,
-    "payment_intent": "pi_3UYOz26XTmyOc4m60axGp7df",
+    "payment_intent": "pi_3UYP8W6XTmyOc4m60vmqykkQ",
     "payment_settings": {
      "default_mandate": null,
      "payment_method_options": null,
      "payment_method_types": null
     },
-    "period_end": 1793878651,
-    "period_start": 1793878651,
+    "period_end": 1793879238,
+    "period_start": 1793879238,
     "post_payment_credit_notes_amount": 0,
     "pre_payment_credit_notes_amount": 0,
     "quote": null,
@@ -828,7 +828,7 @@
     "statement_descriptor": null,
     "status": "open",
     "status_transitions": {
-     "finalized_at": 1793878652,
+     "finalized_at": 1793879239,
      "marked_uncollectible_at": null,
      "paid_at": null,
      "voided_at": null
@@ -848,15 +848,15 @@
     "total_tax_amounts": [],
     "total_taxes": [],
     "transfer_data": null,
-    "webhooks_delivered_at": 1793878651
+    "webhooks_delivered_at": 1793879238
    }
   },
   {
    "method": "POST",
-   "path": "/v1/invoices/in_1UYOz16XTmyOc4m6IcusSo0U/send",
+   "path": "/v1/invoices/in_1UYP8U6XTmyOc4m6YxUqev3s/send",
    "status": 200,
    "body": {
-    "id": "in_1UYOz16XTmyOc4m6IcusSo0U",
+    "id": "in_1UYP8U6XTmyOc4m6YxUqev3s",
     "object": "invoice",
     "account_country": "US",
     "account_name": "Obol Test Account",
@@ -882,7 +882,7 @@
     "billing_reason": "manual",
     "charge": null,
     "collection_method": "send_invoice",
-    "created": 1793878651,
+    "created": 1793879238,
     "currency": "usd",
     "custom_fields": null,
     "customer": "cus_VZXFm0SLDZzbVt",
@@ -900,8 +900,8 @@
     "description": "Obol fixture recording",
     "discount": null,
     "discounts": [],
-    "due_date": 1795088251,
-    "effective_at": 1793878652,
+    "due_date": 1795088838,
+    "effective_at": 1793879239,
     "ending_balance": 0,
     "footer": null,
     "from_invoice": null,
@@ -916,7 +916,7 @@
      "object": "list",
      "data": [
       {
-       "id": "il_1UYOz16XTmyOc4m6gCQyGNYL",
+       "id": "il_1UYP8V6XTmyOc4m63bH81Rqm",
        "object": "line_item",
        "amount": 120000,
        "amount_excluding_tax": 120000,
@@ -925,13 +925,13 @@
        "discount_amounts": [],
        "discountable": true,
        "discounts": [],
-       "invoice": "in_1UYOz16XTmyOc4m6IcusSo0U",
-       "invoice_item": "ii_1UYOz16XTmyOc4m6eeRfNM6D",
+       "invoice": "in_1UYP8U6XTmyOc4m6YxUqev3s",
+       "invoice_item": "ii_1UYP8V6XTmyOc4m6monLZuo5",
        "livemode": false,
        "metadata": {},
        "parent": {
         "invoice_item_details": {
-         "invoice_item": "ii_1UYOz16XTmyOc4m6eeRfNM6D",
+         "invoice_item": "ii_1UYP8V6XTmyOc4m6monLZuo5",
          "proration": false,
          "proration_details": {
           "credited_items": null
@@ -943,8 +943,8 @@
         "type": "invoice_item_details"
        },
        "period": {
-        "end": 1793878651,
-        "start": 1793878651
+        "end": 1793879239,
+        "start": 1793879239
        },
        "plan": null,
        "pretax_credit_amounts": [],
@@ -994,26 +994,26 @@
      ],
      "has_more": false,
      "total_count": 1,
-     "url": "/v1/invoices/in_1UYOz16XTmyOc4m6IcusSo0U/lines"
+     "url": "/v1/invoices/in_1UYP8U6XTmyOc4m6YxUqev3s/lines"
     },
     "livemode": false,
     "metadata": {
      "created_by": "obol"
     },
     "next_payment_attempt": null,
-    "number": "5RGXOJBG-0003",
+    "number": "5RGXOJBG-0005",
     "on_behalf_of": null,
     "paid": false,
     "paid_out_of_band": false,
     "parent": null,
-    "payment_intent": "pi_3UYOz26XTmyOc4m60axGp7df",
+    "payment_intent": "pi_3UYP8W6XTmyOc4m60vmqykkQ",
     "payment_settings": {
      "default_mandate": null,
      "payment_method_options": null,
      "payment_method_types": null
     },
-    "period_end": 1793878651,
-    "period_start": 1793878651,
+    "period_end": 1793879238,
+    "period_start": 1793879238,
     "post_payment_credit_notes_amount": 0,
     "pre_payment_credit_notes_amount": 0,
     "quote": null,
@@ -1032,7 +1032,7 @@
     "statement_descriptor": null,
     "status": "open",
     "status_transitions": {
-     "finalized_at": 1793878652,
+     "finalized_at": 1793879239,
      "marked_uncollectible_at": null,
      "paid_at": null,
      "voided_at": null
@@ -1052,15 +1052,15 @@
     "total_tax_amounts": [],
     "total_taxes": [],
     "transfer_data": null,
-    "webhooks_delivered_at": 1793878651
+    "webhooks_delivered_at": 1793879238
    }
   },
   {
    "method": "GET",
-   "path": "/v1/invoices/in_1UYOz16XTmyOc4m6IcusSo0U",
+   "path": "/v1/invoices/in_1UYP8U6XTmyOc4m6YxUqev3s",
    "status": 200,
    "body": {
-    "id": "in_1UYOz16XTmyOc4m6IcusSo0U",
+    "id": "in_1UYP8U6XTmyOc4m6YxUqev3s",
     "object": "invoice",
     "account_country": "US",
     "account_name": "Obol Test Account",
@@ -1086,7 +1086,7 @@
     "billing_reason": "manual",
     "charge": null,
     "collection_method": "send_invoice",
-    "created": 1793878651,
+    "created": 1793879238,
     "currency": "usd",
     "custom_fields": null,
     "customer": "cus_VZXFm0SLDZzbVt",
@@ -1104,8 +1104,8 @@
     "description": "Obol fixture recording",
     "discount": null,
     "discounts": [],
-    "due_date": 1795088251,
-    "effective_at": 1793878652,
+    "due_date": 1795088838,
+    "effective_at": 1793879239,
     "ending_balance": 0,
     "footer": null,
     "from_invoice": null,
@@ -1120,7 +1120,7 @@
      "object": "list",
      "data": [
       {
-       "id": "il_1UYOz16XTmyOc4m6gCQyGNYL",
+       "id": "il_1UYP8V6XTmyOc4m63bH81Rqm",
        "object": "line_item",
        "amount": 120000,
        "amount_excluding_tax": 120000,
@@ -1129,13 +1129,13 @@
        "discount_amounts": [],
        "discountable": true,
        "discounts": [],
-       "invoice": "in_1UYOz16XTmyOc4m6IcusSo0U",
-       "invoice_item": "ii_1UYOz16XTmyOc4m6eeRfNM6D",
+       "invoice": "in_1UYP8U6XTmyOc4m6YxUqev3s",
+       "invoice_item": "ii_1UYP8V6XTmyOc4m6monLZuo5",
        "livemode": false,
        "metadata": {},
        "parent": {
         "invoice_item_details": {
-         "invoice_item": "ii_1UYOz16XTmyOc4m6eeRfNM6D",
+         "invoice_item": "ii_1UYP8V6XTmyOc4m6monLZuo5",
          "proration": false,
          "proration_details": {
           "credited_items": null
@@ -1147,8 +1147,8 @@
         "type": "invoice_item_details"
        },
        "period": {
-        "end": 1793878651,
-        "start": 1793878651
+        "end": 1793879239,
+        "start": 1793879239
        },
        "plan": null,
        "pretax_credit_amounts": [],
@@ -1198,26 +1198,26 @@
      ],
      "has_more": false,
      "total_count": 1,
-     "url": "/v1/invoices/in_1UYOz16XTmyOc4m6IcusSo0U/lines"
+     "url": "/v1/invoices/in_1UYP8U6XTmyOc4m6YxUqev3s/lines"
     },
     "livemode": false,
     "metadata": {
      "created_by": "obol"
     },
     "next_payment_attempt": null,
-    "number": "5RGXOJBG-0003",
+    "number": "5RGXOJBG-0005",
     "on_behalf_of": null,
     "paid": false,
     "paid_out_of_band": false,
     "parent": null,
-    "payment_intent": "pi_3UYOz26XTmyOc4m60axGp7df",
+    "payment_intent": "pi_3UYP8W6XTmyOc4m60vmqykkQ",
     "payment_settings": {
      "default_mandate": null,
      "payment_method_options": null,
      "payment_method_types": null
     },
-    "period_end": 1793878651,
-    "period_start": 1793878651,
+    "period_end": 1793879238,
+    "period_start": 1793879238,
     "post_payment_credit_notes_amount": 0,
     "pre_payment_credit_notes_amount": 0,
     "quote": null,
@@ -1236,7 +1236,7 @@
     "statement_descriptor": null,
     "status": "open",
     "status_transitions": {
-     "finalized_at": 1793878652,
+     "finalized_at": 1793879239,
      "marked_uncollectible_at": null,
      "paid_at": null,
      "voided_at": null
@@ -1256,7 +1256,7 @@
     "total_tax_amounts": [],
     "total_taxes": [],
     "transfer_data": null,
-    "webhooks_delivered_at": 1793878651
+    "webhooks_delivered_at": 1793879238
    }
   },
   {
@@ -1266,6 +1266,603 @@
    "body": {
     "object": "list",
     "data": [
+     {
+      "id": "in_1UYP8U6XTmyOc4m6YxUqev3s",
+      "object": "invoice",
+      "account_country": "US",
+      "account_name": "Obol Test Account",
+      "account_tax_ids": null,
+      "amount_due": 120000,
+      "amount_overpaid": 0,
+      "amount_paid": 0,
+      "amount_remaining": 120000,
+      "amount_shipping": 0,
+      "application": null,
+      "application_fee_amount": null,
+      "attempt_count": 0,
+      "attempted": false,
+      "auto_advance": false,
+      "automatic_tax": {
+       "disabled_reason": null,
+       "enabled": false,
+       "liability": null,
+       "provider": null,
+       "status": null
+      },
+      "automatically_finalizes_at": null,
+      "billing_reason": "manual",
+      "charge": null,
+      "collection_method": "send_invoice",
+      "created": 1793879238,
+      "currency": "usd",
+      "custom_fields": null,
+      "customer": "cus_VZXFm0SLDZzbVt",
+      "customer_account": null,
+      "customer_address": null,
+      "customer_email": "obol-fixture@example.com",
+      "customer_name": "Acme Co",
+      "customer_phone": null,
+      "customer_shipping": null,
+      "customer_tax_exempt": "none",
+      "customer_tax_ids": [],
+      "default_payment_method": null,
+      "default_source": null,
+      "default_tax_rates": [],
+      "description": "Obol fixture recording",
+      "discount": null,
+      "discounts": [],
+      "due_date": 1795088838,
+      "effective_at": 1793879239,
+      "ending_balance": 0,
+      "footer": null,
+      "from_invoice": null,
+      "hosted_invoice_url": "https://invoice.stripe.com/REDACTED",
+      "invoice_pdf": "https://pay.stripe.com/REDACTED",
+      "issuer": {
+       "type": "self"
+      },
+      "last_finalization_error": null,
+      "latest_revision": null,
+      "lines": {
+       "object": "list",
+       "data": [
+        {
+         "id": "il_1UYP8V6XTmyOc4m63bH81Rqm",
+         "object": "line_item",
+         "amount": 120000,
+         "amount_excluding_tax": 120000,
+         "currency": "usd",
+         "description": "October consulting",
+         "discount_amounts": [],
+         "discountable": true,
+         "discounts": [],
+         "invoice": "in_1UYP8U6XTmyOc4m6YxUqev3s",
+         "invoice_item": "ii_1UYP8V6XTmyOc4m6monLZuo5",
+         "livemode": false,
+         "metadata": {},
+         "parent": {
+          "invoice_item_details": {
+           "invoice_item": "ii_1UYP8V6XTmyOc4m6monLZuo5",
+           "proration": false,
+           "proration_details": {
+            "credited_items": null
+           },
+           "subscription": null
+          },
+          "license_fee_subscription_details": null,
+          "subscription_item_details": null,
+          "type": "invoice_item_details"
+         },
+         "period": {
+          "end": 1793879239,
+          "start": 1793879239
+         },
+         "plan": null,
+         "pretax_credit_amounts": [],
+         "price": {
+          "id": "price_1UYOBU6XTmyOc4m6Vpsuuqdh",
+          "object": "price",
+          "active": false,
+          "billing_scheme": "per_unit",
+          "created": 1793875580,
+          "currency": "usd",
+          "custom_unit_amount": null,
+          "livemode": false,
+          "lookup_key": null,
+          "metadata": {},
+          "nickname": null,
+          "product": "prod_VZXGeFvUmx5R2h",
+          "recurring": null,
+          "tax_behavior": "unspecified",
+          "tiers_mode": null,
+          "transform_quantity": null,
+          "type": "one_time",
+          "unit_amount": 120000,
+          "unit_amount_decimal": "120000"
+         },
+         "pricing": {
+          "price_details": {
+           "price": "price_1UYOBU6XTmyOc4m6Vpsuuqdh",
+           "product": "prod_VZXGeFvUmx5R2h"
+          },
+          "type": "price_details",
+          "unit_amount_decimal": "120000"
+         },
+         "proration": false,
+         "proration_details": {
+          "credited_items": null
+         },
+         "quantity": 1,
+         "quantity_decimal": "1",
+         "subscription": null,
+         "subtotal": 120000,
+         "tax_amounts": [],
+         "tax_rates": [],
+         "taxes": [],
+         "type": "invoiceitem",
+         "unit_amount_excluding_tax": "120000"
+        }
+       ],
+       "has_more": false,
+       "total_count": 1,
+       "url": "/v1/invoices/in_1UYP8U6XTmyOc4m6YxUqev3s/lines"
+      },
+      "livemode": false,
+      "metadata": {
+       "created_by": "obol"
+      },
+      "next_payment_attempt": null,
+      "number": "5RGXOJBG-0005",
+      "on_behalf_of": null,
+      "paid": false,
+      "paid_out_of_band": false,
+      "parent": null,
+      "payment_intent": "pi_3UYP8W6XTmyOc4m60vmqykkQ",
+      "payment_settings": {
+       "default_mandate": null,
+       "payment_method_options": null,
+       "payment_method_types": null
+      },
+      "period_end": 1793879238,
+      "period_start": 1793879238,
+      "post_payment_credit_notes_amount": 0,
+      "pre_payment_credit_notes_amount": 0,
+      "quote": null,
+      "receipt_number": null,
+      "rendering": {
+       "amount_tax_display": null,
+       "pdf": {
+        "page_size": "letter"
+       },
+       "template": null,
+       "template_version": null
+      },
+      "shipping_cost": null,
+      "shipping_details": null,
+      "starting_balance": 0,
+      "statement_descriptor": null,
+      "status": "open",
+      "status_transitions": {
+       "finalized_at": 1793879239,
+       "marked_uncollectible_at": null,
+       "paid_at": null,
+       "voided_at": null
+      },
+      "subscription": null,
+      "subscription_details": {
+       "metadata": null
+      },
+      "subtotal": 120000,
+      "subtotal_excluding_tax": 120000,
+      "tax": null,
+      "test_clock": null,
+      "total": 120000,
+      "total_discount_amounts": [],
+      "total_excluding_tax": 120000,
+      "total_pretax_credit_amounts": [],
+      "total_tax_amounts": [],
+      "total_taxes": [],
+      "transfer_data": null,
+      "webhooks_delivered_at": 1793879238
+     },
+     {
+      "id": "in_1UYOzH6XTmyOc4m6BiniMFwm",
+      "object": "invoice",
+      "account_country": "US",
+      "account_name": "Obol Test Account",
+      "account_tax_ids": null,
+      "amount_due": 2468,
+      "amount_overpaid": 0,
+      "amount_paid": 0,
+      "amount_remaining": 2468,
+      "amount_shipping": 0,
+      "application": null,
+      "application_fee_amount": null,
+      "attempt_count": 0,
+      "attempted": false,
+      "auto_advance": false,
+      "automatic_tax": {
+       "disabled_reason": null,
+       "enabled": false,
+       "liability": null,
+       "provider": null,
+       "status": null
+      },
+      "automatically_finalizes_at": null,
+      "billing_reason": "manual",
+      "charge": null,
+      "collection_method": "send_invoice",
+      "created": 1793878667,
+      "currency": "usd",
+      "custom_fields": null,
+      "customer": "cus_VZY5G5Z6ZszT2H",
+      "customer_account": null,
+      "customer_address": null,
+      "customer_email": "obol-live-2d6ba6628329@example.com",
+      "customer_name": "Obol Live Test",
+      "customer_phone": null,
+      "customer_shipping": null,
+      "customer_tax_exempt": "none",
+      "customer_tax_ids": [],
+      "default_payment_method": null,
+      "default_source": null,
+      "default_tax_rates": [],
+      "description": "Automated Obol test",
+      "discount": null,
+      "discounts": [],
+      "due_date": 1795088267,
+      "effective_at": 1793878668,
+      "ending_balance": 0,
+      "footer": null,
+      "from_invoice": null,
+      "hosted_invoice_url": "https://invoice.stripe.com/REDACTED",
+      "invoice_pdf": "https://pay.stripe.com/REDACTED",
+      "issuer": {
+       "type": "self"
+      },
+      "last_finalization_error": null,
+      "latest_revision": null,
+      "lines": {
+       "object": "list",
+       "data": [
+        {
+         "id": "il_1UYOzH6XTmyOc4m6nj6dNXNZ",
+         "object": "line_item",
+         "amount": 2468,
+         "amount_excluding_tax": 2468,
+         "currency": "usd",
+         "description": "Live test consulting",
+         "discount_amounts": [],
+         "discountable": true,
+         "discounts": [],
+         "invoice": "in_1UYOzH6XTmyOc4m6BiniMFwm",
+         "invoice_item": "ii_1UYOzH6XTmyOc4m62SsBkDKV",
+         "livemode": false,
+         "metadata": {},
+         "parent": {
+          "invoice_item_details": {
+           "invoice_item": "ii_1UYOzH6XTmyOc4m62SsBkDKV",
+           "proration": false,
+           "proration_details": {
+            "credited_items": null
+           },
+           "subscription": null
+          },
+          "license_fee_subscription_details": null,
+          "subscription_item_details": null,
+          "type": "invoice_item_details"
+         },
+         "period": {
+          "end": 1793878667,
+          "start": 1793878667
+         },
+         "plan": null,
+         "pretax_credit_amounts": [],
+         "price": {
+          "id": "price_1UYO3L6XTmyOc4m6cbo7shwd",
+          "object": "price",
+          "active": false,
+          "billing_scheme": "per_unit",
+          "created": 1793875075,
+          "currency": "usd",
+          "custom_unit_amount": null,
+          "livemode": false,
+          "lookup_key": null,
+          "metadata": {},
+          "nickname": null,
+          "product": "prod_VZX7kIjvqggqXA",
+          "recurring": null,
+          "tax_behavior": "unspecified",
+          "tiers_mode": null,
+          "transform_quantity": null,
+          "type": "one_time",
+          "unit_amount": 1234,
+          "unit_amount_decimal": "1234"
+         },
+         "pricing": {
+          "price_details": {
+           "price": "price_1UYO3L6XTmyOc4m6cbo7shwd",
+           "product": "prod_VZX7kIjvqggqXA"
+          },
+          "type": "price_details",
+          "unit_amount_decimal": "1234"
+         },
+         "proration": false,
+         "proration_details": {
+          "credited_items": null
+         },
+         "quantity": 2,
+         "quantity_decimal": "2",
+         "subscription": null,
+         "subtotal": 2468,
+         "tax_amounts": [],
+         "tax_rates": [],
+         "taxes": [],
+         "type": "invoiceitem",
+         "unit_amount_excluding_tax": "1234"
+        }
+       ],
+       "has_more": false,
+       "total_count": 1,
+       "url": "/v1/invoices/in_1UYOzH6XTmyOc4m6BiniMFwm/lines"
+      },
+      "livemode": false,
+      "metadata": {
+       "created_by": "obol"
+      },
+      "next_payment_attempt": null,
+      "number": "HNL8W4WY-0001",
+      "on_behalf_of": null,
+      "paid": false,
+      "paid_out_of_band": false,
+      "parent": null,
+      "payment_intent": "pi_3UYOzI6XTmyOc4m61uPkeyTm",
+      "payment_settings": {
+       "default_mandate": null,
+       "payment_method_options": null,
+       "payment_method_types": null
+      },
+      "period_end": 1793878667,
+      "period_start": 1793878667,
+      "post_payment_credit_notes_amount": 0,
+      "pre_payment_credit_notes_amount": 0,
+      "quote": null,
+      "receipt_number": null,
+      "rendering": {
+       "amount_tax_display": null,
+       "pdf": {
+        "page_size": "letter"
+       },
+       "template": null,
+       "template_version": null
+      },
+      "shipping_cost": null,
+      "shipping_details": null,
+      "starting_balance": 0,
+      "statement_descriptor": null,
+      "status": "void",
+      "status_transitions": {
+       "finalized_at": 1793878668,
+       "marked_uncollectible_at": null,
+       "paid_at": null,
+       "voided_at": 1793878674
+      },
+      "subscription": null,
+      "subscription_details": {
+       "metadata": null
+      },
+      "subtotal": 2468,
+      "subtotal_excluding_tax": 2468,
+      "tax": null,
+      "test_clock": null,
+      "total": 2468,
+      "total_discount_amounts": [],
+      "total_excluding_tax": 2468,
+      "total_pretax_credit_amounts": [],
+      "total_tax_amounts": [],
+      "total_taxes": [],
+      "transfer_data": null,
+      "webhooks_delivered_at": 1793878667
+     },
+     {
+      "id": "in_1UYOz76XTmyOc4m6K1Kcealb",
+      "object": "invoice",
+      "account_country": "US",
+      "account_name": "Obol Test Account",
+      "account_tax_ids": null,
+      "amount_due": 5000,
+      "amount_overpaid": 0,
+      "amount_paid": 0,
+      "amount_remaining": 5000,
+      "amount_shipping": 0,
+      "application": null,
+      "application_fee_amount": null,
+      "attempt_count": 0,
+      "attempted": false,
+      "auto_advance": false,
+      "automatic_tax": {
+       "disabled_reason": null,
+       "enabled": false,
+       "liability": null,
+       "provider": null,
+       "status": null
+      },
+      "automatically_finalizes_at": null,
+      "billing_reason": "manual",
+      "charge": null,
+      "collection_method": "send_invoice",
+      "created": 1793878657,
+      "currency": "usd",
+      "custom_fields": null,
+      "customer": "cus_VZXFm0SLDZzbVt",
+      "customer_account": null,
+      "customer_address": null,
+      "customer_email": "obol-fixture@example.com",
+      "customer_name": "Acme Co",
+      "customer_phone": null,
+      "customer_shipping": null,
+      "customer_tax_exempt": "none",
+      "customer_tax_ids": [],
+      "default_payment_method": null,
+      "default_source": null,
+      "default_tax_rates": [],
+      "description": null,
+      "discount": null,
+      "discounts": [],
+      "due_date": 1795088257,
+      "effective_at": 1793878658,
+      "ending_balance": 0,
+      "footer": null,
+      "from_invoice": null,
+      "hosted_invoice_url": "https://invoice.stripe.com/REDACTED",
+      "invoice_pdf": "https://pay.stripe.com/REDACTED",
+      "issuer": {
+       "type": "self"
+      },
+      "last_finalization_error": null,
+      "latest_revision": null,
+      "lines": {
+       "object": "list",
+       "data": [
+        {
+         "id": "il_1UYOz86XTmyOc4m6wyD5I13o",
+         "object": "line_item",
+         "amount": 5000,
+         "amount_excluding_tax": 5000,
+         "currency": "usd",
+         "description": "Duplicate to void",
+         "discount_amounts": [],
+         "discountable": true,
+         "discounts": [],
+         "invoice": "in_1UYOz76XTmyOc4m6K1Kcealb",
+         "invoice_item": "ii_1UYOz86XTmyOc4m6d5AqhBBf",
+         "livemode": false,
+         "metadata": {},
+         "parent": {
+          "invoice_item_details": {
+           "invoice_item": "ii_1UYOz86XTmyOc4m6d5AqhBBf",
+           "proration": false,
+           "proration_details": {
+            "credited_items": null
+           },
+           "subscription": null
+          },
+          "license_fee_subscription_details": null,
+          "subscription_item_details": null,
+          "type": "invoice_item_details"
+         },
+         "period": {
+          "end": 1793878658,
+          "start": 1793878658
+         },
+         "plan": null,
+         "pretax_credit_amounts": [],
+         "price": {
+          "id": "price_1UYOBX6XTmyOc4m6ljKdJM2d",
+          "object": "price",
+          "active": false,
+          "billing_scheme": "per_unit",
+          "created": 1793875583,
+          "currency": "usd",
+          "custom_unit_amount": null,
+          "livemode": false,
+          "lookup_key": null,
+          "metadata": {},
+          "nickname": null,
+          "product": "prod_VZXG7JDxqdTtZv",
+          "recurring": null,
+          "tax_behavior": "unspecified",
+          "tiers_mode": null,
+          "transform_quantity": null,
+          "type": "one_time",
+          "unit_amount": 5000,
+          "unit_amount_decimal": "5000"
+         },
+         "pricing": {
+          "price_details": {
+           "price": "price_1UYOBX6XTmyOc4m6ljKdJM2d",
+           "product": "prod_VZXG7JDxqdTtZv"
+          },
+          "type": "price_details",
+          "unit_amount_decimal": "5000"
+         },
+         "proration": false,
+         "proration_details": {
+          "credited_items": null
+         },
+         "quantity": 1,
+         "quantity_decimal": "1",
+         "subscription": null,
+         "subtotal": 5000,
+         "tax_amounts": [],
+         "tax_rates": [],
+         "taxes": [],
+         "type": "invoiceitem",
+         "unit_amount_excluding_tax": "5000"
+        }
+       ],
+       "has_more": false,
+       "total_count": 1,
+       "url": "/v1/invoices/in_1UYOz76XTmyOc4m6K1Kcealb/lines"
+      },
+      "livemode": false,
+      "metadata": {
+       "created_by": "obol"
+      },
+      "next_payment_attempt": null,
+      "number": "5RGXOJBG-0004",
+      "on_behalf_of": null,
+      "paid": false,
+      "paid_out_of_band": false,
+      "parent": null,
+      "payment_intent": "pi_3UYOz96XTmyOc4m60HatK6iB",
+      "payment_settings": {
+       "default_mandate": null,
+       "payment_method_options": null,
+       "payment_method_types": null
+      },
+      "period_end": 1793878657,
+      "period_start": 1793878657,
+      "post_payment_credit_notes_amount": 0,
+      "pre_payment_credit_notes_amount": 0,
+      "quote": null,
+      "receipt_number": null,
+      "rendering": {
+       "amount_tax_display": null,
+       "pdf": {
+        "page_size": "letter"
+       },
+       "template": null,
+       "template_version": null
+      },
+      "shipping_cost": null,
+      "shipping_details": null,
+      "starting_balance": 0,
+      "statement_descriptor": null,
+      "status": "void",
+      "status_transitions": {
+       "finalized_at": 1793878658,
+       "marked_uncollectible_at": null,
+       "paid_at": null,
+       "voided_at": 1793878660
+      },
+      "subscription": null,
+      "subscription_details": {
+       "metadata": null
+      },
+      "subtotal": 5000,
+      "subtotal_excluding_tax": 5000,
+      "tax": null,
+      "test_clock": null,
+      "total": 5000,
+      "total_discount_amounts": [],
+      "total_excluding_tax": 5000,
+      "total_pretax_credit_amounts": [],
+      "total_tax_amounts": [],
+      "total_taxes": [],
+      "transfer_data": null,
+      "webhooks_delivered_at": 1793878657
+     },
      {
       "id": "in_1UYOz16XTmyOc4m6IcusSo0U",
       "object": "invoice",
@@ -1441,12 +2038,12 @@
       "shipping_details": null,
       "starting_balance": 0,
       "statement_descriptor": null,
-      "status": "open",
+      "status": "void",
       "status_transitions": {
        "finalized_at": 1793878652,
        "marked_uncollectible_at": null,
        "paid_at": null,
-       "voided_at": null
+       "voided_at": 1793878693
       },
       "subscription": null,
       "subscription_details": {
@@ -3866,88 +4463,77 @@
     "object": "list",
     "data": [
      {
-      "id": "clock_1UYOuF6XTmyOc4m65gVyu4TK",
+      "id": "clock_1UYP076XTmyOc4m6ukkmMJeP",
       "object": "test_helpers.test_clock",
-      "created": 1793878355,
-      "deletes_after": 1796470355,
-      "frozen_time": 1793878354,
-      "livemode": false,
-      "name": "obol-demo probe",
-      "status": "ready",
-      "status_details": {}
-     },
-     {
-      "id": "clock_1UYOsq6XTmyOc4m61ZibZqPr",
-      "object": "test_helpers.test_clock",
-      "created": 1793878268,
-      "deletes_after": 1796470268,
-      "frozen_time": 1793705467,
+      "created": 1793878719,
+      "deletes_after": 1796470719,
+      "frozen_time": 1793705919,
       "livemode": false,
       "name": "obol-demo Olive Street Bakery",
       "status": "ready",
       "status_details": {}
      },
      {
-      "id": "clock_1UYOsm6XTmyOc4m61fx68Bxo",
+      "id": "clock_1UYP046XTmyOc4m63pEl2qSY",
       "object": "test_helpers.test_clock",
-      "created": 1793878264,
-      "deletes_after": 1796470264,
-      "frozen_time": 1793532664,
+      "created": 1793878716,
+      "deletes_after": 1796470716,
+      "frozen_time": 1793533116,
       "livemode": false,
       "name": "obol-demo Harbor & Pine",
       "status": "ready",
       "status_details": {}
      },
      {
-      "id": "clock_1UYOsj6XTmyOc4m6OQ6Y9JBE",
+      "id": "clock_1UYP016XTmyOc4m6OcxoD8uP",
       "object": "test_helpers.test_clock",
-      "created": 1793878261,
-      "deletes_after": 1796470261,
-      "frozen_time": 1791804661,
+      "created": 1793878713,
+      "deletes_after": 1796470713,
+      "frozen_time": 1791805113,
       "livemode": false,
       "name": "obol-demo Kestrel Fitness",
       "status": "ready",
       "status_details": {}
      },
      {
-      "id": "clock_1UYOsf6XTmyOc4m6ruLFNSBf",
+      "id": "clock_1UYOzx6XTmyOc4m6ZouX9BVA",
       "object": "test_helpers.test_clock",
-      "created": 1793878257,
-      "deletes_after": 1796470257,
-      "frozen_time": 1790422257,
+      "created": 1793878709,
+      "deletes_after": 1796470709,
+      "frozen_time": 1790422709,
       "livemode": false,
       "name": "obol-demo Fernhill Books",
       "status": "ready",
       "status_details": {}
      },
      {
-      "id": "clock_1UYOsa6XTmyOc4m6QUYeTp9Q",
+      "id": "clock_1UYOzs6XTmyOc4m6NoLwvH3b",
       "object": "test_helpers.test_clock",
-      "created": 1793878252,
-      "deletes_after": 1796470252,
-      "frozen_time": 1790940652,
+      "created": 1793878704,
+      "deletes_after": 1796470704,
+      "frozen_time": 1790941104,
       "livemode": false,
       "name": "obol-demo Lumen Health",
       "status": "ready",
       "status_details": {}
      },
      {
-      "id": "clock_1UYOsT6XTmyOc4m6qBgOARcn",
+      "id": "clock_1UYOzm6XTmyOc4m6UJQ5OtqI",
       "object": "test_helpers.test_clock",
-      "created": 1793878245,
-      "deletes_after": 1796470245,
-      "frozen_time": 1789126245,
+      "created": 1793878698,
+      "deletes_after": 1796470698,
+      "frozen_time": 1789126698,
       "livemode": false,
       "name": "obol-demo Bluebird Coffee",
       "status": "ready",
       "status_details": {}
      },
      {
-      "id": "clock_1UYOsN6XTmyOc4m6xBrhhdpg",
+      "id": "clock_1UYOzh6XTmyOc4m6BQhcLVKk",
       "object": "test_helpers.test_clock",
-      "created": 1793878239,
-      "deletes_after": 1796470239,
-      "frozen_time": 1788521439,
+      "created": 1793878693,
+      "deletes_after": 1796470693,
+      "frozen_time": 1788521893,
       "livemode": false,
       "name": "obol-demo Northwind Studio",
       "status": "ready",
@@ -3966,267 +4552,11 @@
     "object": "list",
     "data": [
      {
-      "id": "cus_VZY0aVGRtWPWZ8",
+      "id": "cus_VZY62XfaXVSQwG",
       "object": "customer",
       "address": null,
       "balance": 0,
-      "created": 1793878354,
-      "currency": "usd",
-      "customer_account": null,
-      "default_source": null,
-      "delinquent": false,
-      "description": null,
-      "discount": null,
-      "email": "probe@example.com",
-      "invoice_prefix": "QTWIVONE",
-      "invoice_settings": {
-       "custom_fields": null,
-       "default_payment_method": null,
-       "footer": null,
-       "rendering_options": null
-      },
-      "livemode": false,
-      "metadata": {
-       "obol_demo": "1"
-      },
-      "name": "Probe Client",
-      "next_invoice_sequence": 2,
-      "phone": null,
-      "preferred_locales": [],
-      "shipping": null,
-      "tax_exempt": "none",
-      "test_clock": "clock_1UYOuF6XTmyOc4m65gVyu4TK"
-     }
-    ],
-    "has_more": false,
-    "url": "/v1/customers"
-   }
-  },
-  {
-   "method": "GET",
-   "path": "/v1/invoices",
-   "status": 200,
-   "body": {
-    "object": "list",
-    "data": [
-     {
-      "id": "in_1UYOuF6XTmyOc4m6l8BZ66DF",
-      "object": "invoice",
-      "account_country": "US",
-      "account_name": "Obol Test Account",
-      "account_tax_ids": null,
-      "amount_due": 1200,
-      "amount_overpaid": 0,
-      "amount_paid": 0,
-      "amount_remaining": 1200,
-      "amount_shipping": 0,
-      "application": null,
-      "application_fee_amount": null,
-      "attempt_count": 0,
-      "attempted": false,
-      "auto_advance": false,
-      "automatic_tax": {
-       "disabled_reason": null,
-       "enabled": false,
-       "liability": null,
-       "provider": null,
-       "status": null
-      },
-      "automatically_finalizes_at": null,
-      "billing_reason": "manual",
-      "charge": null,
-      "collection_method": "send_invoice",
-      "created": 1793878354,
-      "currency": "usd",
-      "custom_fields": null,
-      "customer": "cus_VZY0aVGRtWPWZ8",
-      "customer_account": null,
-      "customer_address": null,
-      "customer_email": "probe@example.com",
-      "customer_name": "Probe Client",
-      "customer_phone": null,
-      "customer_shipping": null,
-      "customer_tax_exempt": "none",
-      "customer_tax_ids": [],
-      "default_payment_method": null,
-      "default_source": null,
-      "default_tax_rates": [],
-      "description": null,
-      "discount": null,
-      "discounts": [],
-      "due_date": 1795087954,
-      "effective_at": 1793878354,
-      "ending_balance": 0,
-      "footer": null,
-      "from_invoice": null,
-      "hosted_invoice_url": "https://invoice.stripe.com/REDACTED",
-      "invoice_pdf": "https://pay.stripe.com/REDACTED",
-      "issuer": {
-       "type": "self"
-      },
-      "last_finalization_error": null,
-      "latest_revision": null,
-      "lines": {
-       "object": "list",
-       "data": [
-        {
-         "id": "il_1UYOuE6XTmyOc4m67xXfe6lb",
-         "object": "line_item",
-         "amount": 1200,
-         "amount_excluding_tax": 1200,
-         "currency": "usd",
-         "description": "Probe line",
-         "discount_amounts": [],
-         "discountable": true,
-         "discounts": [],
-         "invoice": "in_1UYOuF6XTmyOc4m6l8BZ66DF",
-         "invoice_item": "ii_1UYOuG6XTmyOc4m6b6IwF32m",
-         "livemode": false,
-         "metadata": {},
-         "parent": {
-          "invoice_item_details": {
-           "invoice_item": "ii_1UYOuG6XTmyOc4m6b6IwF32m",
-           "proration": false,
-           "proration_details": {
-            "credited_items": null
-           },
-           "subscription": null
-          },
-          "license_fee_subscription_details": null,
-          "subscription_item_details": null,
-          "type": "invoice_item_details"
-         },
-         "period": {
-          "end": 1793878354,
-          "start": 1793878354
-         },
-         "plan": null,
-         "pretax_credit_amounts": [],
-         "price": {
-          "id": "price_1UYOuG6XTmyOc4m6zTyeXw2d",
-          "object": "price",
-          "active": false,
-          "billing_scheme": "per_unit",
-          "created": 1793878356,
-          "currency": "usd",
-          "custom_unit_amount": null,
-          "livemode": false,
-          "lookup_key": null,
-          "metadata": {},
-          "nickname": null,
-          "product": "prod_VZY04t3G4Zlqig",
-          "recurring": null,
-          "tax_behavior": "unspecified",
-          "tiers_mode": null,
-          "transform_quantity": null,
-          "type": "one_time",
-          "unit_amount": 1200,
-          "unit_amount_decimal": "1200"
-         },
-         "pricing": {
-          "price_details": {
-           "price": "price_1UYOuG6XTmyOc4m6zTyeXw2d",
-           "product": "prod_VZY04t3G4Zlqig"
-          },
-          "type": "price_details",
-          "unit_amount_decimal": "1200"
-         },
-         "proration": false,
-         "proration_details": {
-          "credited_items": null
-         },
-         "quantity": 1,
-         "quantity_decimal": "1",
-         "subscription": null,
-         "subtotal": 1200,
-         "tax_amounts": [],
-         "tax_rates": [],
-         "taxes": [],
-         "type": "invoiceitem",
-         "unit_amount_excluding_tax": "1200"
-        }
-       ],
-       "has_more": false,
-       "total_count": 1,
-       "url": "/v1/invoices/in_1UYOuF6XTmyOc4m6l8BZ66DF/lines"
-      },
-      "livemode": false,
-      "metadata": {
-       "created_by": "obol",
-       "obol_demo": "1"
-      },
-      "next_payment_attempt": null,
-      "number": "QTWIVONE-0001",
-      "on_behalf_of": null,
-      "paid": false,
-      "paid_out_of_band": false,
-      "parent": null,
-      "payment_intent": "pi_3UYOuH6XTmyOc4m60ExYjC22",
-      "payment_settings": {
-       "default_mandate": null,
-       "payment_method_options": null,
-       "payment_method_types": null
-      },
-      "period_end": 1793878354,
-      "period_start": 1793878354,
-      "post_payment_credit_notes_amount": 0,
-      "pre_payment_credit_notes_amount": 0,
-      "quote": null,
-      "receipt_number": null,
-      "rendering": {
-       "amount_tax_display": null,
-       "pdf": {
-        "page_size": "letter"
-       },
-       "template": null,
-       "template_version": null
-      },
-      "shipping_cost": null,
-      "shipping_details": null,
-      "starting_balance": 0,
-      "statement_descriptor": null,
-      "status": "open",
-      "status_transitions": {
-       "finalized_at": 1793878354,
-       "marked_uncollectible_at": null,
-       "paid_at": null,
-       "voided_at": null
-      },
-      "subscription": null,
-      "subscription_details": {
-       "metadata": null
-      },
-      "subtotal": 1200,
-      "subtotal_excluding_tax": 1200,
-      "tax": null,
-      "test_clock": "clock_1UYOuF6XTmyOc4m65gVyu4TK",
-      "total": 1200,
-      "total_discount_amounts": [],
-      "total_excluding_tax": 1200,
-      "total_pretax_credit_amounts": [],
-      "total_tax_amounts": [],
-      "total_taxes": [],
-      "transfer_data": null,
-      "webhooks_delivered_at": 1793878354
-     }
-    ],
-    "has_more": false,
-    "url": "/v1/invoices"
-   }
-  },
-  {
-   "method": "GET",
-   "path": "/v1/customers",
-   "status": 200,
-   "body": {
-    "object": "list",
-    "data": [
-     {
-      "id": "cus_VZXyy4PhcgV5j8",
-      "object": "customer",
-      "address": null,
-      "balance": 0,
-      "created": 1793705467,
+      "created": 1793705919,
       "currency": "usd",
       "customer_account": null,
       "default_source": null,
@@ -4234,7 +4564,7 @@
       "description": null,
       "discount": null,
       "email": "orders@olivestreet.example.com",
-      "invoice_prefix": "4PLPOMT9",
+      "invoice_prefix": "9TIDF06R",
       "invoice_settings": {
        "custom_fields": null,
        "default_payment_method": null,
@@ -4251,7 +4581,7 @@
       "preferred_locales": [],
       "shipping": null,
       "tax_exempt": "none",
-      "test_clock": "clock_1UYOsq6XTmyOc4m61ZibZqPr"
+      "test_clock": "clock_1UYP076XTmyOc4m6ukkmMJeP"
      }
     ],
     "has_more": false,
@@ -4266,7 +4596,7 @@
     "object": "list",
     "data": [
      {
-      "id": "in_1UYOsq6XTmyOc4m6X1MnCwdK",
+      "id": "in_1UYP086XTmyOc4m6Wjw0qa4R",
       "object": "invoice",
       "account_country": "US",
       "account_name": "Obol Test Account",
@@ -4292,10 +4622,10 @@
       "billing_reason": "manual",
       "charge": null,
       "collection_method": "send_invoice",
-      "created": 1793705467,
+      "created": 1793705919,
       "currency": "usd",
       "custom_fields": null,
-      "customer": "cus_VZXyy4PhcgV5j8",
+      "customer": "cus_VZY62XfaXVSQwG",
       "customer_account": null,
       "customer_address": null,
       "customer_email": "orders@olivestreet.example.com",
@@ -4310,8 +4640,8 @@
       "description": null,
       "discount": null,
       "discounts": [],
-      "due_date": 1794915067,
-      "effective_at": 1793705467,
+      "due_date": 1794915519,
+      "effective_at": 1793705919,
       "ending_balance": 0,
       "footer": null,
       "from_invoice": null,
@@ -4326,7 +4656,7 @@
        "object": "list",
        "data": [
         {
-         "id": "il_1UXfvj6XTmyOc4m6iFMc9RQs",
+         "id": "il_1UXg316XTmyOc4m63WqG4FSV",
          "object": "line_item",
          "amount": 65000,
          "amount_excluding_tax": 65000,
@@ -4335,13 +4665,13 @@
          "discount_amounts": [],
          "discountable": true,
          "discounts": [],
-         "invoice": "in_1UYOsq6XTmyOc4m6X1MnCwdK",
-         "invoice_item": "ii_1UYOsr6XTmyOc4m6QHSeB471",
+         "invoice": "in_1UYP086XTmyOc4m6Wjw0qa4R",
+         "invoice_item": "ii_1UYP086XTmyOc4m60A3sZeAS",
          "livemode": false,
          "metadata": {},
          "parent": {
           "invoice_item_details": {
-           "invoice_item": "ii_1UYOsr6XTmyOc4m6QHSeB471",
+           "invoice_item": "ii_1UYP086XTmyOc4m60A3sZeAS",
            "proration": false,
            "proration_details": {
             "credited_items": null
@@ -4353,8 +4683,8 @@
           "type": "invoice_item_details"
          },
          "period": {
-          "end": 1793705467,
-          "start": 1793705467
+          "end": 1793705919,
+          "start": 1793705919
          },
          "plan": null,
          "pretax_credit_amounts": [],
@@ -4404,7 +4734,7 @@
        ],
        "has_more": false,
        "total_count": 1,
-       "url": "/v1/invoices/in_1UYOsq6XTmyOc4m6X1MnCwdK/lines"
+       "url": "/v1/invoices/in_1UYP086XTmyOc4m6Wjw0qa4R/lines"
       },
       "livemode": false,
       "metadata": {
@@ -4412,19 +4742,19 @@
        "obol_demo": "1"
       },
       "next_payment_attempt": null,
-      "number": "4PLPOMT9-0001",
+      "number": "9TIDF06R-0001",
       "on_behalf_of": null,
       "paid": false,
       "paid_out_of_band": false,
       "parent": null,
-      "payment_intent": "pi_3UYOsr6XTmyOc4m6110Cwg0Y",
+      "payment_intent": "pi_3UYP096XTmyOc4m61CvLtUE2",
       "payment_settings": {
        "default_mandate": null,
        "payment_method_options": null,
        "payment_method_types": null
       },
-      "period_end": 1793705467,
-      "period_start": 1793705467,
+      "period_end": 1793705919,
+      "period_start": 1793705919,
       "post_payment_credit_notes_amount": 0,
       "pre_payment_credit_notes_amount": 0,
       "quote": null,
@@ -4443,7 +4773,7 @@
       "statement_descriptor": null,
       "status": "open",
       "status_transitions": {
-       "finalized_at": 1793705467,
+       "finalized_at": 1793705919,
        "marked_uncollectible_at": null,
        "paid_at": null,
        "voided_at": null
@@ -4455,7 +4785,7 @@
       "subtotal": 65000,
       "subtotal_excluding_tax": 65000,
       "tax": null,
-      "test_clock": "clock_1UYOsq6XTmyOc4m61ZibZqPr",
+      "test_clock": "clock_1UYP076XTmyOc4m6ukkmMJeP",
       "total": 65000,
       "total_discount_amounts": [],
       "total_excluding_tax": 65000,
@@ -4463,7 +4793,7 @@
       "total_tax_amounts": [],
       "total_taxes": [],
       "transfer_data": null,
-      "webhooks_delivered_at": 1793705467
+      "webhooks_delivered_at": 1793705919
      }
     ],
     "has_more": false,
@@ -4478,11 +4808,11 @@
     "object": "list",
     "data": [
      {
-      "id": "cus_VZXyTdwpqVRoEp",
+      "id": "cus_VZY6QZewczQYFB",
       "object": "customer",
       "address": null,
       "balance": 0,
-      "created": 1793532664,
+      "created": 1793533116,
       "currency": "usd",
       "customer_account": null,
       "default_source": null,
@@ -4490,7 +4820,7 @@
       "description": null,
       "discount": null,
       "email": "studio@harborpine.example.com",
-      "invoice_prefix": "VREM6OC7",
+      "invoice_prefix": "JZ6U694C",
       "invoice_settings": {
        "custom_fields": null,
        "default_payment_method": null,
@@ -4507,7 +4837,7 @@
       "preferred_locales": [],
       "shipping": null,
       "tax_exempt": "none",
-      "test_clock": "clock_1UYOsm6XTmyOc4m61fx68Bxo"
+      "test_clock": "clock_1UYP046XTmyOc4m63pEl2qSY"
      }
     ],
     "has_more": false,
@@ -4522,7 +4852,7 @@
     "object": "list",
     "data": [
      {
-      "id": "in_1UYOsn6XTmyOc4m6FX8qiFiE",
+      "id": "in_1UYP056XTmyOc4m68FcRCL0R",
       "object": "invoice",
       "account_country": "US",
       "account_name": "Obol Test Account",
@@ -4548,10 +4878,10 @@
       "billing_reason": "manual",
       "charge": null,
       "collection_method": "send_invoice",
-      "created": 1793532664,
+      "created": 1793533116,
       "currency": "usd",
       "custom_fields": null,
-      "customer": "cus_VZXyTdwpqVRoEp",
+      "customer": "cus_VZY6QZewczQYFB",
       "customer_account": null,
       "customer_address": null,
       "customer_email": "studio@harborpine.example.com",
@@ -4566,8 +4896,8 @@
       "description": null,
       "discount": null,
       "discounts": [],
-      "due_date": 1794742264,
-      "effective_at": 1793532664,
+      "due_date": 1794742716,
+      "effective_at": 1793533116,
       "ending_balance": 0,
       "footer": null,
       "from_invoice": null,
@@ -4582,7 +4912,7 @@
        "object": "list",
        "data": [
         {
-         "id": "il_1UWwya6XTmyOc4m6f3edTKth",
+         "id": "il_1UWx5s6XTmyOc4m6t5Wu9YLe",
          "object": "line_item",
          "amount": 180000,
          "amount_excluding_tax": 180000,
@@ -4591,13 +4921,13 @@
          "discount_amounts": [],
          "discountable": true,
          "discounts": [],
-         "invoice": "in_1UYOsn6XTmyOc4m6FX8qiFiE",
-         "invoice_item": "ii_1UYOsn6XTmyOc4m6huQCYDpk",
+         "invoice": "in_1UYP056XTmyOc4m68FcRCL0R",
+         "invoice_item": "ii_1UYP056XTmyOc4m6ia70cZEA",
          "livemode": false,
          "metadata": {},
          "parent": {
           "invoice_item_details": {
-           "invoice_item": "ii_1UYOsn6XTmyOc4m6huQCYDpk",
+           "invoice_item": "ii_1UYP056XTmyOc4m6ia70cZEA",
            "proration": false,
            "proration_details": {
             "credited_items": null
@@ -4609,8 +4939,8 @@
           "type": "invoice_item_details"
          },
          "period": {
-          "end": 1793532664,
-          "start": 1793532664
+          "end": 1793533116,
+          "start": 1793533116
          },
          "plan": null,
          "pretax_credit_amounts": [],
@@ -4660,7 +4990,7 @@
        ],
        "has_more": false,
        "total_count": 1,
-       "url": "/v1/invoices/in_1UYOsn6XTmyOc4m6FX8qiFiE/lines"
+       "url": "/v1/invoices/in_1UYP056XTmyOc4m68FcRCL0R/lines"
       },
       "livemode": false,
       "metadata": {
@@ -4668,19 +4998,19 @@
        "obol_demo": "1"
       },
       "next_payment_attempt": null,
-      "number": "VREM6OC7-0001",
+      "number": "JZ6U694C-0001",
       "on_behalf_of": null,
       "paid": false,
       "paid_out_of_band": false,
       "parent": null,
-      "payment_intent": "pi_3UYOso6XTmyOc4m60ZlSErYE",
+      "payment_intent": "pi_3UYP066XTmyOc4m600Jjwebv",
       "payment_settings": {
        "default_mandate": null,
        "payment_method_options": null,
        "payment_method_types": null
       },
-      "period_end": 1793532664,
-      "period_start": 1793532664,
+      "period_end": 1793533116,
+      "period_start": 1793533116,
       "post_payment_credit_notes_amount": 0,
       "pre_payment_credit_notes_amount": 0,
       "quote": null,
@@ -4699,7 +5029,7 @@
       "statement_descriptor": null,
       "status": "open",
       "status_transitions": {
-       "finalized_at": 1793532664,
+       "finalized_at": 1793533116,
        "marked_uncollectible_at": null,
        "paid_at": null,
        "voided_at": null
@@ -4711,7 +5041,7 @@
       "subtotal": 180000,
       "subtotal_excluding_tax": 180000,
       "tax": null,
-      "test_clock": "clock_1UYOsm6XTmyOc4m61fx68Bxo",
+      "test_clock": "clock_1UYP046XTmyOc4m63pEl2qSY",
       "total": 180000,
       "total_discount_amounts": [],
       "total_excluding_tax": 180000,
@@ -4719,7 +5049,7 @@
       "total_tax_amounts": [],
       "total_taxes": [],
       "transfer_data": null,
-      "webhooks_delivered_at": 1793532664
+      "webhooks_delivered_at": 1793533116
      }
     ],
     "has_more": false,
@@ -4734,11 +5064,11 @@
     "object": "list",
     "data": [
      {
-      "id": "cus_VZXy5wrxs3xRJ2",
+      "id": "cus_VZY6s7swC4xoZI",
       "object": "customer",
       "address": null,
       "balance": 0,
-      "created": 1791804661,
+      "created": 1791805113,
       "currency": "usd",
       "customer_account": null,
       "default_source": null,
@@ -4746,7 +5076,7 @@
       "description": null,
       "discount": null,
       "email": "billing@kestrel.example.com",
-      "invoice_prefix": "ZTBM9ASV",
+      "invoice_prefix": "ZWWNHWXI",
       "invoice_settings": {
        "custom_fields": null,
        "default_payment_method": null,
@@ -4763,7 +5093,7 @@
       "preferred_locales": [],
       "shipping": null,
       "tax_exempt": "none",
-      "test_clock": "clock_1UYOsj6XTmyOc4m6OQ6Y9JBE"
+      "test_clock": "clock_1UYP016XTmyOc4m6OcxoD8uP"
      }
     ],
     "has_more": false,
@@ -4778,7 +5108,7 @@
     "object": "list",
     "data": [
      {
-      "id": "in_1UYOsj6XTmyOc4m6e1OpbKd0",
+      "id": "in_1UYP016XTmyOc4m66kS1YYzt",
       "object": "invoice",
       "account_country": "US",
       "account_name": "Obol Test Account",
@@ -4804,10 +5134,10 @@
       "billing_reason": "manual",
       "charge": null,
       "collection_method": "send_invoice",
-      "created": 1791804661,
+      "created": 1791805113,
       "currency": "usd",
       "custom_fields": null,
-      "customer": "cus_VZXy5wrxs3xRJ2",
+      "customer": "cus_VZY6s7swC4xoZI",
       "customer_account": null,
       "customer_address": null,
       "customer_email": "billing@kestrel.example.com",
@@ -4822,8 +5152,8 @@
       "description": null,
       "discount": null,
       "discounts": [],
-      "due_date": 1793014261,
-      "effective_at": 1791804661,
+      "due_date": 1793014713,
+      "effective_at": 1791805113,
       "ending_balance": 0,
       "footer": null,
       "from_invoice": null,
@@ -4838,7 +5168,7 @@
        "object": "list",
        "data": [
         {
-         "id": "il_1UPhRZ6XTmyOc4m6byxLeDf7",
+         "id": "il_1UPhYr6XTmyOc4m6eH7MPEqG",
          "object": "line_item",
          "amount": 90000,
          "amount_excluding_tax": 90000,
@@ -4847,13 +5177,13 @@
          "discount_amounts": [],
          "discountable": true,
          "discounts": [],
-         "invoice": "in_1UYOsj6XTmyOc4m6e1OpbKd0",
-         "invoice_item": "ii_1UYOsk6XTmyOc4m6JIHJQdBN",
+         "invoice": "in_1UYP016XTmyOc4m66kS1YYzt",
+         "invoice_item": "ii_1UYP026XTmyOc4m6HXxADmeD",
          "livemode": false,
          "metadata": {},
          "parent": {
           "invoice_item_details": {
-           "invoice_item": "ii_1UYOsk6XTmyOc4m6JIHJQdBN",
+           "invoice_item": "ii_1UYP026XTmyOc4m6HXxADmeD",
            "proration": false,
            "proration_details": {
             "credited_items": null
@@ -4865,8 +5195,8 @@
           "type": "invoice_item_details"
          },
          "period": {
-          "end": 1791804661,
-          "start": 1791804661
+          "end": 1791805113,
+          "start": 1791805113
          },
          "plan": null,
          "pretax_credit_amounts": [],
@@ -4916,7 +5246,7 @@
        ],
        "has_more": false,
        "total_count": 1,
-       "url": "/v1/invoices/in_1UYOsj6XTmyOc4m6e1OpbKd0/lines"
+       "url": "/v1/invoices/in_1UYP016XTmyOc4m66kS1YYzt/lines"
       },
       "livemode": false,
       "metadata": {
@@ -4924,19 +5254,19 @@
        "obol_demo": "1"
       },
       "next_payment_attempt": null,
-      "number": "ZTBM9ASV-0001",
+      "number": "ZWWNHWXI-0001",
       "on_behalf_of": null,
       "paid": false,
       "paid_out_of_band": false,
       "parent": null,
-      "payment_intent": "pi_3UYOsl6XTmyOc4m60QdcxnHn",
+      "payment_intent": "pi_3UYP036XTmyOc4m606LufvoG",
       "payment_settings": {
        "default_mandate": null,
        "payment_method_options": null,
        "payment_method_types": null
       },
-      "period_end": 1791804661,
-      "period_start": 1791804661,
+      "period_end": 1791805113,
+      "period_start": 1791805113,
       "post_payment_credit_notes_amount": 0,
       "pre_payment_credit_notes_amount": 0,
       "quote": null,
@@ -4955,7 +5285,7 @@
       "statement_descriptor": null,
       "status": "open",
       "status_transitions": {
-       "finalized_at": 1791804661,
+       "finalized_at": 1791805113,
        "marked_uncollectible_at": null,
        "paid_at": null,
        "voided_at": null
@@ -4967,7 +5297,7 @@
       "subtotal": 90000,
       "subtotal_excluding_tax": 90000,
       "tax": null,
-      "test_clock": "clock_1UYOsj6XTmyOc4m6OQ6Y9JBE",
+      "test_clock": "clock_1UYP016XTmyOc4m6OcxoD8uP",
       "total": 90000,
       "total_discount_amounts": [],
       "total_excluding_tax": 90000,
@@ -4975,7 +5305,7 @@
       "total_tax_amounts": [],
       "total_taxes": [],
       "transfer_data": null,
-      "webhooks_delivered_at": 1791804661
+      "webhooks_delivered_at": 1791805113
      }
     ],
     "has_more": false,
@@ -4990,11 +5320,11 @@
     "object": "list",
     "data": [
      {
-      "id": "cus_VZXyAVU1KxZ9aV",
+      "id": "cus_VZY6XYff1sv11U",
       "object": "customer",
       "address": null,
       "balance": 0,
-      "created": 1790422257,
+      "created": 1790422709,
       "currency": "usd",
       "customer_account": null,
       "default_source": null,
@@ -5002,7 +5332,7 @@
       "description": null,
       "discount": null,
       "email": "ap@fernhill.example.com",
-      "invoice_prefix": "VEHFKHF5",
+      "invoice_prefix": "CCTGCGH1",
       "invoice_settings": {
        "custom_fields": null,
        "default_payment_method": null,
@@ -5019,7 +5349,7 @@
       "preferred_locales": [],
       "shipping": null,
       "tax_exempt": "none",
-      "test_clock": "clock_1UYOsf6XTmyOc4m6ruLFNSBf"
+      "test_clock": "clock_1UYOzx6XTmyOc4m6ZouX9BVA"
      }
     ],
     "has_more": false,
@@ -5034,7 +5364,7 @@
     "object": "list",
     "data": [
      {
-      "id": "in_1UYOsg6XTmyOc4m6Gl1UHvx6",
+      "id": "in_1UYOzy6XTmyOc4m6JAJsTB9x",
       "object": "invoice",
       "account_country": "US",
       "account_name": "Obol Test Account",
@@ -5060,10 +5390,10 @@
       "billing_reason": "manual",
       "charge": null,
       "collection_method": "send_invoice",
-      "created": 1790422257,
+      "created": 1790422709,
       "currency": "usd",
       "custom_fields": null,
-      "customer": "cus_VZXyAVU1KxZ9aV",
+      "customer": "cus_VZY6XYff1sv11U",
       "customer_account": null,
       "customer_address": null,
       "customer_email": "ap@fernhill.example.com",
@@ -5078,8 +5408,8 @@
       "description": null,
       "discount": null,
       "discounts": [],
-      "due_date": 1791631857,
-      "effective_at": 1790422257,
+      "due_date": 1791632309,
+      "effective_at": 1790422709,
       "ending_balance": 0,
       "footer": null,
       "from_invoice": null,
@@ -5094,7 +5424,7 @@
        "object": "list",
        "data": [
         {
-         "id": "il_1UJtoj6XTmyOc4m6Br5S6joN",
+         "id": "il_1UJtw16XTmyOc4m6GMLa08Hi",
          "object": "line_item",
          "amount": 10000,
          "amount_excluding_tax": 10000,
@@ -5103,13 +5433,13 @@
          "discount_amounts": [],
          "discountable": true,
          "discounts": [],
-         "invoice": "in_1UYOsg6XTmyOc4m6Gl1UHvx6",
-         "invoice_item": "ii_1UYOsg6XTmyOc4m6ns9HHx6E",
+         "invoice": "in_1UYOzy6XTmyOc4m6JAJsTB9x",
+         "invoice_item": "ii_1UYOzz6XTmyOc4m61UsMsCFs",
          "livemode": false,
          "metadata": {},
          "parent": {
           "invoice_item_details": {
-           "invoice_item": "ii_1UYOsg6XTmyOc4m6ns9HHx6E",
+           "invoice_item": "ii_1UYOzz6XTmyOc4m61UsMsCFs",
            "proration": false,
            "proration_details": {
             "credited_items": null
@@ -5121,8 +5451,8 @@
           "type": "invoice_item_details"
          },
          "period": {
-          "end": 1790422257,
-          "start": 1790422257
+          "end": 1790422709,
+          "start": 1790422709
          },
          "plan": null,
          "pretax_credit_amounts": [],
@@ -5170,7 +5500,7 @@
          "unit_amount_excluding_tax": "10000"
         },
         {
-         "id": "il_1UJtoj6XTmyOc4m658f8VREs",
+         "id": "il_1UJtw16XTmyOc4m6LApIKqQf",
          "object": "line_item",
          "amount": 135000,
          "amount_excluding_tax": 135000,
@@ -5179,13 +5509,13 @@
          "discount_amounts": [],
          "discountable": true,
          "discounts": [],
-         "invoice": "in_1UYOsg6XTmyOc4m6Gl1UHvx6",
-         "invoice_item": "ii_1UYOsg6XTmyOc4m6QrhpQQ6C",
+         "invoice": "in_1UYOzy6XTmyOc4m6JAJsTB9x",
+         "invoice_item": "ii_1UYOzy6XTmyOc4m62ikf55Wp",
          "livemode": false,
          "metadata": {},
          "parent": {
           "invoice_item_details": {
-           "invoice_item": "ii_1UYOsg6XTmyOc4m6QrhpQQ6C",
+           "invoice_item": "ii_1UYOzy6XTmyOc4m62ikf55Wp",
            "proration": false,
            "proration_details": {
             "credited_items": null
@@ -5197,8 +5527,8 @@
           "type": "invoice_item_details"
          },
          "period": {
-          "end": 1790422257,
-          "start": 1790422257
+          "end": 1790422709,
+          "start": 1790422709
          },
          "plan": null,
          "pretax_credit_amounts": [],
@@ -5248,7 +5578,7 @@
        ],
        "has_more": false,
        "total_count": 2,
-       "url": "/v1/invoices/in_1UYOsg6XTmyOc4m6Gl1UHvx6/lines"
+       "url": "/v1/invoices/in_1UYOzy6XTmyOc4m6JAJsTB9x/lines"
       },
       "livemode": false,
       "metadata": {
@@ -5256,19 +5586,19 @@
        "obol_demo": "1"
       },
       "next_payment_attempt": null,
-      "number": "VEHFKHF5-0001",
+      "number": "CCTGCGH1-0001",
       "on_behalf_of": null,
       "paid": false,
       "paid_out_of_band": false,
       "parent": null,
-      "payment_intent": "pi_3UYOsh6XTmyOc4m6127YLHox",
+      "payment_intent": "pi_3UYP006XTmyOc4m60uw7DkLl",
       "payment_settings": {
        "default_mandate": null,
        "payment_method_options": null,
        "payment_method_types": null
       },
-      "period_end": 1790422257,
-      "period_start": 1790422257,
+      "period_end": 1790422709,
+      "period_start": 1790422709,
       "post_payment_credit_notes_amount": 0,
       "pre_payment_credit_notes_amount": 0,
       "quote": null,
@@ -5287,7 +5617,7 @@
       "statement_descriptor": null,
       "status": "open",
       "status_transitions": {
-       "finalized_at": 1790422257,
+       "finalized_at": 1790422709,
        "marked_uncollectible_at": null,
        "paid_at": null,
        "voided_at": null
@@ -5299,7 +5629,7 @@
       "subtotal": 145000,
       "subtotal_excluding_tax": 145000,
       "tax": null,
-      "test_clock": "clock_1UYOsf6XTmyOc4m6ruLFNSBf",
+      "test_clock": "clock_1UYOzx6XTmyOc4m6ZouX9BVA",
       "total": 145000,
       "total_discount_amounts": [],
       "total_excluding_tax": 145000,
@@ -5307,7 +5637,7 @@
       "total_tax_amounts": [],
       "total_taxes": [],
       "transfer_data": null,
-      "webhooks_delivered_at": 1790422257
+      "webhooks_delivered_at": 1790422709
      }
     ],
     "has_more": false,
@@ -5322,11 +5652,11 @@
     "object": "list",
     "data": [
      {
-      "id": "cus_VZXysQIKL17zKS",
+      "id": "cus_VZY6qVKWlm8sfJ",
       "object": "customer",
       "address": null,
       "balance": 0,
-      "created": 1790940652,
+      "created": 1790941104,
       "currency": "usd",
       "customer_account": null,
       "default_source": null,
@@ -5334,7 +5664,7 @@
       "description": null,
       "discount": null,
       "email": "finance@lumenhealth.example.com",
-      "invoice_prefix": "HMMCLZ01",
+      "invoice_prefix": "TQBWUGGJ",
       "invoice_settings": {
        "custom_fields": null,
        "default_payment_method": null,
@@ -5351,7 +5681,7 @@
       "preferred_locales": [],
       "shipping": null,
       "tax_exempt": "none",
-      "test_clock": "clock_1UYOsa6XTmyOc4m6QUYeTp9Q"
+      "test_clock": "clock_1UYOzs6XTmyOc4m6NoLwvH3b"
      }
     ],
     "has_more": false,
@@ -5366,7 +5696,7 @@
     "object": "list",
     "data": [
      {
-      "id": "in_1UYOsa6XTmyOc4m6or7yR4kN",
+      "id": "in_1UYOzt6XTmyOc4m6jSWyZLcP",
       "object": "invoice",
       "account_country": "US",
       "account_name": "Obol Test Account",
@@ -5390,12 +5720,12 @@
       },
       "automatically_finalizes_at": null,
       "billing_reason": "manual",
-      "charge": "ch_3UYOsc6XTmyOc4m61wKU2iVy",
+      "charge": "ch_3UYOzu6XTmyOc4m61by7Roqp",
       "collection_method": "send_invoice",
-      "created": 1790940652,
+      "created": 1790941104,
       "currency": "usd",
       "custom_fields": null,
-      "customer": "cus_VZXysQIKL17zKS",
+      "customer": "cus_VZY6qVKWlm8sfJ",
       "customer_account": null,
       "customer_address": null,
       "customer_email": "finance@lumenhealth.example.com",
@@ -5410,8 +5740,8 @@
       "description": null,
       "discount": null,
       "discounts": [],
-      "due_date": 1792150252,
-      "effective_at": 1790940652,
+      "due_date": 1792150704,
+      "effective_at": 1790941104,
       "ending_balance": 0,
       "footer": null,
       "from_invoice": null,
@@ -5426,7 +5756,7 @@
        "object": "list",
        "data": [
         {
-         "id": "il_1UM4fw6XTmyOc4m63li1R7Ll",
+         "id": "il_1UM4nE6XTmyOc4m6RBXw6yPv",
          "object": "line_item",
          "amount": 270000,
          "amount_excluding_tax": 270000,
@@ -5435,13 +5765,13 @@
          "discount_amounts": [],
          "discountable": true,
          "discounts": [],
-         "invoice": "in_1UYOsa6XTmyOc4m6or7yR4kN",
-         "invoice_item": "ii_1UYOsb6XTmyOc4m6QPzHCD82",
+         "invoice": "in_1UYOzt6XTmyOc4m6jSWyZLcP",
+         "invoice_item": "ii_1UYOzt6XTmyOc4m6t6WK4e9q",
          "livemode": false,
          "metadata": {},
          "parent": {
           "invoice_item_details": {
-           "invoice_item": "ii_1UYOsb6XTmyOc4m6QPzHCD82",
+           "invoice_item": "ii_1UYOzt6XTmyOc4m6t6WK4e9q",
            "proration": false,
            "proration_details": {
             "credited_items": null
@@ -5453,8 +5783,8 @@
           "type": "invoice_item_details"
          },
          "period": {
-          "end": 1790940652,
-          "start": 1790940652
+          "end": 1790941104,
+          "start": 1790941104
          },
          "plan": null,
          "pretax_credit_amounts": [],
@@ -5504,7 +5834,7 @@
        ],
        "has_more": false,
        "total_count": 1,
-       "url": "/v1/invoices/in_1UYOsa6XTmyOc4m6or7yR4kN/lines"
+       "url": "/v1/invoices/in_1UYOzt6XTmyOc4m6jSWyZLcP/lines"
       },
       "livemode": false,
       "metadata": {
@@ -5512,19 +5842,19 @@
        "obol_demo": "1"
       },
       "next_payment_attempt": null,
-      "number": "HMMCLZ01-0001",
+      "number": "TQBWUGGJ-0001",
       "on_behalf_of": null,
       "paid": true,
       "paid_out_of_band": false,
       "parent": null,
-      "payment_intent": "pi_3UYOsc6XTmyOc4m61y58Mh77",
+      "payment_intent": "pi_3UYOzu6XTmyOc4m616hNolIf",
       "payment_settings": {
        "default_mandate": null,
        "payment_method_options": null,
        "payment_method_types": null
       },
-      "period_end": 1790940652,
-      "period_start": 1790940652,
+      "period_end": 1790941104,
+      "period_start": 1790941104,
       "post_payment_credit_notes_amount": 0,
       "pre_payment_credit_notes_amount": 0,
       "quote": null,
@@ -5543,9 +5873,9 @@
       "statement_descriptor": null,
       "status": "paid",
       "status_transitions": {
-       "finalized_at": 1790940652,
+       "finalized_at": 1790941104,
        "marked_uncollectible_at": null,
-       "paid_at": 1790940652,
+       "paid_at": 1790941104,
        "voided_at": null
       },
       "subscription": null,
@@ -5555,7 +5885,7 @@
       "subtotal": 270000,
       "subtotal_excluding_tax": 270000,
       "tax": null,
-      "test_clock": "clock_1UYOsa6XTmyOc4m6QUYeTp9Q",
+      "test_clock": "clock_1UYOzs6XTmyOc4m6NoLwvH3b",
       "total": 270000,
       "total_discount_amounts": [],
       "total_excluding_tax": 270000,
@@ -5563,7 +5893,7 @@
       "total_tax_amounts": [],
       "total_taxes": [],
       "transfer_data": null,
-      "webhooks_delivered_at": 1790940652
+      "webhooks_delivered_at": 1790941104
      }
     ],
     "has_more": false,
@@ -5578,11 +5908,11 @@
     "object": "list",
     "data": [
      {
-      "id": "cus_VZXywrCcUs3ltN",
+      "id": "cus_VZY5HFesHOfyj7",
       "object": "customer",
       "address": null,
       "balance": 0,
-      "created": 1789126245,
+      "created": 1789126698,
       "currency": "usd",
       "customer_account": null,
       "default_source": null,
@@ -5590,7 +5920,7 @@
       "description": null,
       "discount": null,
       "email": "hello@bluebird.example.com",
-      "invoice_prefix": "SQGZCDIT",
+      "invoice_prefix": "TF88RB14",
       "invoice_settings": {
        "custom_fields": null,
        "default_payment_method": null,
@@ -5607,7 +5937,7 @@
       "preferred_locales": [],
       "shipping": null,
       "tax_exempt": "none",
-      "test_clock": "clock_1UYOsT6XTmyOc4m6qBgOARcn"
+      "test_clock": "clock_1UYOzm6XTmyOc4m6UJQ5OtqI"
      }
     ],
     "has_more": false,
@@ -5622,7 +5952,7 @@
     "object": "list",
     "data": [
      {
-      "id": "in_1UYOsT6XTmyOc4m6vdKG3vRU",
+      "id": "in_1UYOzn6XTmyOc4m6Jh6Xd9rk",
       "object": "invoice",
       "account_country": "US",
       "account_name": "Obol Test Account",
@@ -5646,12 +5976,12 @@
       },
       "automatically_finalizes_at": null,
       "billing_reason": "manual",
-      "charge": "ch_3UYOsV6XTmyOc4m60JhqB9NK",
+      "charge": "ch_3UYOzo6XTmyOc4m61luJOFnr",
       "collection_method": "send_invoice",
-      "created": 1789126245,
+      "created": 1789126698,
       "currency": "usd",
       "custom_fields": null,
-      "customer": "cus_VZXywrCcUs3ltN",
+      "customer": "cus_VZY5HFesHOfyj7",
       "customer_account": null,
       "customer_address": null,
       "customer_email": "hello@bluebird.example.com",
@@ -5666,8 +5996,8 @@
       "description": null,
       "discount": null,
       "discounts": [],
-      "due_date": 1790335845,
-      "effective_at": 1789126245,
+      "due_date": 1790336298,
+      "effective_at": 1789126698,
       "ending_balance": 0,
       "footer": null,
       "from_invoice": null,
@@ -5682,7 +6012,7 @@
        "object": "list",
        "data": [
         {
-         "id": "il_1UESfJ6XTmyOc4m6CdvpQMXj",
+         "id": "il_1UESmc6XTmyOc4m66Lt3Heka",
          "object": "line_item",
          "amount": 20000,
          "amount_excluding_tax": 20000,
@@ -5691,13 +6021,13 @@
          "discount_amounts": [],
          "discountable": true,
          "discounts": [],
-         "invoice": "in_1UYOsT6XTmyOc4m6vdKG3vRU",
-         "invoice_item": "ii_1UYOsU6XTmyOc4m6tYyNscyG",
+         "invoice": "in_1UYOzn6XTmyOc4m6Jh6Xd9rk",
+         "invoice_item": "ii_1UYOzo6XTmyOc4m6bvHMbVxT",
          "livemode": false,
          "metadata": {},
          "parent": {
           "invoice_item_details": {
-           "invoice_item": "ii_1UYOsU6XTmyOc4m6tYyNscyG",
+           "invoice_item": "ii_1UYOzo6XTmyOc4m6bvHMbVxT",
            "proration": false,
            "proration_details": {
             "credited_items": null
@@ -5709,8 +6039,8 @@
           "type": "invoice_item_details"
          },
          "period": {
-          "end": 1789126245,
-          "start": 1789126245
+          "end": 1789126698,
+          "start": 1789126698
          },
          "plan": null,
          "pretax_credit_amounts": [],
@@ -5758,7 +6088,7 @@
          "unit_amount_excluding_tax": "20000"
         },
         {
-         "id": "il_1UESfJ6XTmyOc4m66KFxZa0T",
+         "id": "il_1UESmc6XTmyOc4m64BmM0EBD",
          "object": "line_item",
          "amount": 65000,
          "amount_excluding_tax": 65000,
@@ -5767,13 +6097,13 @@
          "discount_amounts": [],
          "discountable": true,
          "discounts": [],
-         "invoice": "in_1UYOsT6XTmyOc4m6vdKG3vRU",
-         "invoice_item": "ii_1UYOsU6XTmyOc4m6ympHSXA9",
+         "invoice": "in_1UYOzn6XTmyOc4m6Jh6Xd9rk",
+         "invoice_item": "ii_1UYOzn6XTmyOc4m6ERatCbf7",
          "livemode": false,
          "metadata": {},
          "parent": {
           "invoice_item_details": {
-           "invoice_item": "ii_1UYOsU6XTmyOc4m6ympHSXA9",
+           "invoice_item": "ii_1UYOzn6XTmyOc4m6ERatCbf7",
            "proration": false,
            "proration_details": {
             "credited_items": null
@@ -5785,8 +6115,8 @@
           "type": "invoice_item_details"
          },
          "period": {
-          "end": 1789126245,
-          "start": 1789126245
+          "end": 1789126698,
+          "start": 1789126698
          },
          "plan": null,
          "pretax_credit_amounts": [],
@@ -5836,7 +6166,7 @@
        ],
        "has_more": false,
        "total_count": 2,
-       "url": "/v1/invoices/in_1UYOsT6XTmyOc4m6vdKG3vRU/lines"
+       "url": "/v1/invoices/in_1UYOzn6XTmyOc4m6Jh6Xd9rk/lines"
       },
       "livemode": false,
       "metadata": {
@@ -5844,19 +6174,19 @@
        "obol_demo": "1"
       },
       "next_payment_attempt": null,
-      "number": "SQGZCDIT-0001",
+      "number": "TF88RB14-0001",
       "on_behalf_of": null,
       "paid": true,
       "paid_out_of_band": false,
       "parent": null,
-      "payment_intent": "pi_3UYOsV6XTmyOc4m60cNGU3qg",
+      "payment_intent": "pi_3UYOzo6XTmyOc4m61BecTG6K",
       "payment_settings": {
        "default_mandate": null,
        "payment_method_options": null,
        "payment_method_types": null
       },
-      "period_end": 1789126245,
-      "period_start": 1789126245,
+      "period_end": 1789126698,
+      "period_start": 1789126698,
       "post_payment_credit_notes_amount": 0,
       "pre_payment_credit_notes_amount": 0,
       "quote": null,
@@ -5875,9 +6205,9 @@
       "statement_descriptor": null,
       "status": "paid",
       "status_transitions": {
-       "finalized_at": 1789126245,
+       "finalized_at": 1789126698,
        "marked_uncollectible_at": null,
-       "paid_at": 1789126245,
+       "paid_at": 1789126698,
        "voided_at": null
       },
       "subscription": null,
@@ -5887,7 +6217,7 @@
       "subtotal": 85000,
       "subtotal_excluding_tax": 85000,
       "tax": null,
-      "test_clock": "clock_1UYOsT6XTmyOc4m6qBgOARcn",
+      "test_clock": "clock_1UYOzm6XTmyOc4m6UJQ5OtqI",
       "total": 85000,
       "total_discount_amounts": [],
       "total_excluding_tax": 85000,
@@ -5895,7 +6225,7 @@
       "total_tax_amounts": [],
       "total_taxes": [],
       "transfer_data": null,
-      "webhooks_delivered_at": 1789126245
+      "webhooks_delivered_at": 1789126698
      }
     ],
     "has_more": false,
@@ -5910,11 +6240,11 @@
     "object": "list",
     "data": [
      {
-      "id": "cus_VZXyoH8lKroidZ",
+      "id": "cus_VZY57qUAlmfNdQ",
       "object": "customer",
       "address": null,
       "balance": 0,
-      "created": 1788521439,
+      "created": 1788521893,
       "currency": "usd",
       "customer_account": null,
       "default_source": null,
@@ -5922,7 +6252,7 @@
       "description": null,
       "discount": null,
       "email": "accounts@northwind.example.com",
-      "invoice_prefix": "ETMCPN35",
+      "invoice_prefix": "NWPQRDQY",
       "invoice_settings": {
        "custom_fields": null,
        "default_payment_method": null,
@@ -5939,7 +6269,7 @@
       "preferred_locales": [],
       "shipping": null,
       "tax_exempt": "none",
-      "test_clock": "clock_1UYOsN6XTmyOc4m6xBrhhdpg"
+      "test_clock": "clock_1UYOzh6XTmyOc4m6BQhcLVKk"
      }
     ],
     "has_more": false,
@@ -5954,7 +6284,7 @@
     "object": "list",
     "data": [
      {
-      "id": "in_1UYOsO6XTmyOc4m6mdOyVNZg",
+      "id": "in_1UYOzh6XTmyOc4m6paVCGWMq",
       "object": "invoice",
       "account_country": "US",
       "account_name": "Obol Test Account",
@@ -5978,12 +6308,12 @@
       },
       "automatically_finalizes_at": null,
       "billing_reason": "manual",
-      "charge": "ch_3UYOsP6XTmyOc4m60zgaKbET",
+      "charge": "ch_3UYOzj6XTmyOc4m61EqK3Gv9",
       "collection_method": "send_invoice",
-      "created": 1788521439,
+      "created": 1788521893,
       "currency": "usd",
       "custom_fields": null,
-      "customer": "cus_VZXyoH8lKroidZ",
+      "customer": "cus_VZY57qUAlmfNdQ",
       "customer_account": null,
       "customer_address": null,
       "customer_email": "accounts@northwind.example.com",
@@ -5998,8 +6328,8 @@
       "description": null,
       "discount": null,
       "discounts": [],
-      "due_date": 1789731039,
-      "effective_at": 1788521439,
+      "due_date": 1789731493,
+      "effective_at": 1788521893,
       "ending_balance": 0,
       "footer": null,
       "from_invoice": null,
@@ -6014,7 +6344,7 @@
        "object": "list",
        "data": [
         {
-         "id": "il_1UBvKN6XTmyOc4m6Gj8NdTWi",
+         "id": "il_1UBvRh6XTmyOc4m6XardnWTN",
          "object": "line_item",
          "amount": 240000,
          "amount_excluding_tax": 240000,
@@ -6023,13 +6353,13 @@
          "discount_amounts": [],
          "discountable": true,
          "discounts": [],
-         "invoice": "in_1UYOsO6XTmyOc4m6mdOyVNZg",
-         "invoice_item": "ii_1UYOsO6XTmyOc4m6xTIhTRJy",
+         "invoice": "in_1UYOzh6XTmyOc4m6paVCGWMq",
+         "invoice_item": "ii_1UYOzi6XTmyOc4m6gzv1zeQr",
          "livemode": false,
          "metadata": {},
          "parent": {
           "invoice_item_details": {
-           "invoice_item": "ii_1UYOsO6XTmyOc4m6xTIhTRJy",
+           "invoice_item": "ii_1UYOzi6XTmyOc4m6gzv1zeQr",
            "proration": false,
            "proration_details": {
             "credited_items": null
@@ -6041,8 +6371,8 @@
           "type": "invoice_item_details"
          },
          "period": {
-          "end": 1788521439,
-          "start": 1788521439
+          "end": 1788521893,
+          "start": 1788521893
          },
          "plan": null,
          "pretax_credit_amounts": [],
@@ -6092,7 +6422,7 @@
        ],
        "has_more": false,
        "total_count": 1,
-       "url": "/v1/invoices/in_1UYOsO6XTmyOc4m6mdOyVNZg/lines"
+       "url": "/v1/invoices/in_1UYOzh6XTmyOc4m6paVCGWMq/lines"
       },
       "livemode": false,
       "metadata": {
@@ -6100,19 +6430,19 @@
        "obol_demo": "1"
       },
       "next_payment_attempt": null,
-      "number": "ETMCPN35-0001",
+      "number": "NWPQRDQY-0001",
       "on_behalf_of": null,
       "paid": true,
       "paid_out_of_band": false,
       "parent": null,
-      "payment_intent": "pi_3UYOsP6XTmyOc4m60DEUAeMq",
+      "payment_intent": "pi_3UYOzj6XTmyOc4m61xw5fQTT",
       "payment_settings": {
        "default_mandate": null,
        "payment_method_options": null,
        "payment_method_types": null
       },
-      "period_end": 1788521439,
-      "period_start": 1788521439,
+      "period_end": 1788521893,
+      "period_start": 1788521893,
       "post_payment_credit_notes_amount": 0,
       "pre_payment_credit_notes_amount": 0,
       "quote": null,
@@ -6131,9 +6461,9 @@
       "statement_descriptor": null,
       "status": "paid",
       "status_transitions": {
-       "finalized_at": 1788521439,
+       "finalized_at": 1788521893,
        "marked_uncollectible_at": null,
-       "paid_at": 1788521439,
+       "paid_at": 1788521893,
        "voided_at": null
       },
       "subscription": null,
@@ -6143,7 +6473,7 @@
       "subtotal": 240000,
       "subtotal_excluding_tax": 240000,
       "tax": null,
-      "test_clock": "clock_1UYOsN6XTmyOc4m6xBrhhdpg",
+      "test_clock": "clock_1UYOzh6XTmyOc4m6BQhcLVKk",
       "total": 240000,
       "total_discount_amounts": [],
       "total_excluding_tax": 240000,
@@ -6151,11 +6481,373 @@
       "total_tax_amounts": [],
       "total_taxes": [],
       "transfer_data": null,
-      "webhooks_delivered_at": 1788521439
+      "webhooks_delivered_at": 1788521893
      }
     ],
     "has_more": false,
     "url": "/v1/invoices"
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/v1/charges/ch_3UYOzu6XTmyOc4m61by7Roqp",
+   "status": 200,
+   "body": {
+    "id": "ch_3UYOzu6XTmyOc4m61by7Roqp",
+    "object": "charge",
+    "amount": 270000,
+    "amount_captured": 270000,
+    "amount_refunded": 0,
+    "application": null,
+    "application_fee": null,
+    "application_fee_amount": null,
+    "balance_transaction": "txn_3UYOzu6XTmyOc4m618O7uwLN",
+    "billing_details": {
+     "address": {
+      "city": null,
+      "country": null,
+      "line1": null,
+      "line2": null,
+      "postal_code": null,
+      "state": null
+     },
+     "email": null,
+     "name": null,
+     "phone": null,
+     "tax_id": null
+    },
+    "calculated_statement_descriptor": "Stripe",
+    "captured": true,
+    "created": 1793878708,
+    "currency": "usd",
+    "customer": "cus_VZY6qVKWlm8sfJ",
+    "description": "Payment for Invoice",
+    "destination": null,
+    "dispute": null,
+    "disputed": false,
+    "failure_balance_transaction": null,
+    "failure_code": null,
+    "failure_message": null,
+    "fraud_details": {},
+    "invoice": "in_1UYOzt6XTmyOc4m6jSWyZLcP",
+    "livemode": false,
+    "metadata": {},
+    "on_behalf_of": null,
+    "order": null,
+    "outcome": {
+     "advice_code": null,
+     "network_advice_code": null,
+     "network_decline_code": null,
+     "network_status": "approved_by_network",
+     "reason": null,
+     "risk_level": "normal",
+     "risk_score": 10,
+     "seller_message": "Payment complete.",
+     "type": "authorized"
+    },
+    "paid": true,
+    "payment_intent": "pi_3UYOzu6XTmyOc4m616hNolIf",
+    "payment_method": "pm_1UYOzv6XTmyOc4m69KF8ljj6",
+    "payment_method_details": {
+     "card": {
+      "amount_authorized": 270000,
+      "authorization_code": "670653",
+      "brand": "visa",
+      "checks": {
+       "address_line1_check": null,
+       "address_postal_code_check": null,
+       "cvc_check": "pass"
+      },
+      "country": "US",
+      "electronic_commerce_indicator": "07",
+      "exp_month": 11,
+      "exp_year": 2027,
+      "extended_authorization": {
+       "status": "disabled"
+      },
+      "fingerprint": "REDACTED",
+      "funding": "credit",
+      "incremental_authorization": {
+       "status": "unavailable"
+      },
+      "installments": null,
+      "last4": "4242",
+      "mandate": null,
+      "multicapture": {
+       "status": "unavailable"
+      },
+      "network": "visa",
+      "network_token": {
+       "used": false
+      },
+      "network_transaction_id": "100116705057841",
+      "overcapture": {
+       "maximum_amount_capturable": 270000,
+       "status": "unavailable"
+      },
+      "regulated_status": "unregulated",
+      "three_d_secure": null,
+      "transaction_link_id": null,
+      "wallet": null
+     },
+     "type": "card"
+    },
+    "radar_options": {},
+    "receipt_email": null,
+    "receipt_number": null,
+    "receipt_url": "https://pay.stripe.com/REDACTED",
+    "refunded": false,
+    "review": null,
+    "shipping": null,
+    "source": null,
+    "source_transfer": null,
+    "statement_descriptor": null,
+    "statement_descriptor_suffix": null,
+    "status": "succeeded",
+    "transfer_data": null,
+    "transfer_group": null
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/v1/charges/ch_3UYOzo6XTmyOc4m61luJOFnr",
+   "status": 200,
+   "body": {
+    "id": "ch_3UYOzo6XTmyOc4m61luJOFnr",
+    "object": "charge",
+    "amount": 85000,
+    "amount_captured": 85000,
+    "amount_refunded": 0,
+    "application": null,
+    "application_fee": null,
+    "application_fee_amount": null,
+    "balance_transaction": "txn_3UYOzo6XTmyOc4m61eHv3TfO",
+    "billing_details": {
+     "address": {
+      "city": null,
+      "country": null,
+      "line1": null,
+      "line2": null,
+      "postal_code": null,
+      "state": null
+     },
+     "email": null,
+     "name": null,
+     "phone": null,
+     "tax_id": null
+    },
+    "calculated_statement_descriptor": "Stripe",
+    "captured": true,
+    "created": 1793878703,
+    "currency": "usd",
+    "customer": "cus_VZY5HFesHOfyj7",
+    "description": "Payment for Invoice",
+    "destination": null,
+    "dispute": null,
+    "disputed": false,
+    "failure_balance_transaction": null,
+    "failure_code": null,
+    "failure_message": null,
+    "fraud_details": {},
+    "invoice": "in_1UYOzn6XTmyOc4m6Jh6Xd9rk",
+    "livemode": false,
+    "metadata": {},
+    "on_behalf_of": null,
+    "order": null,
+    "outcome": {
+     "advice_code": null,
+     "network_advice_code": null,
+     "network_decline_code": null,
+     "network_status": "approved_by_network",
+     "reason": null,
+     "risk_level": "normal",
+     "risk_score": 58,
+     "seller_message": "Payment complete.",
+     "type": "authorized"
+    },
+    "paid": true,
+    "payment_intent": "pi_3UYOzo6XTmyOc4m61BecTG6K",
+    "payment_method": "pm_1UYOzq6XTmyOc4m68Pom043L",
+    "payment_method_details": {
+     "card": {
+      "amount_authorized": 85000,
+      "authorization_code": "578190",
+      "brand": "visa",
+      "checks": {
+       "address_line1_check": null,
+       "address_postal_code_check": null,
+       "cvc_check": "pass"
+      },
+      "country": "US",
+      "electronic_commerce_indicator": "07",
+      "exp_month": 11,
+      "exp_year": 2027,
+      "extended_authorization": {
+       "status": "disabled"
+      },
+      "fingerprint": "REDACTED",
+      "funding": "credit",
+      "incremental_authorization": {
+       "status": "unavailable"
+      },
+      "installments": null,
+      "last4": "4242",
+      "mandate": null,
+      "multicapture": {
+       "status": "unavailable"
+      },
+      "network": "visa",
+      "network_token": {
+       "used": false
+      },
+      "network_transaction_id": "100116705057841",
+      "overcapture": {
+       "maximum_amount_capturable": 85000,
+       "status": "unavailable"
+      },
+      "regulated_status": "unregulated",
+      "stored_credential_usage": "unscheduled",
+      "three_d_secure": null,
+      "transaction_link_id": null,
+      "wallet": null
+     },
+     "type": "card"
+    },
+    "radar_options": {},
+    "receipt_email": null,
+    "receipt_number": null,
+    "receipt_url": "https://pay.stripe.com/REDACTED",
+    "refunded": false,
+    "review": null,
+    "shipping": null,
+    "source": null,
+    "source_transfer": null,
+    "statement_descriptor": null,
+    "statement_descriptor_suffix": null,
+    "status": "succeeded",
+    "transfer_data": null,
+    "transfer_group": null
+   }
+  },
+  {
+   "method": "GET",
+   "path": "/v1/charges/ch_3UYOzj6XTmyOc4m61EqK3Gv9",
+   "status": 200,
+   "body": {
+    "id": "ch_3UYOzj6XTmyOc4m61EqK3Gv9",
+    "object": "charge",
+    "amount": 240000,
+    "amount_captured": 240000,
+    "amount_refunded": 0,
+    "application": null,
+    "application_fee": null,
+    "application_fee_amount": null,
+    "balance_transaction": "txn_3UYOzj6XTmyOc4m61Nx8Xwpp",
+    "billing_details": {
+     "address": {
+      "city": null,
+      "country": null,
+      "line1": null,
+      "line2": null,
+      "postal_code": null,
+      "state": null
+     },
+     "email": null,
+     "name": null,
+     "phone": null,
+     "tax_id": null
+    },
+    "calculated_statement_descriptor": "Stripe",
+    "captured": true,
+    "created": 1793878697,
+    "currency": "usd",
+    "customer": "cus_VZY57qUAlmfNdQ",
+    "description": "Payment for Invoice",
+    "destination": null,
+    "dispute": null,
+    "disputed": false,
+    "failure_balance_transaction": null,
+    "failure_code": null,
+    "failure_message": null,
+    "fraud_details": {},
+    "invoice": "in_1UYOzh6XTmyOc4m6paVCGWMq",
+    "livemode": false,
+    "metadata": {},
+    "on_behalf_of": null,
+    "order": null,
+    "outcome": {
+     "advice_code": null,
+     "network_advice_code": null,
+     "network_decline_code": null,
+     "network_status": "approved_by_network",
+     "reason": null,
+     "risk_level": "normal",
+     "risk_score": 33,
+     "seller_message": "Payment complete.",
+     "type": "authorized"
+    },
+    "paid": true,
+    "payment_intent": "pi_3UYOzj6XTmyOc4m61xw5fQTT",
+    "payment_method": "pm_1UYOzk6XTmyOc4m6WWeq9dfj",
+    "payment_method_details": {
+     "card": {
+      "amount_authorized": 240000,
+      "authorization_code": "706272",
+      "brand": "visa",
+      "checks": {
+       "address_line1_check": null,
+       "address_postal_code_check": null,
+       "cvc_check": "pass"
+      },
+      "country": "US",
+      "electronic_commerce_indicator": "07",
+      "exp_month": 11,
+      "exp_year": 2027,
+      "extended_authorization": {
+       "status": "disabled"
+      },
+      "fingerprint": "REDACTED",
+      "funding": "credit",
+      "incremental_authorization": {
+       "status": "unavailable"
+      },
+      "installments": null,
+      "last4": "4242",
+      "mandate": null,
+      "multicapture": {
+       "status": "unavailable"
+      },
+      "network": "visa",
+      "network_token": {
+       "used": false
+      },
+      "network_transaction_id": "100116705057841",
+      "overcapture": {
+       "maximum_amount_capturable": 240000,
+       "status": "unavailable"
+      },
+      "regulated_status": "unregulated",
+      "stored_credential_usage": "unscheduled",
+      "three_d_secure": null,
+      "transaction_link_id": null,
+      "wallet": null
+     },
+     "type": "card"
+    },
+    "radar_options": {},
+    "receipt_email": null,
+    "receipt_number": null,
+    "receipt_url": "https://pay.stripe.com/REDACTED",
+    "refunded": false,
+    "review": null,
+    "shipping": null,
+    "source": null,
+    "source_transfer": null,
+    "statement_descriptor": null,
+    "statement_descriptor_suffix": null,
+    "status": "succeeded",
+    "transfer_data": null,
+    "transfer_group": null
    }
   },
   {
@@ -6190,7 +6882,7 @@
        "created_by": "obol"
       },
       "name": "Acme Co",
-      "next_invoice_sequence": 4,
+      "next_invoice_sequence": 6,
       "phone": null,
       "preferred_locales": [],
       "shipping": null,
@@ -6207,7 +6899,7 @@
    "path": "/v1/invoices",
    "status": 200,
    "body": {
-    "id": "in_1UYOz76XTmyOc4m6K1Kcealb",
+    "id": "in_1UYP8b6XTmyOc4m6nZjT3o0W",
     "object": "invoice",
     "account_country": "US",
     "account_name": "Obol Test Account",
@@ -6233,7 +6925,7 @@
     "billing_reason": "manual",
     "charge": null,
     "collection_method": "send_invoice",
-    "created": 1793878657,
+    "created": 1793879245,
     "currency": "usd",
     "custom_fields": null,
     "customer": "cus_VZXFm0SLDZzbVt",
@@ -6251,7 +6943,7 @@
     "description": null,
     "discount": null,
     "discounts": [],
-    "due_date": 1795088257,
+    "due_date": 1795088845,
     "effective_at": null,
     "ending_balance": null,
     "footer": null,
@@ -6268,7 +6960,7 @@
      "data": [],
      "has_more": false,
      "total_count": 0,
-     "url": "/v1/invoices/in_1UYOz76XTmyOc4m6K1Kcealb/lines"
+     "url": "/v1/invoices/in_1UYP8b6XTmyOc4m6nZjT3o0W/lines"
     },
     "livemode": false,
     "metadata": {
@@ -6286,8 +6978,8 @@
      "payment_method_options": null,
      "payment_method_types": null
     },
-    "period_end": 1793878657,
-    "period_start": 1793878657,
+    "period_end": 1793879245,
+    "period_start": 1793879245,
     "post_payment_credit_notes_amount": 0,
     "pre_payment_credit_notes_amount": 0,
     "quote": null,
@@ -6326,7 +7018,7 @@
     "total_tax_amounts": [],
     "total_taxes": [],
     "transfer_data": null,
-    "webhooks_delivered_at": 1793878657
+    "webhooks_delivered_at": 1793879245
    }
   },
   {
@@ -6334,25 +7026,25 @@
    "path": "/v1/invoiceitems",
    "status": 200,
    "body": {
-    "id": "ii_1UYOz86XTmyOc4m6d5AqhBBf",
+    "id": "ii_1UYP8c6XTmyOc4m6chxmIExt",
     "object": "invoiceitem",
     "amount": 5000,
     "currency": "usd",
     "customer": "cus_VZXFm0SLDZzbVt",
     "customer_account": null,
-    "date": 1793878658,
+    "date": 1793879246,
     "description": "Duplicate to void",
     "discountable": true,
     "discounts": [],
     "frozen_fields": [],
-    "invoice": "in_1UYOz76XTmyOc4m6K1Kcealb",
+    "invoice": "in_1UYP8b6XTmyOc4m6nZjT3o0W",
     "invoicing_rules": [],
     "livemode": false,
     "metadata": {},
     "parent": null,
     "period": {
-     "end": 1793878658,
-     "start": 1793878658
+     "end": 1793879246,
+     "start": 1793879246
     },
     "plan": null,
     "price": {
@@ -6396,10 +7088,10 @@
   },
   {
    "method": "GET",
-   "path": "/v1/invoices/in_1UYOz76XTmyOc4m6K1Kcealb",
+   "path": "/v1/invoices/in_1UYP8b6XTmyOc4m6nZjT3o0W",
    "status": 200,
    "body": {
-    "id": "in_1UYOz76XTmyOc4m6K1Kcealb",
+    "id": "in_1UYP8b6XTmyOc4m6nZjT3o0W",
     "object": "invoice",
     "account_country": "US",
     "account_name": "Obol Test Account",
@@ -6425,7 +7117,7 @@
     "billing_reason": "manual",
     "charge": null,
     "collection_method": "send_invoice",
-    "created": 1793878657,
+    "created": 1793879245,
     "currency": "usd",
     "custom_fields": null,
     "customer": "cus_VZXFm0SLDZzbVt",
@@ -6443,7 +7135,7 @@
     "description": null,
     "discount": null,
     "discounts": [],
-    "due_date": 1795088257,
+    "due_date": 1795088845,
     "effective_at": null,
     "ending_balance": null,
     "footer": null,
@@ -6459,7 +7151,7 @@
      "object": "list",
      "data": [
       {
-       "id": "il_1UYOz86XTmyOc4m6wyD5I13o",
+       "id": "il_1UYP8c6XTmyOc4m6UlMxEzkX",
        "object": "line_item",
        "amount": 5000,
        "amount_excluding_tax": 5000,
@@ -6468,13 +7160,13 @@
        "discount_amounts": [],
        "discountable": true,
        "discounts": [],
-       "invoice": "in_1UYOz76XTmyOc4m6K1Kcealb",
-       "invoice_item": "ii_1UYOz86XTmyOc4m6d5AqhBBf",
+       "invoice": "in_1UYP8b6XTmyOc4m6nZjT3o0W",
+       "invoice_item": "ii_1UYP8c6XTmyOc4m6chxmIExt",
        "livemode": false,
        "metadata": {},
        "parent": {
         "invoice_item_details": {
-         "invoice_item": "ii_1UYOz86XTmyOc4m6d5AqhBBf",
+         "invoice_item": "ii_1UYP8c6XTmyOc4m6chxmIExt",
          "proration": false,
          "proration_details": {
           "credited_items": null
@@ -6486,8 +7178,8 @@
         "type": "invoice_item_details"
        },
        "period": {
-        "end": 1793878658,
-        "start": 1793878658
+        "end": 1793879246,
+        "start": 1793879246
        },
        "plan": null,
        "pretax_credit_amounts": [],
@@ -6537,7 +7229,7 @@
      ],
      "has_more": false,
      "total_count": 1,
-     "url": "/v1/invoices/in_1UYOz76XTmyOc4m6K1Kcealb/lines"
+     "url": "/v1/invoices/in_1UYP8b6XTmyOc4m6nZjT3o0W/lines"
     },
     "livemode": false,
     "metadata": {
@@ -6555,8 +7247,8 @@
      "payment_method_options": null,
      "payment_method_types": null
     },
-    "period_end": 1793878657,
-    "period_start": 1793878657,
+    "period_end": 1793879245,
+    "period_start": 1793879245,
     "post_payment_credit_notes_amount": 0,
     "pre_payment_credit_notes_amount": 0,
     "quote": null,
@@ -6595,15 +7287,15 @@
     "total_tax_amounts": [],
     "total_taxes": [],
     "transfer_data": null,
-    "webhooks_delivered_at": 1793878657
+    "webhooks_delivered_at": 1793879245
    }
   },
   {
    "method": "GET",
-   "path": "/v1/invoices/in_1UYOz76XTmyOc4m6K1Kcealb",
+   "path": "/v1/invoices/in_1UYP8b6XTmyOc4m6nZjT3o0W",
    "status": 200,
    "body": {
-    "id": "in_1UYOz76XTmyOc4m6K1Kcealb",
+    "id": "in_1UYP8b6XTmyOc4m6nZjT3o0W",
     "object": "invoice",
     "account_country": "US",
     "account_name": "Obol Test Account",
@@ -6629,7 +7321,7 @@
     "billing_reason": "manual",
     "charge": null,
     "collection_method": "send_invoice",
-    "created": 1793878657,
+    "created": 1793879245,
     "currency": "usd",
     "custom_fields": null,
     "customer": "cus_VZXFm0SLDZzbVt",
@@ -6647,7 +7339,7 @@
     "description": null,
     "discount": null,
     "discounts": [],
-    "due_date": 1795088257,
+    "due_date": 1795088845,
     "effective_at": null,
     "ending_balance": null,
     "footer": null,
@@ -6663,7 +7355,7 @@
      "object": "list",
      "data": [
       {
-       "id": "il_1UYOz86XTmyOc4m6wyD5I13o",
+       "id": "il_1UYP8c6XTmyOc4m6UlMxEzkX",
        "object": "line_item",
        "amount": 5000,
        "amount_excluding_tax": 5000,
@@ -6672,13 +7364,13 @@
        "discount_amounts": [],
        "discountable": true,
        "discounts": [],
-       "invoice": "in_1UYOz76XTmyOc4m6K1Kcealb",
-       "invoice_item": "ii_1UYOz86XTmyOc4m6d5AqhBBf",
+       "invoice": "in_1UYP8b6XTmyOc4m6nZjT3o0W",
+       "invoice_item": "ii_1UYP8c6XTmyOc4m6chxmIExt",
        "livemode": false,
        "metadata": {},
        "parent": {
         "invoice_item_details": {
-         "invoice_item": "ii_1UYOz86XTmyOc4m6d5AqhBBf",
+         "invoice_item": "ii_1UYP8c6XTmyOc4m6chxmIExt",
          "proration": false,
          "proration_details": {
           "credited_items": null
@@ -6690,8 +7382,8 @@
         "type": "invoice_item_details"
        },
        "period": {
-        "end": 1793878658,
-        "start": 1793878658
+        "end": 1793879246,
+        "start": 1793879246
        },
        "plan": null,
        "pretax_credit_amounts": [],
@@ -6741,7 +7433,7 @@
      ],
      "has_more": false,
      "total_count": 1,
-     "url": "/v1/invoices/in_1UYOz76XTmyOc4m6K1Kcealb/lines"
+     "url": "/v1/invoices/in_1UYP8b6XTmyOc4m6nZjT3o0W/lines"
     },
     "livemode": false,
     "metadata": {
@@ -6759,8 +7451,8 @@
      "payment_method_options": null,
      "payment_method_types": null
     },
-    "period_end": 1793878657,
-    "period_start": 1793878657,
+    "period_end": 1793879245,
+    "period_start": 1793879245,
     "post_payment_credit_notes_amount": 0,
     "pre_payment_credit_notes_amount": 0,
     "quote": null,
@@ -6799,15 +7491,15 @@
     "total_tax_amounts": [],
     "total_taxes": [],
     "transfer_data": null,
-    "webhooks_delivered_at": 1793878657
+    "webhooks_delivered_at": 1793879245
    }
   },
   {
    "method": "POST",
-   "path": "/v1/invoices/in_1UYOz76XTmyOc4m6K1Kcealb/finalize",
+   "path": "/v1/invoices/in_1UYP8b6XTmyOc4m6nZjT3o0W/finalize",
    "status": 200,
    "body": {
-    "id": "in_1UYOz76XTmyOc4m6K1Kcealb",
+    "id": "in_1UYP8b6XTmyOc4m6nZjT3o0W",
     "object": "invoice",
     "account_country": "US",
     "account_name": "Obol Test Account",
@@ -6833,7 +7525,7 @@
     "billing_reason": "manual",
     "charge": null,
     "collection_method": "send_invoice",
-    "created": 1793878657,
+    "created": 1793879245,
     "currency": "usd",
     "custom_fields": null,
     "customer": "cus_VZXFm0SLDZzbVt",
@@ -6851,8 +7543,8 @@
     "description": null,
     "discount": null,
     "discounts": [],
-    "due_date": 1795088257,
-    "effective_at": 1793878658,
+    "due_date": 1795088845,
+    "effective_at": 1793879247,
     "ending_balance": 0,
     "footer": null,
     "from_invoice": null,
@@ -6867,7 +7559,7 @@
      "object": "list",
      "data": [
       {
-       "id": "il_1UYOz86XTmyOc4m6wyD5I13o",
+       "id": "il_1UYP8c6XTmyOc4m6UlMxEzkX",
        "object": "line_item",
        "amount": 5000,
        "amount_excluding_tax": 5000,
@@ -6876,13 +7568,13 @@
        "discount_amounts": [],
        "discountable": true,
        "discounts": [],
-       "invoice": "in_1UYOz76XTmyOc4m6K1Kcealb",
-       "invoice_item": "ii_1UYOz86XTmyOc4m6d5AqhBBf",
+       "invoice": "in_1UYP8b6XTmyOc4m6nZjT3o0W",
+       "invoice_item": "ii_1UYP8c6XTmyOc4m6chxmIExt",
        "livemode": false,
        "metadata": {},
        "parent": {
         "invoice_item_details": {
-         "invoice_item": "ii_1UYOz86XTmyOc4m6d5AqhBBf",
+         "invoice_item": "ii_1UYP8c6XTmyOc4m6chxmIExt",
          "proration": false,
          "proration_details": {
           "credited_items": null
@@ -6894,8 +7586,8 @@
         "type": "invoice_item_details"
        },
        "period": {
-        "end": 1793878658,
-        "start": 1793878658
+        "end": 1793879246,
+        "start": 1793879246
        },
        "plan": null,
        "pretax_credit_amounts": [],
@@ -6945,26 +7637,26 @@
      ],
      "has_more": false,
      "total_count": 1,
-     "url": "/v1/invoices/in_1UYOz76XTmyOc4m6K1Kcealb/lines"
+     "url": "/v1/invoices/in_1UYP8b6XTmyOc4m6nZjT3o0W/lines"
     },
     "livemode": false,
     "metadata": {
      "created_by": "obol"
     },
     "next_payment_attempt": null,
-    "number": "5RGXOJBG-0004",
+    "number": "5RGXOJBG-0006",
     "on_behalf_of": null,
     "paid": false,
     "paid_out_of_band": false,
     "parent": null,
-    "payment_intent": "pi_3UYOz96XTmyOc4m60HatK6iB",
+    "payment_intent": "pi_3UYP8d6XTmyOc4m60RUJRHKP",
     "payment_settings": {
      "default_mandate": null,
      "payment_method_options": null,
      "payment_method_types": null
     },
-    "period_end": 1793878657,
-    "period_start": 1793878657,
+    "period_end": 1793879245,
+    "period_start": 1793879245,
     "post_payment_credit_notes_amount": 0,
     "pre_payment_credit_notes_amount": 0,
     "quote": null,
@@ -6983,7 +7675,7 @@
     "statement_descriptor": null,
     "status": "open",
     "status_transitions": {
-     "finalized_at": 1793878658,
+     "finalized_at": 1793879247,
      "marked_uncollectible_at": null,
      "paid_at": null,
      "voided_at": null
@@ -7003,15 +7695,15 @@
     "total_tax_amounts": [],
     "total_taxes": [],
     "transfer_data": null,
-    "webhooks_delivered_at": 1793878657
+    "webhooks_delivered_at": 1793879245
    }
   },
   {
    "method": "POST",
-   "path": "/v1/invoices/in_1UYOz76XTmyOc4m6K1Kcealb/send",
+   "path": "/v1/invoices/in_1UYP8b6XTmyOc4m6nZjT3o0W/send",
    "status": 200,
    "body": {
-    "id": "in_1UYOz76XTmyOc4m6K1Kcealb",
+    "id": "in_1UYP8b6XTmyOc4m6nZjT3o0W",
     "object": "invoice",
     "account_country": "US",
     "account_name": "Obol Test Account",
@@ -7037,7 +7729,7 @@
     "billing_reason": "manual",
     "charge": null,
     "collection_method": "send_invoice",
-    "created": 1793878657,
+    "created": 1793879245,
     "currency": "usd",
     "custom_fields": null,
     "customer": "cus_VZXFm0SLDZzbVt",
@@ -7055,8 +7747,8 @@
     "description": null,
     "discount": null,
     "discounts": [],
-    "due_date": 1795088257,
-    "effective_at": 1793878658,
+    "due_date": 1795088845,
+    "effective_at": 1793879247,
     "ending_balance": 0,
     "footer": null,
     "from_invoice": null,
@@ -7071,7 +7763,7 @@
      "object": "list",
      "data": [
       {
-       "id": "il_1UYOz86XTmyOc4m6wyD5I13o",
+       "id": "il_1UYP8c6XTmyOc4m6UlMxEzkX",
        "object": "line_item",
        "amount": 5000,
        "amount_excluding_tax": 5000,
@@ -7080,13 +7772,13 @@
        "discount_amounts": [],
        "discountable": true,
        "discounts": [],
-       "invoice": "in_1UYOz76XTmyOc4m6K1Kcealb",
-       "invoice_item": "ii_1UYOz86XTmyOc4m6d5AqhBBf",
+       "invoice": "in_1UYP8b6XTmyOc4m6nZjT3o0W",
+       "invoice_item": "ii_1UYP8c6XTmyOc4m6chxmIExt",
        "livemode": false,
        "metadata": {},
        "parent": {
         "invoice_item_details": {
-         "invoice_item": "ii_1UYOz86XTmyOc4m6d5AqhBBf",
+         "invoice_item": "ii_1UYP8c6XTmyOc4m6chxmIExt",
          "proration": false,
          "proration_details": {
           "credited_items": null
@@ -7098,8 +7790,8 @@
         "type": "invoice_item_details"
        },
        "period": {
-        "end": 1793878658,
-        "start": 1793878658
+        "end": 1793879246,
+        "start": 1793879246
        },
        "plan": null,
        "pretax_credit_amounts": [],
@@ -7149,26 +7841,26 @@
      ],
      "has_more": false,
      "total_count": 1,
-     "url": "/v1/invoices/in_1UYOz76XTmyOc4m6K1Kcealb/lines"
+     "url": "/v1/invoices/in_1UYP8b6XTmyOc4m6nZjT3o0W/lines"
     },
     "livemode": false,
     "metadata": {
      "created_by": "obol"
     },
     "next_payment_attempt": null,
-    "number": "5RGXOJBG-0004",
+    "number": "5RGXOJBG-0006",
     "on_behalf_of": null,
     "paid": false,
     "paid_out_of_band": false,
     "parent": null,
-    "payment_intent": "pi_3UYOz96XTmyOc4m60HatK6iB",
+    "payment_intent": "pi_3UYP8d6XTmyOc4m60RUJRHKP",
     "payment_settings": {
      "default_mandate": null,
      "payment_method_options": null,
      "payment_method_types": null
     },
-    "period_end": 1793878657,
-    "period_start": 1793878657,
+    "period_end": 1793879245,
+    "period_start": 1793879245,
     "post_payment_credit_notes_amount": 0,
     "pre_payment_credit_notes_amount": 0,
     "quote": null,
@@ -7187,7 +7879,7 @@
     "statement_descriptor": null,
     "status": "open",
     "status_transitions": {
-     "finalized_at": 1793878658,
+     "finalized_at": 1793879247,
      "marked_uncollectible_at": null,
      "paid_at": null,
      "voided_at": null
@@ -7207,15 +7899,15 @@
     "total_tax_amounts": [],
     "total_taxes": [],
     "transfer_data": null,
-    "webhooks_delivered_at": 1793878657
+    "webhooks_delivered_at": 1793879245
    }
   },
   {
    "method": "GET",
-   "path": "/v1/invoices/in_1UYOz76XTmyOc4m6K1Kcealb",
+   "path": "/v1/invoices/in_1UYP8b6XTmyOc4m6nZjT3o0W",
    "status": 200,
    "body": {
-    "id": "in_1UYOz76XTmyOc4m6K1Kcealb",
+    "id": "in_1UYP8b6XTmyOc4m6nZjT3o0W",
     "object": "invoice",
     "account_country": "US",
     "account_name": "Obol Test Account",
@@ -7241,7 +7933,7 @@
     "billing_reason": "manual",
     "charge": null,
     "collection_method": "send_invoice",
-    "created": 1793878657,
+    "created": 1793879245,
     "currency": "usd",
     "custom_fields": null,
     "customer": "cus_VZXFm0SLDZzbVt",
@@ -7259,8 +7951,8 @@
     "description": null,
     "discount": null,
     "discounts": [],
-    "due_date": 1795088257,
-    "effective_at": 1793878658,
+    "due_date": 1795088845,
+    "effective_at": 1793879247,
     "ending_balance": 0,
     "footer": null,
     "from_invoice": null,
@@ -7275,7 +7967,7 @@
      "object": "list",
      "data": [
       {
-       "id": "il_1UYOz86XTmyOc4m6wyD5I13o",
+       "id": "il_1UYP8c6XTmyOc4m6UlMxEzkX",
        "object": "line_item",
        "amount": 5000,
        "amount_excluding_tax": 5000,
@@ -7284,13 +7976,13 @@
        "discount_amounts": [],
        "discountable": true,
        "discounts": [],
-       "invoice": "in_1UYOz76XTmyOc4m6K1Kcealb",
-       "invoice_item": "ii_1UYOz86XTmyOc4m6d5AqhBBf",
+       "invoice": "in_1UYP8b6XTmyOc4m6nZjT3o0W",
+       "invoice_item": "ii_1UYP8c6XTmyOc4m6chxmIExt",
        "livemode": false,
        "metadata": {},
        "parent": {
         "invoice_item_details": {
-         "invoice_item": "ii_1UYOz86XTmyOc4m6d5AqhBBf",
+         "invoice_item": "ii_1UYP8c6XTmyOc4m6chxmIExt",
          "proration": false,
          "proration_details": {
           "credited_items": null
@@ -7302,8 +7994,8 @@
         "type": "invoice_item_details"
        },
        "period": {
-        "end": 1793878658,
-        "start": 1793878658
+        "end": 1793879246,
+        "start": 1793879246
        },
        "plan": null,
        "pretax_credit_amounts": [],
@@ -7353,26 +8045,26 @@
      ],
      "has_more": false,
      "total_count": 1,
-     "url": "/v1/invoices/in_1UYOz76XTmyOc4m6K1Kcealb/lines"
+     "url": "/v1/invoices/in_1UYP8b6XTmyOc4m6nZjT3o0W/lines"
     },
     "livemode": false,
     "metadata": {
      "created_by": "obol"
     },
     "next_payment_attempt": null,
-    "number": "5RGXOJBG-0004",
+    "number": "5RGXOJBG-0006",
     "on_behalf_of": null,
     "paid": false,
     "paid_out_of_band": false,
     "parent": null,
-    "payment_intent": "pi_3UYOz96XTmyOc4m60HatK6iB",
+    "payment_intent": "pi_3UYP8d6XTmyOc4m60RUJRHKP",
     "payment_settings": {
      "default_mandate": null,
      "payment_method_options": null,
      "payment_method_types": null
     },
-    "period_end": 1793878657,
-    "period_start": 1793878657,
+    "period_end": 1793879245,
+    "period_start": 1793879245,
     "post_payment_credit_notes_amount": 0,
     "pre_payment_credit_notes_amount": 0,
     "quote": null,
@@ -7391,7 +8083,7 @@
     "statement_descriptor": null,
     "status": "open",
     "status_transitions": {
-     "finalized_at": 1793878658,
+     "finalized_at": 1793879247,
      "marked_uncollectible_at": null,
      "paid_at": null,
      "voided_at": null
@@ -7411,15 +8103,15 @@
     "total_tax_amounts": [],
     "total_taxes": [],
     "transfer_data": null,
-    "webhooks_delivered_at": 1793878657
+    "webhooks_delivered_at": 1793879245
    }
   },
   {
    "method": "POST",
-   "path": "/v1/invoices/in_1UYOz76XTmyOc4m6K1Kcealb/void",
+   "path": "/v1/invoices/in_1UYP8b6XTmyOc4m6nZjT3o0W/void",
    "status": 200,
    "body": {
-    "id": "in_1UYOz76XTmyOc4m6K1Kcealb",
+    "id": "in_1UYP8b6XTmyOc4m6nZjT3o0W",
     "object": "invoice",
     "account_country": "US",
     "account_name": "Obol Test Account",
@@ -7445,7 +8137,7 @@
     "billing_reason": "manual",
     "charge": null,
     "collection_method": "send_invoice",
-    "created": 1793878657,
+    "created": 1793879245,
     "currency": "usd",
     "custom_fields": null,
     "customer": "cus_VZXFm0SLDZzbVt",
@@ -7463,8 +8155,8 @@
     "description": null,
     "discount": null,
     "discounts": [],
-    "due_date": 1795088257,
-    "effective_at": 1793878658,
+    "due_date": 1795088845,
+    "effective_at": 1793879247,
     "ending_balance": 0,
     "footer": null,
     "from_invoice": null,
@@ -7479,7 +8171,7 @@
      "object": "list",
      "data": [
       {
-       "id": "il_1UYOz86XTmyOc4m6wyD5I13o",
+       "id": "il_1UYP8c6XTmyOc4m6UlMxEzkX",
        "object": "line_item",
        "amount": 5000,
        "amount_excluding_tax": 5000,
@@ -7488,13 +8180,13 @@
        "discount_amounts": [],
        "discountable": true,
        "discounts": [],
-       "invoice": "in_1UYOz76XTmyOc4m6K1Kcealb",
-       "invoice_item": "ii_1UYOz86XTmyOc4m6d5AqhBBf",
+       "invoice": "in_1UYP8b6XTmyOc4m6nZjT3o0W",
+       "invoice_item": "ii_1UYP8c6XTmyOc4m6chxmIExt",
        "livemode": false,
        "metadata": {},
        "parent": {
         "invoice_item_details": {
-         "invoice_item": "ii_1UYOz86XTmyOc4m6d5AqhBBf",
+         "invoice_item": "ii_1UYP8c6XTmyOc4m6chxmIExt",
          "proration": false,
          "proration_details": {
           "credited_items": null
@@ -7506,8 +8198,8 @@
         "type": "invoice_item_details"
        },
        "period": {
-        "end": 1793878658,
-        "start": 1793878658
+        "end": 1793879246,
+        "start": 1793879246
        },
        "plan": null,
        "pretax_credit_amounts": [],
@@ -7557,26 +8249,26 @@
      ],
      "has_more": false,
      "total_count": 1,
-     "url": "/v1/invoices/in_1UYOz76XTmyOc4m6K1Kcealb/lines"
+     "url": "/v1/invoices/in_1UYP8b6XTmyOc4m6nZjT3o0W/lines"
     },
     "livemode": false,
     "metadata": {
      "created_by": "obol"
     },
     "next_payment_attempt": null,
-    "number": "5RGXOJBG-0004",
+    "number": "5RGXOJBG-0006",
     "on_behalf_of": null,
     "paid": false,
     "paid_out_of_band": false,
     "parent": null,
-    "payment_intent": "pi_3UYOz96XTmyOc4m60HatK6iB",
+    "payment_intent": "pi_3UYP8d6XTmyOc4m60RUJRHKP",
     "payment_settings": {
      "default_mandate": null,
      "payment_method_options": null,
      "payment_method_types": null
     },
-    "period_end": 1793878657,
-    "period_start": 1793878657,
+    "period_end": 1793879245,
+    "period_start": 1793879245,
     "post_payment_credit_notes_amount": 0,
     "pre_payment_credit_notes_amount": 0,
     "quote": null,
@@ -7595,10 +8287,10 @@
     "statement_descriptor": null,
     "status": "void",
     "status_transitions": {
-     "finalized_at": 1793878658,
+     "finalized_at": 1793879247,
      "marked_uncollectible_at": null,
      "paid_at": null,
-     "voided_at": 1793878660
+     "voided_at": 1793879249
     },
     "subscription": null,
     "subscription_details": {
@@ -7615,7 +8307,7 @@
     "total_tax_amounts": [],
     "total_taxes": [],
     "transfer_data": null,
-    "webhooks_delivered_at": 1793878657
+    "webhooks_delivered_at": 1793879245
    }
   },
   {
@@ -7626,75 +8318,25 @@
     "object": "list",
     "data": [
      {
-      "id": "evt_1UYOye6XTmyOc4m6hxJMCTTe",
+      "id": "evt_1UYP086XTmyOc4m65iIlk3eW",
       "object": "event",
       "api_version": "2026-10-28.endive",
-      "created": 1793878628,
+      "created": 1793878720,
       "data": {
        "object": {
-        "id": "cus_VZY4bRhqQBClaT",
+        "id": "cus_VZY62XfaXVSQwG",
         "object": "customer",
         "address": null,
         "balance": 0,
-        "created": 1793878627,
+        "created": 1793705919,
         "currency": "usd",
         "customer_account": null,
         "default_source": null,
         "delinquent": false,
         "description": null,
         "discount": null,
-        "email": "obol-live-45f8d31a8edc@example.com",
-        "invoice_prefix": "5MWVY5NX",
-        "invoice_settings": {
-         "custom_fields": null,
-         "default_payment_method": null,
-         "footer": null,
-         "rendering_options": null
-        },
-        "livemode": false,
-        "metadata": {
-         "created_by": "obol"
-        },
-        "name": "Obol Live Test",
-        "next_invoice_sequence": 1,
-        "phone": null,
-        "preferred_locales": [],
-        "shipping": null,
-        "tax_exempt": "none",
-        "test_clock": null
-       },
-       "previous_attributes": {
-        "currency": null
-       }
-      },
-      "livemode": false,
-      "pending_webhooks": 0,
-      "request": {
-       "id": "req_AUPmRbqkwdezBH",
-       "idempotency_key": "obol-33f9a523d07d487f91b5888ccc1c3984-inv"
-      },
-      "type": "customer.updated"
-     },
-     {
-      "id": "evt_1UYOuG6XTmyOc4m6GreJ7Rpj",
-      "object": "event",
-      "api_version": "2026-10-28.endive",
-      "created": 1793878356,
-      "data": {
-       "object": {
-        "id": "cus_VZY0aVGRtWPWZ8",
-        "object": "customer",
-        "address": null,
-        "balance": 0,
-        "created": 1793878354,
-        "currency": "usd",
-        "customer_account": null,
-        "default_source": null,
-        "delinquent": false,
-        "description": null,
-        "discount": null,
-        "email": "probe@example.com",
-        "invoice_prefix": "QTWIVONE",
+        "email": "orders@olivestreet.example.com",
+        "invoice_prefix": "9TIDF06R",
         "invoice_settings": {
          "custom_fields": null,
          "default_payment_method": null,
@@ -7705,13 +8347,13 @@
         "metadata": {
          "obol_demo": "1"
         },
-        "name": "Probe Client",
+        "name": "Olive Street Bakery",
         "next_invoice_sequence": 1,
         "phone": null,
         "preferred_locales": [],
         "shipping": null,
         "tax_exempt": "none",
-        "test_clock": "clock_1UYOuF6XTmyOc4m65gVyu4TK"
+        "test_clock": "clock_1UYP076XTmyOc4m6ukkmMJeP"
        },
        "previous_attributes": {
         "currency": null
@@ -7720,31 +8362,31 @@
       "livemode": false,
       "pending_webhooks": 0,
       "request": {
-       "id": "req_4yj3e1vkPosJjx",
-       "idempotency_key": "obol-seed-probe-1793878355-inv"
+       "id": "req_z87kd37AubOSU5",
+       "idempotency_key": "obol-seed-cus_VZY62XfaXVSQwG-inv"
       },
       "type": "customer.updated"
      },
      {
-      "id": "evt_1UYOtB6XTmyOc4m6IXIRzCyp",
+      "id": "evt_1UYP056XTmyOc4m62Mlk9g8P",
       "object": "event",
       "api_version": "2026-10-28.endive",
-      "created": 1793878288,
+      "created": 1793878717,
       "data": {
        "object": {
-        "id": "cus_VZXzns4K88ftMZ",
+        "id": "cus_VZY6QZewczQYFB",
         "object": "customer",
         "address": null,
         "balance": 0,
-        "created": 1793878288,
+        "created": 1793533116,
         "currency": "usd",
         "customer_account": null,
         "default_source": null,
         "delinquent": false,
         "description": null,
         "discount": null,
-        "email": "obol-live-0f42e92053a9@example.com",
-        "invoice_prefix": "AHQZVW19",
+        "email": "studio@harborpine.example.com",
+        "invoice_prefix": "JZ6U694C",
         "invoice_settings": {
          "custom_fields": null,
          "default_payment_method": null,
@@ -7753,15 +8395,15 @@
         },
         "livemode": false,
         "metadata": {
-         "created_by": "obol"
+         "obol_demo": "1"
         },
-        "name": "Obol Live Test",
+        "name": "Harbor & Pine",
         "next_invoice_sequence": 1,
         "phone": null,
         "preferred_locales": [],
         "shipping": null,
         "tax_exempt": "none",
-        "test_clock": null
+        "test_clock": "clock_1UYP046XTmyOc4m63pEl2qSY"
        },
        "previous_attributes": {
         "currency": null
@@ -7770,8 +8412,58 @@
       "livemode": false,
       "pending_webhooks": 0,
       "request": {
-       "id": "req_mmxKE7v2OGWmiY",
-       "idempotency_key": "obol-fdd2b95cffb2467b8097ae9d31a4ffe7-inv"
+       "id": "req_pdUCcD2Bxr5nq5",
+       "idempotency_key": "obol-seed-cus_VZY6QZewczQYFB-inv"
+      },
+      "type": "customer.updated"
+     },
+     {
+      "id": "evt_1UYP026XTmyOc4m6BPykVtwW",
+      "object": "event",
+      "api_version": "2026-10-28.endive",
+      "created": 1793878714,
+      "data": {
+       "object": {
+        "id": "cus_VZY6s7swC4xoZI",
+        "object": "customer",
+        "address": null,
+        "balance": 0,
+        "created": 1791805113,
+        "currency": "usd",
+        "customer_account": null,
+        "default_source": null,
+        "delinquent": false,
+        "description": null,
+        "discount": null,
+        "email": "billing@kestrel.example.com",
+        "invoice_prefix": "ZWWNHWXI",
+        "invoice_settings": {
+         "custom_fields": null,
+         "default_payment_method": null,
+         "footer": null,
+         "rendering_options": null
+        },
+        "livemode": false,
+        "metadata": {
+         "obol_demo": "1"
+        },
+        "name": "Kestrel Fitness",
+        "next_invoice_sequence": 1,
+        "phone": null,
+        "preferred_locales": [],
+        "shipping": null,
+        "tax_exempt": "none",
+        "test_clock": "clock_1UYP016XTmyOc4m6OcxoD8uP"
+       },
+       "previous_attributes": {
+        "currency": null
+       }
+      },
+      "livemode": false,
+      "pending_webhooks": 0,
+      "request": {
+       "id": "req_YjDnqt2uY0GqpE",
+       "idempotency_key": "obol-seed-cus_VZY6s7swC4xoZI-inv"
       },
       "type": "customer.updated"
      }
@@ -7790,7 +8482,7 @@
      "doc_url": "https://stripe.com/docs/error-codes/resource-missing",
      "message": "No such invoice: 'in_0000000000obolmissing'",
      "param": "invoice",
-     "request_log_url": "https://dashboard.stripe.com/acct_1UYN0u6XTmyOc4m6/test/workbench/logs?object=req_AJy68bxeXnHt7r",
+     "request_log_url": "https://dashboard.stripe.com/acct_1UYN0u6XTmyOc4m6/test/workbench/logs?object=req_a783GaAXf0Smcz",
      "type": "invalid_request_error"
     }
    }

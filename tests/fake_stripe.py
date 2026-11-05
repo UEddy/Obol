@@ -23,6 +23,8 @@ class FakeStripe:
         self.sent: list[str] = []
         self.events: list[dict] = []
         self.clocks: dict[str, dict] = {}
+        self.charges: dict[str, dict] = {}
+        self.disputes: list[dict] = []
         self.calls: list[tuple[str, str]] = []
         self.idem: dict[str, httpx.Response] = {}
         self.fail_queue: list[tuple[str, int]] = []   # (path substring, status) consumed in order
@@ -34,14 +36,23 @@ class FakeStripe:
     def _id(self, prefix: str) -> str:
         return f"{prefix}_{next(self._ids):08d}TEST"
 
+    def dispute(self, inv_id: str, reason: str = "fraudulent") -> None:
+        ch = self.invoices[inv_id]["charge"]
+        self.charges[ch]["disputed"] = True
+        self.disputes.append({"id": self._id("dp"), "charge": ch, "reason": reason, "status": "needs_response"})
+
     def customer_updated(self, customer_id: str, previous: dict, at: int | None = None) -> None:
         """Record a customer.updated event, as Stripe does when email or payment details change."""
         self.events.append({"id": self._id("evt"), "object": "event", "type": "customer.updated",
                             "created": at or self.now, "data": {"object": self.customers[customer_id],
                                                                 "previous_attributes": previous}})
 
-    def pay(self, inv_id: str) -> None:
+    def pay(self, inv_id: str, risk_level: str = "normal", risk_score: int = 12) -> None:
         inv = self.invoices[inv_id]
+        ch = self._id("ch")
+        self.charges[ch] = {"id": ch, "object": "charge", "disputed": False,
+                            "outcome": {"risk_level": risk_level, "risk_score": risk_score, "type": "authorized"}}
+        inv["charge"] = ch
         inv.update(status="paid", amount_paid=inv["amount_due"], amount_remaining=0)
         inv["status_transitions"]["paid_at"] = self.now
 
@@ -132,6 +143,12 @@ class FakeStripe:
                 data = data[ids.index(query["starting_after"]) + 1:]
             limit = int(query.get("limit", 10))
             return self._json(200, {"object": "list", "data": data[:limit], "has_more": len(data) > limit})
+        if parts[:1] == ["charges"] and len(parts) == 2 and method == "GET":
+            ch = self.charges.get(parts[1])
+            return self._json(200, ch) if ch else self._err(404, "No such charge", "resource_missing")
+        if parts == ["disputes"] and method == "GET":
+            return self._json(200, {"object": "list", "data": [d for d in self.disputes if d["charge"] == query.get("charge")],
+                                    "has_more": False})
         if parts == ["events"] and method == "GET":
             types = set(query.get_list("types[]")) if hasattr(query, "get_list") else set()
             gte = int(query.get("created[gte]", 0))

@@ -77,6 +77,11 @@ CREATE TABLE IF NOT EXISTS pending_risk (
 
 STATUSES = ("draft", "open", "paid", "void", "uncollectible")
 
+# Payment-side risk read from Stripe (Radar outcome and disputes) for paid invoices.
+PAYMENT_COLUMNS = (("charge_id", "TEXT"), ("radar_risk_level", "TEXT"), ("radar_risk_score", "INTEGER"),
+                   ("disputed", "INTEGER"), ("dispute_status", "TEXT"), ("dispute_reason", "TEXT"),
+                   ("payment_checked_at", "INTEGER"))
+
 # Hash-chained (tamper-evident) tables and the fields each entry's hash covers, in order.
 CHAINED = {
     "events": ("at", "invoice_id", "kind", "detail"),
@@ -111,6 +116,7 @@ def row_from_invoice(inv: dict, now: Optional[int] = None) -> dict[str, Any]:
         "hosted_url": inv.get("hosted_invoice_url"),
         "pdf_url": inv.get("invoice_pdf"),
         "livemode": 1 if inv.get("livemode") else 0,
+        "charge_id": inv.get("charge") if isinstance(inv.get("charge"), str) else (inv.get("charge") or {}).get("id"),
         "synced_at": int(now if now is not None else time.time()),
     }
 
@@ -130,6 +136,10 @@ class Store:
         self._lock = threading.Lock()
         with self._lock:
             self._conn.executescript(SCHEMA)
+            inv_cols = {r[1] for r in self._conn.execute("PRAGMA table_info(invoices)")}
+            for col, typ in PAYMENT_COLUMNS:
+                if col not in inv_cols:
+                    self._conn.execute(f"ALTER TABLE invoices ADD COLUMN {col} {typ}")
             for table in CHAINED:  # upgrade older databases, then seal any unhashed rows in order
                 cols = {r[1] for r in self._conn.execute(f"PRAGMA table_info({table})")}
                 for col in ("prev_hash", "hash"):
@@ -225,6 +235,23 @@ class Store:
             self._conn.executemany(sql, [tuple(r[c] for c in cols) for r in rows])
             self._conn.commit()
         return len(rows)
+
+    def set_payment_risk(self, invoice_id: str, *, risk_level: Optional[str], risk_score: Optional[int],
+                         disputed: bool, dispute_status: Optional[str], dispute_reason: Optional[str]) -> None:
+        with self._lock:
+            self._conn.execute(
+                "UPDATE invoices SET radar_risk_level = ?, radar_risk_score = ?, disputed = ?, dispute_status = ?, "
+                "dispute_reason = ?, payment_checked_at = ? WHERE id = ?",
+                (risk_level, risk_score, 1 if disputed else 0, dispute_status, dispute_reason, int(time.time()), invoice_id))
+            self._conn.commit()
+
+    def unchecked_paid(self, limit: int = 25, now: Optional[float] = None) -> list[dict]:
+        """Paid invoices never checked, or (disputes come late) paid in the last 120 days and not checked today."""
+        now = int(now or time.time())
+        return self._rows("SELECT * FROM invoices WHERE status = 'paid' AND charge_id IS NOT NULL AND "
+                          "(payment_checked_at IS NULL OR (payment_checked_at < ? AND COALESCE(paid_at, created) > ?)) "
+                          "ORDER BY payment_checked_at IS NOT NULL, created DESC LIMIT ?",
+                          (now - 86400, now - 120 * 86400, limit))
 
     def remove(self, invoice_id: str) -> None:
         with self._lock:
