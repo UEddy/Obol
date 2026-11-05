@@ -40,3 +40,35 @@ def test_every_threat_row_cites_a_test():
 def test_readme_keeps_its_honesty_section():
     assert "### What Obol does not protect against" in README
     assert "does not prevent all fraud" in README
+
+
+# Hermes's install scanner treats these phrases as critical injection findings in any non-test file
+# (README and docs included, even when quoted), which would fail catalog admission. Examples of
+# attacks belong in tests/, where the scanner caps them.
+_SCANNER_PHRASES = [
+    r"ignore\s+(?:\w+\s+)*(previous|all|above|prior)\s+instructions",
+    r"you\s+are\s+(?:\w+\s+)*now\s+",
+    r"disregard\s+(?:\w+\s+)*(your|all|any)\s+(?:\w+\s+)*(instructions|rules|guidelines)",
+    r"system\s+(?:\w+\s+)*prompt\s+(?:\w+\s+)*override",
+    r"pretend\s+(?:\w+\s+)*(you\s+are|to\s+be)\s+",
+    r"new\s+(?:\w+\s+)*policy|updated\s+(?:\w+\s+)*guidelines|revised\s+(?:\w+\s+)*instructions",
+]
+_SKIP = {"tests", "node_modules", ".git", "__pycache__", "out", "public"}
+
+
+def test_no_scanner_injection_phrases_outside_tests():
+    hits = []
+    for path in ROOT.rglob("*"):
+        rel = path.relative_to(ROOT)
+        if path.is_dir() or _SKIP.intersection(rel.parts) or path.suffix in {".png", ".mp4", ".jpg", ".ico", ".lock"}:
+            continue
+        if path.name == "package-lock.json":
+            continue
+        try:
+            text = path.read_text(encoding="utf-8")
+        except (UnicodeDecodeError, OSError):
+            continue
+        for rx in _SCANNER_PHRASES:
+            for m in re.finditer(rx, text, re.I):
+                hits.append(f"{rel}: {m.group(0)[:50]!r}")
+    assert not hits, hits
