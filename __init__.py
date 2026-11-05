@@ -6,7 +6,6 @@ Surfaces registered here:
 * the ``/invoices`` slash command (CLI, TUI, Desktop and every messaging platform);
 * the ``hermes obol`` CLI (doctor, sync, ledger);
 * an "overdue invoice chase" automation blueprint and a bundled ``obol:invoicing`` skill.
-The dashboard tab lives in ``dashboard/`` and reads the same local ledger.
 """
 
 from __future__ import annotations

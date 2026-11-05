@@ -3,9 +3,9 @@
 Source for the < 90 s hackathon demo. It is not part of the Hermes plugin: Hermes never loads
 anything in this folder.
 
-The look follows the paper / index-card / rubber-stamp style of the Obol dashboard. Scenes
+The look is paper, index cards and rubber stamps. Scenes
 (78 s total, 1920×1080, 30 fps): intro → surfaces → **three real screen recordings**
-(chat + approval, Stripe payment, dashboard PAID stamp) → pipeline → end card.
+(chat + approval, Stripe payment, `/invoices` ledger) → pipeline → end card.
 
 ## 1. Record the clips (real Stripe test mode)
 
@@ -15,7 +15,7 @@ Put them in `public/clips/` and set the file names in `src/clips.ts`:
 |---|---|---|
 | `chat.mp4` | 20 s | Ask Hermes: *"Invoice billing@acme.test (Acme Co) $1,200 for October consulting and send it."* Approve the prompt and show the payment link in the reply |
 | `pay.mp4` | 15 s | Open the link, pay with test card `4242 4242 4242 4242`, then ask *"Has Acme paid?"* |
-| `dashboard.mp4` | 15 s | Dashboard → **Invoices** → Sync. The Acme card gets its PAID stamp; scroll to the ledger |
+| `ledger.mp4` | 15 s | Type `/invoices sync` (CLI or Telegram): Acme shows PAID. Then ask *"What's overdue? Remind them."* |
 
 Use `startSeconds` in `src/clips.ts` to trim the start of a clip. Until a clip is set, its
 scene shows a labelled placeholder.

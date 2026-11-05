@@ -32,7 +32,7 @@ export const Intro: React.FC<{ dur: number }> = ({ dur }) => {
 const FAN = [
   { label: "TOOLS", sub: "6 obol_* tools", stamp: "CREATE · SEND · CHECK", color: C.ink },
   { label: "APPROVAL", sub: "pre_tool_call hook", stamp: "APPROVED", color: C.stamp },
-  { label: "LEDGER", sub: "dashboard tab", stamp: "PAID", color: C.stamp },
+  { label: "LEDGER", sub: "/invoices", stamp: "PAID", color: C.stamp },
   { label: "STRIPE", sub: "test mode first", stamp: "TEST", color: C.magenta },
 ];
 export const Fan: React.FC<{ dur: number }> = ({ dur }) => {

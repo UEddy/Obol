@@ -1,8 +1,8 @@
 """Local SQLite cache of invoices plus an append-only activity ledger.
 
-The dashboard reads only from here (fast, works offline, never blocks on Stripe); tools and
-the dashboard's Sync button write through it after every Stripe call. Stripe stays the source
-of truth: a row is always the last invoice object Stripe returned.
+Tools write through it after every Stripe call; ``/invoices``, ``hermes obol ledger`` and the
+approval prompt read from it (fast, works offline, never blocks on Stripe). Stripe stays the
+source of truth: a row is always the last invoice object Stripe returned.
 """
 
 from __future__ import annotations

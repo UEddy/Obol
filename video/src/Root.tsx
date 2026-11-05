@@ -5,7 +5,7 @@ import { End, Fan, Flow, Footage, Intro } from "./scenes";
 import { FPS, H, W } from "./theme";
 
 // Seconds per scene. Total must stay under 90 s (hackathon limit); currently 78 s.
-const S = { intro: 6, fan: 7, chat: 20, pay: 15, dashboard: 15, flow: 8, end: 7 };
+const S = { intro: 6, fan: 7, chat: 20, pay: 15, ledger: 15, flow: 8, end: 7 };
 const f = (s: number) => Math.round(s * FPS);
 export const TOTAL = Object.values(S).reduce((a, b) => a + b, 0);
 
@@ -19,8 +19,8 @@ const ObolDemo: React.FC = () => (
     <Series.Sequence durationInFrames={f(S.pay)}>
       <Footage dur={f(S.pay)} clip={CLIPS.pay} label="Stripe · payment link" caption="Stripe settles." />
     </Series.Sequence>
-    <Series.Sequence durationInFrames={f(S.dashboard)}>
-      <Footage dur={f(S.dashboard)} clip={CLIPS.dashboard} label="Hermes dashboard · Invoices" caption="The ledger stamps it." stamp="PAID" />
+    <Series.Sequence durationInFrames={f(S.ledger)}>
+      <Footage dur={f(S.ledger)} clip={CLIPS.ledger} label="Hermes · /invoices" caption="The ledger stamps it." stamp="PAID" />
     </Series.Sequence>
     <Series.Sequence durationInFrames={f(S.flow)}><Flow dur={f(S.flow)} /></Series.Sequence>
     <Series.Sequence durationInFrames={f(S.end)}><End dur={f(S.end)} /></Series.Sequence>

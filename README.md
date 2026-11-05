@@ -4,9 +4,8 @@
 
 Tell Hermes *"Invoice billing@acme.com $1,200 for October consulting and send it"* and Obol
 drafts a Stripe invoice, asks you to approve the send, and emails your client a payment link.
-Ask *"has Acme paid?"* and it checks Stripe. Open the **Invoices** tab in the Hermes dashboard
-and your receivables are laid out as index cards: unpaid, overdue, paid. When a payment
-lands, the card gets stamped **PAID**.
+Ask *"has Acme paid?"* and it checks Stripe. Type `/invoices` in any chat (CLI, Telegram,
+Discord, Slack…) for your receivables ledger: outstanding, overdue, paid.
 
 Obol runs in **Stripe test mode by default**. Live keys are refused until you turn live mode on.
 
@@ -16,8 +15,6 @@ Obol runs in **Stripe test mode by default**. Live keys are refused until you tu
 |---|---|
 | **Tools** | `obol_create_invoice`, `obol_send_invoice`, `obol_get_invoice`, `obol_list_invoices`, `obol_send_reminder`, `obol_void_invoice` |
 | **Approval hook** | A `pre_tool_call` hook sends every send, reminder and void through Hermes's approval prompt, naming the amount, client and mode |
-| **Dashboard tab** | *Invoices*: totals, filterable invoice cards with status stamps, an activity ledger, and auto-sync while the tab is open |
-| **Dashboard slot** | A receivables strip at the top of the *Analytics* page |
 | **Slash command** | `/invoices [open\|overdue\|paid\|draft\|sync]`: the ledger as text, in the CLI, TUI, Desktop, Telegram, Discord, Slack… |
 | **CLI** | `hermes obol doctor` (key, mode, connectivity), `hermes obol sync`, `hermes obol ledger` |
 | **Automation** | *Chase overdue invoices*: a weekly blueprint that reminds late payers and reports back |
@@ -34,8 +31,6 @@ hermes obol doctor                    # checks the key and that Stripe is reacha
 You need a Stripe account (free) and its **test** secret key from
 <https://dashboard.stripe.com/test/apikeys>. It starts with `sk_test_`. A restricted key
 (`rk_test_`) works too if it can read and write Customers, Invoices and Invoice Items.
-
-Restart `hermes dashboard` (or call `GET /api/dashboard/plugins/rescan`) to see the **Invoices** tab.
 
 Requires Hermes Agent 0.22.7 or newer. No extra Python packages: Obol uses the `httpx`
 that ships with Hermes.
@@ -86,13 +81,13 @@ Other things to ask: *"What's overdue?"*, *"Remind Globex about their invoice"*,
   (`not_configured`, `live_blocked`, `auth`, `not_found`, `invalid_arguments`, `timeout`, …).
 - **Pinned Stripe API version** (`2024-06-20`), so Stripe-side default changes don't move under you.
 - **Stripe is the source of truth.** The local ledger is a cache of what Stripe last returned.
-  The dashboard reads the cache and syncs in the background.
+  `/invoices` reads the cache; `/invoices sync` refreshes it from Stripe.
 
 ## What Obol touches (disclosure)
 
 - **Network:** HTTPS calls to `api.stripe.com` only. They happen when a tool runs, on
-  `/invoices sync`, on `hermes obol doctor|sync`, and while the dashboard's Invoices tab is
-  open (an automatic sync every 45 seconds, plus the *Sync* button). No telemetry, no other hosts.
+  `/invoices sync`, and on `hermes obol doctor|sync`. Nothing runs in the background.
+  No telemetry, no other hosts.
 - **Emails to your clients:** sending and reminding make *Stripe* email the customer the
   invoice. Stripe's own test-mode rules decide what is delivered in test mode. Test mode never
   moves real money.
@@ -102,8 +97,7 @@ Other things to ask: *"What's overdue?"*, *"Remind Globex about their invoice"*,
   metadata (number, client name and email, amounts, status, due date, Stripe payment and PDF
   links) and an activity log of the last 1,000 actions. It follows the active profile and
   survives plugin updates. Delete the file to clear it.
-- **No shell commands, no background processes** (auto-sync runs only in the open browser tab),
-  and no self-updating code.
+- **No shell commands, no background processes, no self-updating code.**
 
 ## Development
 
@@ -125,9 +119,8 @@ plugin.yaml             manifest: tools, hook, env, settings form
 __init__.py             register(): tools, approval hook, /invoices, CLI, blueprint, skill
 schemas.py              tool schemas the model reads
 src/obol_lib/           Stripe client, money, ledger cache, operations (no Hermes imports at load)
-dashboard/              manifest.json, plugin_api.py (FastAPI routes), dist/ (React via the plugin SDK)
 skills/invoicing/       the obol:invoicing skill
-tests/                  unit, dashboard-API and Hermes integration tests
+tests/                  unit and Hermes integration tests
 ```
 
 ## License
