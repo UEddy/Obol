@@ -12,7 +12,7 @@ export STRIPE_API_KEY="${STRIPE_API_KEY:-${STRIPE_SECRET_KEY:-}}"
 export OPENCLAWCASH_AGENT_KEY="occ_demo_not_a_real_key"   # Guard beat: the wallet backend is the local stub below
 case "$STRIPE_API_KEY" in sk_test_*|rk_test_*) ;; *) echo "refusing: STRIPE_API_KEY must be a Stripe TEST key" >&2; exit 2;; esac
 mkdir -p out /tmp/obol-demo
-cp files/* /tmp/obol-demo/ 2>/dev/null || true
+cp ../../tests/fixtures/demo_files/* /tmp/obol-demo/   # attack examples live under tests/ (install scanner)
 # Demo-only wallet backend (no network, no funds); enable it with plugins.enabled in the demo home.
 stub="$HERMES_HOME/plugins/obol_demo_wallet_stub"; mkdir -p "$stub"
 cp wallet_stub.py "$stub/__init__.py"

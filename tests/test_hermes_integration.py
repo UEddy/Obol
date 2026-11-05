@@ -294,3 +294,23 @@ def test_llm_extractor_retries_transient_errors_and_reads_fenced_json():
     import pytest as _pt
     with _pt.raises(plugin.LlmUnavailable, match="busy or rate-limited"):
         plugin._llm_extractor(Busy(), sleep=lambda s: None)("i", "t")
+
+
+def test_install_scanner_rates_the_repo_safe(tmp_path):
+    """The catalog requires a "safe" verdict from Hermes's install scanner on what git tracks."""
+    import subprocess
+    from pathlib import Path
+    plugin_guard = pytest.importorskip("tools.plugin_guard")
+    root = Path(__file__).resolve().parents[1]
+    archive = subprocess.run(["git", "archive", "HEAD"], cwd=root, capture_output=True)
+    if archive.returncode != 0:
+        pytest.skip("not a git checkout")
+    tracked = subprocess.run(["git", "ls-files", "-z"], cwd=root, capture_output=True, check=True).stdout.decode()
+    for rel in filter(None, tracked.split("\0")):       # the working tree, so uncommitted edits are scanned too
+        src, dst = root / rel, tmp_path / rel
+        if src.is_file():
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            dst.write_bytes(src.read_bytes())
+    result = plugin_guard.scan_plugin(tmp_path, source="github")
+    bad = [(f.severity, f.file, f.pattern_id) for f in result.findings if f.severity in ("critical", "high")]
+    assert result.verdict == "safe", bad
