@@ -46,8 +46,15 @@
   }
 
   function RiskCell(props) {
-    var flags = props.flags || [];
-    if (!flags.length) return h("span", { className: "obol-risk none" }, "—");
+    var inv = props.inv || {};
+    var flags = (props.flags || []).slice();
+    if (inv.disputed) flags.unshift({ check: "dispute", severity: "high", message: "Disputed by the client" + (inv.dispute_reason ? " (" + inv.dispute_reason + ")" : "") });
+    if (inv.radar_risk_level === "elevated" || inv.radar_risk_level === "highest")
+      flags.push({ check: "radar_" + inv.radar_risk_level, severity: inv.radar_risk_level === "highest" ? "high" : "medium", message: "Stripe Radar risk: " + inv.radar_risk_level });
+    if (!flags.length) {
+      if (inv.radar_risk_level) return h("span", { className: "obol-risk none", title: "Stripe Radar risk level for this payment" + (inv.radar_risk_score != null ? " (score " + inv.radar_risk_score + ")" : "") }, "Radar " + inv.radar_risk_level);
+      return h("span", { className: "obol-risk none" }, "—");
+    }
     var worst = flags.some(function (f) { return f.severity === "high"; }) ? "high" : "medium";
     return h("span", { className: "obol-risk " + worst, title: flags.map(function (f) { return f.message; }).join("\n") },
       flags.length === 1 ? flags[0].check.replace(/_/g, " ") : flags.length + " flags");
@@ -57,15 +64,16 @@
     var inv = props.inv;
     var url = safeUrl(inv.payment_link);
     var dateText = (inv.status === "paid" ? (inv.paid_at || "").slice(0, 10) : inv.due_date) || "—";
-    return h("tr", { className: props.justPaid ? "just-paid" : "" },
+    return h("tr", { id: "inv-" + inv.invoice_id, className: (props.justPaid ? "just-paid " : "") + (props.highlight ? "highlight" : "") },
       h("td", { className: "obol-mono nowrap" }, inv.number || "draft"),
       h("td", null, h("div", { className: "who" }, inv.customer || "—"), h("div", { className: "obol-mono sub" }, inv.customer_email || "")),
       h("td", { className: "desc" }, inv.description || ""),
       h("td", { className: "num" }, inv.amount_due),
-      h("td", { className: "obol-mono" }, inv.status === "overdue" ? dateText + " · " + inv.days_overdue + "d late" : dateText),
+      h("td", { className: "obol-mono" }, h("div", { className: "nowrap" }, dateText),
+        inv.status === "overdue" ? h("div", { className: "nowrap late" }, inv.days_overdue + " days late") : null),
       h("td", { className: "stamp-cell" },
         h("span", { className: "obol-stamp " + inv.status + (props.justPaid ? " slam" : ""), "aria-label": "Status " + inv.status }, STAMP[inv.status] || inv.status)),
-      h("td", null, h(RiskCell, { flags: inv.risk })),
+      h("td", null, h(RiskCell, { flags: inv.risk, inv: inv })),
       h("td", null, url ? h("a", { className: "obol-link", href: url, target: "_blank", rel: "noopener noreferrer" }, "Pay page ↗") : ""));
   }
 
@@ -90,10 +98,81 @@
     }
     return h("div", { className: "obol-empty" }, props.filtered ? "No invoices with this status." :
       h(React.Fragment, null, h("b", null, "No invoices yet."), " Ask Hermes: ",
-        h("code", null, "Invoice billing@acme.test $1,200 for October consulting and send it")));
+        h("code", null, "Invoice billing@acme.example.com $1,200 for the landing page and send it")));
+  }
+
+  var LABEL_COLOR = { prompt_injection: "#de3f87", lookalike_domain: "#d4471f", impersonation: "#b3201a", dispute: "#151311",
+    payment_risk: "#3b3631", contact_change: "#9a6a00", duplicate: "#7a7266", unusual_amount: "#a08c6e", live_key: "#151311", unattended_write: "#5b544b" };
+  var OUTCOME = { flagged: "Flagged in approval", withheld: "Recipient withheld", blocked: "Blocked" };
+
+  function SecurityView(props) {
+    var _d = useState(null), data = _d[0], setData = _d[1];
+    var _e = useState(null), error = _e[0], setError = _e[1];
+    useEffect(function () {
+      var alive = true;
+      function load() {
+        SDK.fetchJSON(API + "/security?days=30").then(function (d) { if (alive) { setData(d); setError(null); } })
+          .catch(function (err) { if (alive) setError("Could not read the security log: " + errText(err)); });
+      }
+      load();
+      var t = setInterval(function () { if (!document.hidden) load(); }, POLL_MS);
+      return function () { alive = false; clearInterval(t); };
+    }, []);
+    if (error) return h("div", { className: "obol-error", role: "alert" }, error);
+    if (!data) return h("p", { className: "obol-mono muted" }, "Loading…");
+    var o = data.by_outcome || {};
+    var integ = data.integrity || {};
+    var ok = integ.activity && integ.activity.ok && integ.security && integ.security.ok;
+    var max = 1;
+    data.timeline.forEach(function (d) { var t = 0; for (var k in d.counts) t += d.counts[k]; if (t > max) max = t; });
+    return h("div", { className: "obol-security" },
+      h("section", { className: "obol-kpis" },
+        h(Kpi, { title: "Threats flagged", value: String(o.flagged || 0), hot: (o.flagged || 0) > 0, sub: "shown in approval prompts" }),
+        h(Kpi, { title: "Recipients withheld", value: String(o.withheld || 0), hot: (o.withheld || 0) > 0, sub: "injected messages never chose the payee" }),
+        h(Kpi, { title: "Writes blocked", value: String(o.blocked || 0), sub: "live key or unattended run" })),
+      h("div", { className: "obol-integrity " + (ok ? "ok" : "bad") },
+        h("span", { className: "obol-stamp " + (ok ? "open" : "overdue") }, ok ? "Log verified" : "Log tampered"),
+        h("span", { className: "obol-mono" }, ok
+          ? "Hash chain intact · " + integ.activity.entries + " activity + " + integ.security.entries + " security entries · head " + String((integ.security.entries ? integ.security.head : integ.activity.head) || "").slice(0, 12) + "…"
+          : "Edited outside Obol" + (integ.security && integ.security.first_bad_seq ? " at security entry #" + integ.security.first_bad_seq : "") + ". Run hermes obol doctor.")),
+      h("section", { className: "obol-card obol-chart" },
+        h("h3", { className: "obol-display" }, "Last 30 days"),
+        h("div", { className: "obol-bars", role: "img", "aria-label": "Security events per day, last 30 days" }, data.timeline.map(function (d) {
+          var segs = [];
+          for (var k in d.counts) segs.push(h("span", { key: k, style: { height: (100 * d.counts[k] / max) + "%", background: LABEL_COLOR[k] || "#7a7266" }, title: d.day + ": " + d.counts[k] + " " + k.replace(/_/g, " ") }));
+          return h("div", { key: d.day, className: "bar", title: d.day }, segs);
+        })),
+        h("div", { className: "obol-legend" }, (data.by_type || []).map(function (t) {
+          return h("span", { key: t.check }, h("i", { style: { background: LABEL_COLOR[t.check] || "#7a7266" } }), t.label + " · " + t.count);
+        }))),
+      h("section", { className: "obol-card obol-table-wrap" },
+        data.events.length === 0 ? h("div", { className: "obol-empty" }, h("b", null, "Nothing flagged."), " Every forwarded message and every Stripe write is checked; findings appear here.") :
+        h("table", { className: "obol-table" },
+          h("thead", null, h("tr", null, ["When", "Threat", "Severity", "What happened", "Detail", "Invoice"].map(function (c, i) { return h("th", { key: i }, c); }))),
+          h("tbody", null, data.events.map(function (e) {
+            return h("tr", { key: e.seq },
+              h("td", { className: "obol-mono nowrap" }, fmtTime(e.at)),
+              h("td", { className: "who" }, e.label),
+              h("td", null, h("span", { className: "obol-risk " + (e.severity === "high" ? "high" : e.severity === "medium" ? "medium" : "none") }, e.severity)),
+              h("td", { className: "nowrap" }, OUTCOME[e.outcome] || e.outcome),
+              h("td", { className: "desc sec-detail" }, e.detail),
+              h("td", null, e.invoice_id ? h("button", { className: "obol-link-btn", onClick: function () { props.onOpenInvoice(e.invoice_id); } },
+                (e.invoice_number || "draft") + (e.customer ? " · " + e.customer : "") + " →") : h("span", { className: "muted" }, "not created")));
+          })))));
+  }
+
+  function readView() {
+    try { return /[?&#]view=security/.test(window.location.search + window.location.hash) ? "security" : "invoices"; } catch (e) { return "invoices"; }
   }
 
   function ObolPage() {
+    var _v = useState(readView()), view = _v[0], setView = _v[1];
+    var _hl = useState(null), highlight = _hl[0], setHighlight = _hl[1];
+    function openInvoice(id) {
+      setView("invoices"); setHighlight(id);
+      setTimeout(function () { var el = document.getElementById("inv-" + id); if (el) el.scrollIntoView({ behavior: "smooth", block: "center" }); }, 120);
+      setTimeout(function () { setHighlight(null); }, 3500);
+    }
     var _s = useState(null), status = _s[0], setStatus = _s[1];
     var _m = useState(null), summary = _m[0], setSummary = _m[1];
     var _i = useState([]), invoices = _i[0], setInvoices = _i[1];
@@ -145,17 +224,24 @@
       if (inv.status !== "void") counts.all += 1;
     });
     var shown = invoices.filter(function (inv) { return filter === "all" ? inv.status !== "void" : inv.status === filter; });
+    if (highlight && !shown.some(function (inv) { return inv.invoice_id === highlight; })) shown = invoices;
 
     return h("div", { className: "obol-desk" },
       h("header", { className: "obol-head" },
         h("div", null,
           h("div", { className: "obol-brand-row" }, mode && h(ModeBadge, { mode: mode }), h("span", { className: "obol-kicker" }, "Obol / receivables")),
-          h("h1", { className: "obol-display obol-h1" }, "Invoices.")),
+          h("h1", { className: "obol-display obol-h1" }, view === "security" ? "Security." : "Invoices."),
+          h("div", { className: "obol-switch", role: "tablist" },
+            [["invoices", "Invoices"], ["security", "Security"]].map(function (v) {
+              return h("button", { key: v[0], role: "tab", "aria-selected": view === v[0] ? "true" : "false", className: "obol-switch-btn",
+                onClick: function () { setView(v[0]); } }, v[1]);
+            }))),
         h("div", { className: "obol-actions" },
           h("button", { className: "obol-btn", onClick: sync, disabled: syncing || mode === "missing" || mode === "invalid" }, syncing ? "Syncing…" : "Sync with Stripe"),
           h("span", { className: "obol-mono muted" }, status && status.last_sync ? "last synced " + fmtTime(status.last_sync) : "not synced yet"))),
 
       error && h("div", { className: "obol-error", role: "alert" }, error),
+      view === "security" ? h(SecurityView, { onOpenInvoice: openInvoice }) : h(React.Fragment, null,
 
       h("section", { className: "obol-kpis" },
         h(Kpi, { title: "Outstanding", value: cur ? cur.outstanding_fmt : "$0.00", sub: (cur ? cur.count_outstanding : 0) + " open" }),
@@ -173,11 +259,11 @@
               return h("th", { key: i, className: c === "Amount" ? "num" : "" }, c);
             }))),
             h("tbody", null, shown.map(function (inv) {
-              return h(Row, { key: inv.invoice_id, inv: inv, justPaid: !!justPaid[inv.invoice_id] });
+              return h(Row, { key: inv.invoice_id, inv: inv, justPaid: !!justPaid[inv.invoice_id], highlight: highlight === inv.invoice_id });
             })))),
 
-      h(Ledger, { events: events }),
-      h("p", { className: "obol-foot obol-mono" }, "Synced from Stripe by polling every 45 s while this tab is open. Risk checks are warnings, not complete fraud prevention."));
+      h(Ledger, { events: events })),
+      h("p", { className: "obol-foot obol-mono" }, "Synced from Stripe by polling every 45 s while this tab is open. Obol flags the attacks that hit invoicing and puts every decision in front of you. It does not catch all fraud."));
   }
 
   window.__HERMES_PLUGINS__.register("obol", ObolPage);

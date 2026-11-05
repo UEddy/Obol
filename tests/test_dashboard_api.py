@@ -75,3 +75,20 @@ def test_sync_errors_are_reported(api, fake, monkeypatch):
     fake.timeout_queue.extend(["/v1/invoices"] * 3)
     r = api.post("/api/plugins/obol/sync")
     assert r.status_code == 502
+
+
+def test_security_route_groups_links_and_verifies(api, fake, store):
+    a, _ = _seed(fake, store)
+    store.record_security("lookalike_domain", "high", "flagged", "acrne.example.com looks like acme.example.com", ref="fp")
+    store.link_security_ref("fp", a)
+    store.record_security("prompt_injection", "high", "withheld", "intake (email): ignore previous instructions")
+    store.record_security("live_key", "high", "blocked", "obol_send_invoice: live key refused")
+    sec = api.get("/api/plugins/obol/security").json()
+    assert sec["by_outcome"] == {"flagged": 1, "withheld": 1, "blocked": 1}
+    assert {t["check"] for t in sec["by_type"]} == {"lookalike_domain", "prompt_injection", "live_key"}
+    linked = next(e for e in sec["events"] if e["check"] == "lookalike_domain")
+    assert linked["invoice_id"] == a and linked["invoice_number"] and linked["customer"] == "Acme"
+    assert len(sec["timeline"]) == 30 and sum(sum(d["counts"].values()) for d in sec["timeline"]) == 3
+    assert sec["integrity"]["activity"]["ok"] and sec["integrity"]["security"]["ok"]
+    store._conn.execute("UPDATE security_events SET outcome = 'ignored' WHERE check_name = 'live_key'"); store._conn.commit()
+    assert api.get("/api/plugins/obol/security").json()["integrity"]["security"]["ok"] is False

@@ -88,7 +88,7 @@ def invoice(c: StripeClient, store: Store, cus_id: str, net: int, items: list, t
 
     (service.create_invoice looks customers up by email, and Stripe's customer list hides
     test-clock customers, so the seed passes the customer id explicitly.)"""
-    inv = c.create_invoice(customer=cus_id, currency="usd", days_until_due=net, description=None,
+    inv = c.create_invoice(customer=cus_id, currency="usd", days_until_due=net, description=items[0][0],
                            metadata={"created_by": "obol", "obol_demo": "1"}, idempotency_key=f"obol-seed-{tag}-inv")
     for n, (desc, amount, qty) in enumerate(items):
         c.add_invoice_item(customer=cus_id, invoice=inv["id"], currency="usd", description=desc,

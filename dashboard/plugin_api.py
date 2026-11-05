@@ -73,8 +73,59 @@ def invoices(status: Optional[str] = None, limit: int = 60) -> dict[str, Any]:
         v = service.view(r, now)
         out.append({**v, "status": display_status(r, now), "amount_due_minor": r["amount_due"],
                     "created": r.get("created"), "due_ts": r.get("due_date"), "description": r.get("description"),
-                    "risk": risk.get(r["id"], [])})
+                    "risk": risk.get(r["id"], []),
+                    "radar_risk_level": r.get("radar_risk_level"), "radar_risk_score": r.get("radar_risk_score"),
+                    "disputed": bool(r.get("disputed")), "dispute_status": r.get("dispute_status"),
+                    "dispute_reason": r.get("dispute_reason")})
     return {"invoices": out}
+
+
+SECURITY_LABELS = {
+    "prompt_injection": "Prompt injection", "lookalike_domain": "Lookalike domain", "impersonation": "Impersonation",
+    "contact_change": "Changed contact details", "duplicate": "Possible duplicate", "unusual_amount": "Unusual amount",
+    "payment_risk": "Radar risk", "dispute": "Dispute", "live_key": "Live key refused",
+    "unattended_write": "Unattended write refused",
+}
+
+
+@router.get("/security")
+def security(days: int = 30, limit: int = 200) -> dict[str, Any]:
+    store = runtime.store()
+    events = store.security_events(limit=max(1, min(limit, 1000)))
+    invoice_ids = {e["invoice_id"] for e in events if e.get("invoice_id")}
+    rows = {i: store.get(i) for i in invoice_ids}
+    now = int(time.time())
+    since = now - max(1, min(days, 90)) * 86400
+    by_type: dict[str, int] = {}
+    by_outcome: dict[str, int] = {"flagged": 0, "withheld": 0, "blocked": 0}
+    timeline: dict[str, dict[str, int]] = {}
+    out = []
+    for e in events:
+        check = e["check_name"]
+        by_type[check] = by_type.get(check, 0) + 1
+        by_outcome[e["outcome"]] = by_outcome.get(e["outcome"], 0) + 1
+        if e["at"] >= since:
+            day = time.strftime("%Y-%m-%d", time.gmtime(e["at"]))
+            timeline.setdefault(day, {})[check] = timeline.setdefault(day, {}).get(check, 0) + 1
+        inv = rows.get(e.get("invoice_id")) if e.get("invoice_id") else None
+        out.append({
+            "seq": e["seq"], "at": e["at"], "check": check, "label": SECURITY_LABELS.get(check, check),
+            "severity": e["severity"], "outcome": e["outcome"], "detail": e["detail"],
+            "invoice_id": e.get("invoice_id"),
+            "invoice_number": inv.get("number") if inv else None,
+            "customer": (inv.get("customer_name") or inv.get("customer_email")) if inv else None,
+            "invoice_status": display_status(inv, now) if inv else None,
+            "payment_link": inv.get("hosted_url") if inv else None,
+        })
+    days_list = [time.strftime("%Y-%m-%d", time.gmtime(now - i * 86400)) for i in range(min(days, 90) - 1, -1, -1)]
+    return {
+        "events": out,
+        "by_type": [{"check": k, "label": SECURITY_LABELS.get(k, k), "count": v}
+                    for k, v in sorted(by_type.items(), key=lambda kv: -kv[1])],
+        "by_outcome": by_outcome,
+        "timeline": [{"day": d, "counts": timeline.get(d, {})} for d in days_list],
+        "integrity": {"activity": store.verify_chain("events"), "security": store.verify_chain("security_events")},
+    }
 
 
 @router.get("/events")
