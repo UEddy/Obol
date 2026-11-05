@@ -1,7 +1,7 @@
 """Obol: invoices and payment links for Hermes Agent, backed by Stripe.
 
 Surfaces registered here:
-* six ``obol_*`` tools (create, send, get, list, remind, void);
+* seven ``obol_*`` tools (create, send, get, list, remind, void, and draft-from-message);
 * a ``pre_tool_call`` hook that routes every money-touching call through Hermes's approval gate;
 * the ``/invoices`` slash command (CLI, TUI, Desktop and every messaging platform);
 * the ``hermes obol`` CLI (doctor, sync, ledger);
@@ -16,7 +16,7 @@ from typing import Any, Callable
 
 from . import schemas
 from .src.obol_lib import gate as gate_policy
-from .src.obol_lib import money, runtime, service
+from .src.obol_lib import intake, money, runtime, service
 from .src.obol_lib.service import ValidationError
 from .src.obol_lib.stripe_client import StripeError, key_mode
 
@@ -43,6 +43,8 @@ def _run(op: Callable[[dict], dict], args: dict) -> str:
         return _error(str(exc), kind="invalid_arguments")
     except money.MoneyError as exc:
         return _error(str(exc), kind="invalid_amount")
+    except LlmUnavailable as exc:
+        return _error(f"{exc} Ask the user for the client, amount and email instead.", kind="llm_unavailable")
     except StripeError as exc:
         details = exc.as_dict()
         return _error(details.pop("error"), **details)
@@ -110,12 +112,37 @@ def _tool_handlers(ctx: Any) -> dict[str, Callable[..., str]]:
         "obol_void_invoice": with_client(lambda c, s, st, a: service.void_invoice(c, s, a)),
     }
 
+    def draft_from_message(args: dict) -> dict:
+        return intake.draft_from_message(_llm_extractor(ctx), runtime.store(), settings(), args)
+
+    ops["obol_draft_from_message"] = draft_from_message
+
     def bind(op: Callable[[dict], dict]) -> Callable[..., str]:
         def handler(args: dict, **kwargs: Any) -> str:
             return _run(op, args)
         return handler
 
     return {name: bind(op) for name, op in ops.items()}
+
+
+class LlmUnavailable(Exception):
+    pass
+
+
+def _llm_extractor(ctx: Any) -> Callable[[str, str], Any]:
+    """Structured extraction through Hermes's own model and credentials (ctx.llm)."""
+    def extract(instructions: str, text: str) -> Any:
+        llm = getattr(ctx, "llm", None)
+        if llm is None:
+            raise LlmUnavailable("This Hermes has no plugin LLM access (ctx.llm).")
+        try:
+            result = llm.complete_structured(
+                instructions=instructions, input=[{"type": "text", "text": text}], json_schema=intake.SCHEMA,
+                schema_name="obol.invoice_intake", purpose="obol.intake", temperature=0.0, max_tokens=900, timeout=90)
+        except Exception as exc:
+            raise LlmUnavailable(f"The model call failed ({exc.__class__.__name__}).") from None
+        return result.parsed if getattr(result, "content_type", "json") == "json" else None
+    return extract
 
 
 # -- /invoices ----------------------------------------------------------------------------------

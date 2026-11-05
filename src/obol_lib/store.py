@@ -180,6 +180,12 @@ class Store:
             self._conn.commit()
         return json.loads(rows[0]["flags"])
 
+    def emails_for_name(self, name: str) -> set[str]:
+        """Billing emails previously used for a client name (case-insensitive)."""
+        rows = self._rows("SELECT DISTINCT lower(customer_email) AS e FROM invoices "
+                          "WHERE lower(customer_name) = lower(?) AND customer_email IS NOT NULL", (name.strip(),))
+        return {r["e"] for r in rows if r["e"]}
+
     def get(self, invoice_id: str) -> Optional[dict]:
         rows = self._rows("SELECT * FROM invoices WHERE id = ?", (invoice_id,))
         return rows[0] if rows else None

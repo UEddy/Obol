@@ -64,7 +64,7 @@ def call(name, args):
 def test_tools_registered(hermes):
     from tools.registry import registry
     for name in ("obol_create_invoice", "obol_send_invoice", "obol_get_invoice",
-                 "obol_list_invoices", "obol_send_reminder", "obol_void_invoice"):
+                 "obol_list_invoices", "obol_send_reminder", "obol_void_invoice", "obol_draft_from_message"):
         assert registry.get_entry(name) is not None, name
 
 
@@ -149,3 +149,41 @@ def test_slash_command(hermes, fake):
     text = handler("sync")
     assert "OBOL LEDGER" in text and "Initech" in text and "TEST MODE" in text
     assert "Usage" in handler("help")
+
+
+def test_intake_tool_uses_ctx_llm_and_reports_failure_cleanly(hermes, fake):
+    out = call("obol_draft_from_message", {"message": "Bill Acme $1,200 for October please", "source": "telegram"})
+    # No model is configured in this isolated HERMES_HOME, so the host LLM call fails; the tool must say so.
+    assert out.get("kind") == "llm_unavailable" or out.get("proposal") is not None
+    assert fake.calls == []
+    assert _directive(tool_name="obol_draft_from_message", args={"message": "x"}) is None
+
+
+def test_llm_extractor_wiring():
+    import importlib
+    plugin = importlib.import_module(next(n for n in sys.modules if n.startswith("hermes_plugins.") and n.endswith("obol")))
+    calls = {}
+
+    class Result:
+        content_type = "json"
+        parsed = {"ok": True}
+
+    class Llm:
+        def complete_structured(self, **kw):
+            calls.update(kw)
+            return Result()
+
+    class Ctx:
+        llm = Llm()
+    assert plugin._llm_extractor(Ctx())("instr", "text") == {"ok": True}
+    assert calls["json_schema"]["required"] and calls["purpose"] == "obol.intake" and calls["temperature"] == 0.0
+    assert calls["input"] == [{"type": "text", "text": "text"}]
+
+    class Broken:
+        class llm:
+            @staticmethod
+            def complete_structured(**kw):
+                raise PermissionError("trust")
+    import pytest as _pt
+    with _pt.raises(plugin.LlmUnavailable):
+        plugin._llm_extractor(Broken())("i", "t")

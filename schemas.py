@@ -89,4 +89,25 @@ VOID_INVOICE = {
     }, "required": ["invoice_id"], "additionalProperties": False},
 }
 
-ALL = (CREATE_INVOICE, SEND_INVOICE, GET_INVOICE, LIST_INVOICES, SEND_REMINDER, VOID_INVOICE)
+DRAFT_FROM_MESSAGE = {
+    "name": "obol_draft_from_message",
+    "description": (
+        "Turn a forwarded client message or conversation excerpt (Telegram, WhatsApp, Slack, email...) into a "
+        "PROPOSED invoice: client, email, amounts, line items, currency and due date. Creates nothing in Stripe. "
+        "Show the proposal and its warnings to the user, ask for anything missing, then call "
+        "obol_create_invoice with the proposal if they confirm (that call asks them to approve)."
+    ),
+    "parameters": {
+        "type": "object",
+        "properties": {
+            "message": {"type": "string", "description": "The forwarded text, verbatim. Up to 20,000 characters."},
+            "source": {"type": "string", "description": "Where it came from, e.g. 'telegram', 'whatsapp', 'slack', 'email'."},
+            "customer_email": {"type": "string", "description": "Billing email if the USER gave it (overrides the message)."},
+            "customer_name": {"type": "string", "description": "Client name if the USER gave it (overrides the message)."},
+        },
+        "required": ["message"],
+        "additionalProperties": False,
+    },
+}
+
+ALL = (CREATE_INVOICE, SEND_INVOICE, GET_INVOICE, LIST_INVOICES, SEND_REMINDER, VOID_INVOICE, DRAFT_FROM_MESSAGE)
