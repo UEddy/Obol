@@ -12,4 +12,4 @@ Checked with faster-whisper (small.en): before the splice the sentences transcri
     python demo/audio/splice_obol.py
 
 If a take is regenerated, update its span in `SPANS` (Whisper word timestamps) before running.
-Beat 1 ("You shipped the build…") still needs a take.
+

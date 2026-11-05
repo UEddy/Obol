@@ -5,20 +5,20 @@
   {
    "beat": "1 Hook",
    "start": 0,
-   "max_end": 5,
+   "max_end": 6,
    "screen": "Invoices tab, overdue total visible, dimmed",
    "captions": [
-    "You shipped the build.",
+    "You just finished building.",
     "Now comes the part nobody enjoys:",
     "getting paid."
    ],
-   "text": "You shipped the build. Now comes the part nobody enjoys: getting paid.",
+   "text": "You just finished building. Now comes the part nobody enjoys: getting paid.",
    "audio": "audio/beat1.mp3"
   },
   {
    "beat": "2 Pain",
-   "start": 5,
-   "max_end": 12,
+   "start": 6,
+   "max_end": 13,
    "screen": "Slow zoom onto **$3,600.00 overdue**",
    "captions": [
     "Two clients are already late,",
@@ -30,7 +30,7 @@
   },
   {
    "beat": "3 Trigger",
-   "start": 12,
+   "start": 13,
    "max_end": 26,
    "screen": "CLI: Pinemoor's message about the support agent forwarded to Hermes; Obol proposes $1,500",
    "captions": [

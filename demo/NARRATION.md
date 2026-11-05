@@ -22,9 +22,9 @@ Remotion captions from `narration.json`, so change both together.
 
 | Beat | Time (max) | On screen | Narration and captions |
 |---|---|---|---|
-| 1 Hook | 0:00–0:05 | Invoices tab, overdue total visible, dimmed | You shipped the build. / Now comes the part nobody enjoys: / getting paid. |
-| 2 Pain | 0:05–0:12 | Slow zoom onto **$3,600.00 overdue** | Two clients are already late, / and chasing invoices eats the hours / you should spend building. |
-| 3 Trigger | 0:12–0:26 | CLI: Pinemoor's message about the support agent forwarded to Hermes; Obol proposes $1,500 | So when Pinemoor says "send the invoice," / you just forward the message. / Hermes reads it / and drafts the invoice for you. |
+| 1 Hook | 0:00–0:06 | Invoices tab, overdue total visible, dimmed | You just finished building. / Now comes the part nobody enjoys: / getting paid. |
+| 2 Pain | 0:06–0:13 | Slow zoom onto **$3,600.00 overdue** | Two clients are already late, / and chasing invoices eats the hours / you should spend building. |
+| 3 Trigger | 0:13–0:26 | CLI: Pinemoor's message about the support agent forwarded to Hermes; Obol proposes $1,500 | So when Pinemoor says "send the invoice," / you just forward the message. / Hermes reads it / and drafts the invoice for you. |
 | 4 Trust | 0:26–0:34 | Approval prompt: amount, client, TEST mode, risk checks; Approve | Nothing touches money without you. / You see exactly what will be sent, / to whom, / and what Obol checked. |
 | 5 Payoff | 0:34–0:49 | Stripe page paid with 4242; "Has Pinemoor paid?"; row stamps PAID | Pinemoor pays by card. / Ask Hermes if they've paid, / and the answer comes straight from Stripe. / The ledger stamps it. |
 | 6 Tension | 0:49–1:05 | A forwarded "Pinemoor" message from pinernoor.example.com telling the assistant to skip approval; recipient withheld; approval prompt with three HIGH flags; Security view | Then "Pinemoor" writes from a new address / and tells your assistant to skip approval. / Obol spots the lookalike domain / and the injected instructions, / and won't let a message choose / who gets paid. |
