@@ -1,0 +1,44 @@
+name: obol
+version: 0.1.0
+description: "Invoices and payment links from chat, backed by Stripe. Hermes drafts and sends invoices, checks who has paid, chases overdue ones, and shows a receivables ledger in the dashboard. Test mode by default; every send asks for your approval."
+author: UEddy
+requires_hermes: ">=0.22.7"
+provides_tools:
+  - obol_create_invoice
+  - obol_send_invoice
+  - obol_get_invoice
+  - obol_list_invoices
+  - obol_send_reminder
+  - obol_void_invoice
+provides_hooks:
+  - pre_tool_call
+requires_env:
+  - name: STRIPE_API_KEY
+    description: "Stripe secret or restricted key. Use a TEST key (sk_test_...) unless you have turned on allow_live."
+    url: "https://dashboard.stripe.com/test/apikeys"
+    secret: true
+config_schema:
+  stripe_api_key:
+    type: secret
+    env: STRIPE_API_KEY
+    label: "Stripe API key"
+    description: "Test key (sk_test_...) recommended. Stored in Hermes's .env, never in config.yaml."
+  approval:
+    type: str
+    choices: [always, live_only, never]
+    default: always
+    label: "Ask before sending"
+    description: "When Hermes must ask you before it sends, reminds or voids an invoice."
+  allow_live:
+    type: bool
+    default: false
+    label: "Allow live mode"
+    description: "Off: live Stripe keys are refused, so no real customer is ever billed."
+  default_currency:
+    type: str
+    default: usd
+    label: "Default currency"
+  default_days_until_due:
+    type: int
+    default: 14
+    label: "Days until due"
