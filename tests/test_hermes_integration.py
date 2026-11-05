@@ -258,3 +258,35 @@ def test_doctor_reports_intact_then_tampered_log(hermes, fake, capsys):
     assert "TAMPERED" in capsys.readouterr().out
     conn.execute("DELETE FROM events"); conn.execute("DELETE FROM meta WHERE key LIKE 'count:events' OR key LIKE 'anchor:events'")
     conn.commit()
+
+
+def test_llm_extractor_retries_transient_errors_and_reads_fenced_json():
+    import importlib
+    plugin = importlib.import_module("hermes_plugins.obol")
+    calls = []
+
+    class Result:
+        content_type = "text"
+        parsed = None
+        text = 'Sure!\n```json\n{"is_invoice_request": true, "client_name": "Pinemoor Labs"}\n```'
+
+    class Llm:
+        def complete_structured(self, **kw):
+            calls.append(kw)
+            if len(calls) == 1:
+                raise RuntimeError("Gemini HTTP 503 (UNAVAILABLE): high demand")
+            return Result()
+
+    class Ctx:
+        llm = Llm()
+    out = plugin._llm_extractor(Ctx(), sleep=lambda s: None)("i", "t")
+    assert out == {"is_invoice_request": True, "client_name": "Pinemoor Labs"} and len(calls) == 2
+
+    class Busy:
+        class llm:
+            @staticmethod
+            def complete_structured(**kw):
+                raise RuntimeError("429 RESOURCE_EXHAUSTED")
+    import pytest as _pt
+    with _pt.raises(plugin.LlmUnavailable, match="busy or rate-limited"):
+        plugin._llm_extractor(Busy(), sleep=lambda s: None)("i", "t")

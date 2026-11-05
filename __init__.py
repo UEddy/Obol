@@ -285,19 +285,41 @@ class LlmUnavailable(Exception):
     pass
 
 
-def _llm_extractor(ctx: Any) -> Callable[[str, str], Any]:
-    """Structured extraction through Hermes's own model and credentials (ctx.llm)."""
+_TRANSIENT = ("503", "429", "UNAVAILABLE", "RESOURCE_EXHAUSTED", "overloaded", "high demand", "Timeout", "timed out")
+
+
+def _llm_extractor(ctx: Any, sleep: Callable[[float], None] | None = None) -> Callable[[str, str], Any]:
+    """Structured extraction through Hermes's own model and credentials (ctx.llm).
+
+    Retries once on transient provider errors (overload, rate limit, timeout), and accepts JSON the
+    model returned as plain text (including inside a code fence) when structured output wasn't honoured.
+    """
+    import time as _time
+    pause = sleep or _time.sleep
+
     def extract(instructions: str, text: str) -> Any:
         llm = getattr(ctx, "llm", None)
         if llm is None:
             raise LlmUnavailable("This Hermes has no plugin LLM access (ctx.llm).")
-        try:
-            result = llm.complete_structured(
-                instructions=instructions, input=[{"type": "text", "text": text}], json_schema=intake.SCHEMA,
-                schema_name="obol.invoice_intake", purpose="obol.intake", temperature=0.0, max_tokens=900, timeout=90)
-        except Exception as exc:
-            raise LlmUnavailable(f"The model call failed ({exc.__class__.__name__}).") from None
-        return result.parsed if getattr(result, "content_type", "json") == "json" else None
+        last: Exception | None = None
+        for attempt in range(2):
+            try:
+                result = llm.complete_structured(
+                    instructions=instructions, input=[{"type": "text", "text": text}], json_schema=intake.SCHEMA,
+                    schema_name="obol.invoice_intake", purpose="obol.intake", temperature=0.0, max_tokens=4000,
+                    timeout=60)
+            except Exception as exc:
+                last = exc
+                if attempt == 0 and any(t.lower() in str(exc).lower() for t in _TRANSIENT):
+                    pause(3.0)
+                    continue
+                break
+            if getattr(result, "content_type", "json") == "json" and isinstance(result.parsed, dict):
+                return result.parsed
+            return intake.parse_json_text(getattr(result, "text", "") or "")
+        detail = "the model is busy or rate-limited" if last and any(t.lower() in str(last).lower() for t in _TRANSIENT) \
+            else f"{last.__class__.__name__}" if last else "no response"
+        raise LlmUnavailable(f"The model call failed ({detail}).")
     return extract
 
 

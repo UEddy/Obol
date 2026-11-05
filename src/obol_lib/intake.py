@@ -9,6 +9,7 @@ invoice is a separate tool call that goes through the approval hook and its risk
 from __future__ import annotations
 
 import datetime as dt
+import re
 from typing import Any, Callable, Optional
 
 from . import money, security
@@ -58,6 +59,23 @@ INSTRUCTIONS = (
 )
 
 
+def parse_json_text(text: str) -> Optional[dict]:
+    """The first JSON object in a model reply that ignored structured output (code fences allowed)."""
+    import json
+    t = text.strip()
+    fence = re.search(r"```(?:json)?\s*(\{.*?\})\s*```", t, re.S)
+    if fence:
+        t = fence.group(1)
+    start, end = t.find("{"), t.rfind("}")
+    if start < 0 or end <= start:
+        return None
+    try:
+        value = json.loads(t[start:end + 1])
+    except ValueError:
+        return None
+    return value if isinstance(value, dict) else None
+
+
 def _clean_str(value: Any, limit: int) -> str:
     return value.strip()[:limit] if isinstance(value, str) else ""
 
@@ -98,7 +116,15 @@ def draft_from_message(extract: Callable[[str, str], Optional[dict]], store: Sto
                               "amount and email directly.")
     items_raw = parsed.get("line_items") if isinstance(parsed.get("line_items"), list) else []
     if not parsed.get("is_invoice_request") and not items_raw:
-        return {"proposal": None, "note": "That message doesn't look like something to invoice. Nothing was created."}
+        out: dict[str, Any] = {"proposal": None, "created_in_stripe": False,
+                               "note": "That message doesn't look like something to invoice. Nothing was created."}
+        if injection:  # a message that tries to give orders is always reported, whatever the model concluded
+            for f in injection:
+                store.record_security(f["check"], f["severity"], "flagged", f"intake ({source}): {f['message']}")
+            store.stash_intake_flags(list(security.emails_in(message)), injection)
+            out["security"] = injection
+            out["warnings"] = ["SECURITY: this message tried to give Hermes instructions. They were ignored."]
+        return out
 
     warnings = [_clean_str(u, 300) for u in parsed.get("uncertainties") or [] if _clean_str(u, 300)]
     missing: list[str] = []

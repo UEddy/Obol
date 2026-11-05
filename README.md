@@ -245,6 +245,13 @@ whenever a **test** key is set as `STRIPE_API_KEY` or `STRIPE_SECRET_KEY`. It re
 `@example.com` customer, and voids or deletes what it creates (Stripe keeps voided invoices). In CI, add a
 repository secret `STRIPE_API_KEY` with an `sk_test_` key to turn it on.
 
+`tests/test_intake_live.py` runs five forwarded messages (clean, messy, missing amount, several line
+items, and one that tries to give the assistant orders) through a **real model** via Hermes's `ctx.llm`
+when `OBOL_LIVE_LLM=1` and `OBOL_LIVE_HERMES_HOME` point at a Hermes home with a model configured. It
+records the model's raw extractions to `tests/fixtures/intake_recorded.json`, which
+`tests/test_intake_recorded.py` replays on every run without a key. The recording in the repo comes from
+`gemini-3.1-flash-lite`.
+
 Re-record the replay fixture against your own test account (test keys only; account names, invoice links
 and card fingerprints are scrubbed): `STRIPE_API_KEY=sk_test_... python scripts/record_stripe_fixtures.py`.
 
