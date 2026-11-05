@@ -12,7 +12,7 @@ practice, not research findings; none of their statistics are used in the video.
 ## Principles we applied
 
 1. **Product on screen in the first 2–3 seconds.** Sound-off feeds decide in the opening seconds.
-2. **One protagonist, one invoice, one payoff.** The viewer follows a single freelancer from "work done" to "money in".
+2. **One protagonist, one invoice, one payoff.** The viewer follows a single AI consultant billing one client for an agent build, from "build shipped" to "money in".
 3. **Show, don't tell.** Every claim is a real screen: the approval prompt, the Stripe page, the stamp flipping to PAID, the security flags.
 4. **Captions carry the story on mute.** Short lines (about 3–8 words per caption card), on screen long enough to read, matching the narration word for word.
 5. **Speed up waiting.** Model thinking and page loads are sped up or cut; no spinner holds the screen.

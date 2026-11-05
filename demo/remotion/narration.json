@@ -1,5 +1,5 @@
 {
- "words": 148,
+ "words": 158,
  "target_seconds": 85,
  "beats": [
   {
@@ -8,32 +8,31 @@
    "max_end": 5,
    "screen": "Invoices tab, overdue total visible, dimmed",
    "captions": [
-    "You did the work.",
+    "You shipped the build.",
     "Now comes the part nobody enjoys:",
     "getting paid."
    ],
-   "text": "You did the work. Now comes the part nobody enjoys: getting paid.",
+   "text": "You shipped the build. Now comes the part nobody enjoys: getting paid.",
    "audio": "audio/beat1.mp3"
   },
   {
    "beat": "2 Pain",
    "start": 5,
-   "max_end": 13,
-   "screen": "Slow zoom onto **$2,350.00 overdue**",
+   "max_end": 12,
+   "screen": "Slow zoom onto **$3,600.00 overdue**",
    "captions": [
     "Two clients are already late,",
     "and chasing invoices eats the hours",
-    "you should spend designing",
-    "for the next one."
+    "you should spend building."
    ],
-   "text": "Two clients are already late, and chasing invoices eats the hours you should spend designing for the next one.",
+   "text": "Two clients are already late, and chasing invoices eats the hours you should spend building.",
    "audio": "audio/beat2.mp3"
   },
   {
    "beat": "3 Trigger",
-   "start": 13,
-   "max_end": 28,
-   "screen": "CLI: Acme's message forwarded to Hermes; Obol proposes $1,500",
+   "start": 12,
+   "max_end": 26,
+   "screen": "CLI: Acme's message about the support agent forwarded to Hermes; Obol proposes $1,500",
    "captions": [
     "So when Acme says \"send the invoice,\"",
     "you just forward the message.",
@@ -45,8 +44,8 @@
   },
   {
    "beat": "4 Trust",
-   "start": 28,
-   "max_end": 37,
+   "start": 26,
+   "max_end": 34,
    "screen": "Approval prompt: amount, client, TEST mode, risk checks; Approve",
    "captions": [
     "Nothing touches money without you.",
@@ -59,8 +58,8 @@
   },
   {
    "beat": "5 Payoff",
-   "start": 37,
-   "max_end": 54,
+   "start": 34,
+   "max_end": 49,
    "screen": "Stripe page paid with 4242; \"Has Acme paid?\"; row stamps PAID",
    "captions": [
     "Acme pays by card.",
@@ -73,8 +72,8 @@
   },
   {
    "beat": "6 Tension",
-   "start": 54,
-   "max_end": 72,
+   "start": 49,
+   "max_end": 65,
    "screen": "A forwarded \"Acme\" message from acrne.example.com telling the assistant to skip approval; recipient withheld; approval prompt with three HIGH flags; Security view",
    "captions": [
     "Then \"Acme\" writes from a new address",
@@ -88,9 +87,22 @@
    "audio": "audio/beat6.mp3"
   },
   {
-   "beat": "7 Resolution",
+   "beat": "7 Guard",
+   "start": 65,
+   "max_end": 72,
+   "screen": "Obol Guard intercepts a wallet plugin's unusual transfer: approval prompt with its flags; Security view entry",
+   "captions": [
+    "Obol Guard protects every agent",
+    "that touches money.",
+    "A surprise transfer waits for you."
+   ],
+   "text": "Obol Guard protects every agent that touches money. A surprise transfer waits for you.",
+   "audio": "audio/beat7.mp3"
+  },
+  {
+   "beat": "8 Resolution",
    "start": 72,
-   "max_end": 80,
+   "max_end": 79,
    "screen": "`/invoices` in the chat",
    "captions": [
     "Everything paid, pending and overdue,",
@@ -98,11 +110,11 @@
     "in any chat you already use."
    ],
    "text": "Everything paid, pending and overdue, in one command, in any chat you already use.",
-   "audio": "audio/beat7.mp3"
+   "audio": "audio/beat8.mp3"
   },
   {
-   "beat": "8 Close",
-   "start": 80,
+   "beat": "9 Close",
+   "start": 79,
    "max_end": 85,
    "screen": "End card",
    "captions": [
@@ -110,7 +122,7 @@
     "Obol, in the Hermes Marketplace."
    ],
    "text": "Hermes can now run your invoicing, safely. Obol, in the Hermes Marketplace.",
-   "audio": "audio/beat8.mp3"
+   "audio": "audio/beat9.mp3"
   }
  ]
 }

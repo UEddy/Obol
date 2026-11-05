@@ -1,4 +1,4 @@
-"""Seed a believable Stripe TEST-mode history for the demo: a freelance designer's receivables.
+"""Seed a believable Stripe TEST-mode history for the demo: an indie developer / AI consultant's receivables.
 
     STRIPE_API_KEY=sk_test_... python demo/seed_stripe.py          (STRIPE_SECRET_KEY also works)
 
@@ -33,20 +33,20 @@ DAY = 86400
 
 # (client, email, days ago issued, net days, line items, paid?)
 BOOK = [
-    ("Northwind Studio", "accounts@northwind.example.com", 62, 14,
-     [("Brand identity: logo, palette, type system", 2400, 1)], True),
+    ("Northwind Logistics", "accounts@northwind.example.com", 62, 14,
+     [("Support agent build: intake, routing, evals", 4200, 1), ("Hosting setup and handover", 600, 1)], True),
     ("Bluebird Coffee", "hello@bluebird.example.com", 55, 14,
-     [("Menu board redesign", 650, 1), ("Print-ready files", 200, 1)], True),
+     [("Ordering chatbot with WhatsApp integration", 1850, 1)], True),
     ("Lumen Health", "finance@lumenhealth.example.com", 34, 14,
-     [("Marketing site design, 6 pages", 450, 6)], True),
+     [("RAG knowledge assistant, phase 1 (days)", 600, 6)], True),
     ("Fernhill Books", "ap@fernhill.example.com", 40, 14,
-     [("Book cover series, 3 titles", 450, 3), ("Spine and back-cover layouts", 100, 1)], False),   # overdue
+     [("Recommendation API integration", 1800, 1), ("Load testing and fixes", 400, 1)], False),        # overdue
     ("Kestrel Fitness", "billing@kestrel.example.com", 24, 14,
-     [("App icon set", 900, 1)], False),                                                             # overdue
+     [("Coaching agent: prompt and eval tuning", 1400, 1)], False),                                   # overdue
     ("Harbor & Pine", "studio@harborpine.example.com", 4, 14,
-     [("Packaging design, 2 SKUs", 900, 2)], False),                                                 # outstanding
+     [("Shopify automation agent, 2 workflows", 1300, 2)], False),                                    # outstanding
     ("Olive Street Bakery", "orders@olivestreet.example.com", 2, 14,
-     [("Social media templates", 65, 10)], False),                                                   # outstanding
+     [("Order-status bot maintenance (hours)", 120, 10)], False),                                     # outstanding
 ]
 
 
