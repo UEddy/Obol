@@ -7,6 +7,7 @@ source of truth: a row is always the last invoice object Stripe returned.
 
 from __future__ import annotations
 
+import json
 import sqlite3
 import threading
 import time
@@ -42,6 +43,16 @@ CREATE TABLE IF NOT EXISTS events (
     detail     TEXT
 );
 CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT);
+CREATE TABLE IF NOT EXISTS invoice_risk (
+    invoice_id  TEXT PRIMARY KEY,
+    flags       TEXT NOT NULL,
+    assessed_at INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS pending_risk (
+    fingerprint TEXT PRIMARY KEY,
+    flags       TEXT NOT NULL,
+    at          INTEGER NOT NULL
+);
 """
 
 STATUSES = ("draft", "open", "paid", "void", "uncollectible")
@@ -133,6 +144,41 @@ class Store:
     def get_meta(self, key: str) -> Optional[str]:
         rows = self._rows("SELECT value FROM meta WHERE key = ?", (key,))
         return rows[0]["value"] if rows else None
+
+    # -- risk flags -----------------------------------------------------------------------------
+    def set_risk(self, invoice_id: str, flags: list[dict]) -> None:
+        with self._lock:
+            self._conn.execute(
+                "INSERT INTO invoice_risk (invoice_id, flags, assessed_at) VALUES (?, ?, ?) "
+                "ON CONFLICT(invoice_id) DO UPDATE SET flags = excluded.flags, assessed_at = excluded.assessed_at",
+                (invoice_id, json.dumps(flags), int(time.time())))
+            self._conn.commit()
+
+    def risk(self, invoice_ids: Iterable[str]) -> dict[str, list[dict]]:
+        ids = list(invoice_ids)
+        if not ids:
+            return {}
+        rows = self._rows(f"SELECT invoice_id, flags FROM invoice_risk WHERE invoice_id IN ({','.join('?' for _ in ids)})", ids)
+        return {r["invoice_id"]: json.loads(r["flags"]) for r in rows}
+
+    def stash_pending_risk(self, fingerprint: str, flags: list[dict]) -> None:
+        """The approval hook runs before the invoice exists; park its findings until the tool creates it."""
+        now = int(time.time())
+        with self._lock:
+            self._conn.execute("DELETE FROM pending_risk WHERE at < ?", (now - 3600,))
+            self._conn.execute("INSERT INTO pending_risk (fingerprint, flags, at) VALUES (?, ?, ?) "
+                               "ON CONFLICT(fingerprint) DO UPDATE SET flags = excluded.flags, at = excluded.at",
+                               (fingerprint, json.dumps(flags), now))
+            self._conn.commit()
+
+    def pop_pending_risk(self, fingerprint: str) -> Optional[list[dict]]:
+        rows = self._rows("SELECT flags FROM pending_risk WHERE fingerprint = ?", (fingerprint,))
+        if not rows:
+            return None
+        with self._lock:
+            self._conn.execute("DELETE FROM pending_risk WHERE fingerprint = ?", (fingerprint,))
+            self._conn.commit()
+        return json.loads(rows[0]["flags"])
 
     def get(self, invoice_id: str) -> Optional[dict]:
         rows = self._rows("SELECT * FROM invoices WHERE id = ?", (invoice_id,))

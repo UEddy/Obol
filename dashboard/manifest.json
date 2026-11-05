@@ -1,0 +1,14 @@
+{
+  "name": "obol",
+  "label": "Invoices",
+  "description": "Obol receivables ledger: outstanding, overdue and paid Stripe invoices",
+  "icon": "FileText",
+  "version": "0.1.0",
+  "tab": {
+    "path": "/invoices",
+    "position": "after:sessions"
+  },
+  "entry": "dist/index.js",
+  "css": "dist/style.css",
+  "api": "plugin_api.py"
+}
