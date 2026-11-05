@@ -1,43 +1,21 @@
 # Obol demo: narration and captions
 
-The protagonist is an indie developer / AI consultant billing a client (Pinemoor) for an agent build.
+Six scenes, one idea each, about 57 s. Captions are the narration word for word; each caption card plays its
+own slice of the voiceover when its action is on screen (`demo/remotion/src/Demo.tsx`). The client on screen is
+"Acme Studio"; the voiceover only ever says "your client" / "a client".
 
-One voice, speaking to the viewer, conversational and confident. 158 words; the recorded narration runs about 60 s and the cut 65 s
-(about 2.6 words per second). Captions are the narration, word for word,
-split into the caption cards shown below (`/` marks a card break). The same text drives the
-Remotion captions from `narration.json`, so change both together.
+Voice: ElevenLabs "Brian" (premade), eleven_v3, stability 0.5, similarity 0.75, style 0.15, speaker boost.
+Type Obol as "Oh-bol" so it is said OH-bol; check each take with Whisper (`demo/audio/caption_timing.py`).
+Takes are in `demo/audio/takes2/sceneN.mp3`, copied to `demo/remotion/public/audio/`.
 
-## Recording notes for ElevenLabs
+| Scene | On screen | Narration and captions (`/` = caption card) |
+|---|---|---|
+| 1 What it is | Obol logo card | Obol lets Hermes send your Stripe invoices, / and stops scams before money moves. |
+| 2 Send an invoice | Forwarded message; the drafted $1,800 total; the approval prompt; "Sent." | Forward a client's message. / Obol drafts the invoice. / Nothing is sent until you approve. |
+| 3 Get paid | Stripe page paid with the 4242 test card; "Invoice paid"; "Have they paid?" "Yes — paid." | Your client pays. / Hermes tells you. |
+| 4 Stop a scam | Email from billing@acrnestudio.example.com asking to skip approval; Hermes refuses and withholds the address; the approval prompt shows impersonation and lookalike; DENIED | A scammer pretends to be your client. / Obol catches it. |
+| 5 See everything | `/invoices`: paid, open and overdue totals | Paid, open and overdue, in one command. |
+| 6 Close | Logo card with the install command | Obol, a security-first invoicing plugin for Hermes Agent. |
 
-- One file per beat, named `beat1.mp3` … `beat9.mp3`, into `demo/remotion/public/audio/`. The video
-  times each scene to its file's length (within the beat's maximum below), so re-recording one beat
-  never shifts the others.
-- Voice: warm, mid-range, unhurried, natural American or neutral English. Avoid announcer or "trailer" voices.
-- Settings to start from: Stability 0.45, Similarity 0.75, Style 0.15, Speaker boost on, speed 1.0.
-  Lower stability (0.35) if it sounds flat; raise it (0.55) if words wobble.
-- Pronunciation: **Obol** = "OH-bol" (with the Archer voice, type it as "Oh-bol" in the pasted text; captions keep "Obol"). **Hermes** = "HER-meez". Say "four-two-four-two" for the test card if it is spoken (it isn't in this script).
-- Leave about 0.3 s of silence at the start and end of each file.
-
-## Script
-
-| Beat | Time (max) | On screen | Narration and captions |
-|---|---|---|---|
-| 1 Hook | 0:00–0:06 | Invoices tab, overdue total visible, dimmed | You just finished building. / Now comes the part nobody enjoys: / getting paid. |
-| 2 Pain | 0:06–0:13 | Slow zoom onto **$3,600.00 overdue** | Two clients are already late, / and chasing invoices eats the hours / you should spend building. |
-| 3 Trigger | 0:13–0:26 | CLI: Pinemoor's message about the support agent forwarded to Hermes; Obol proposes $1,800 | So when Pinemoor says "send the invoice," / you just forward the message. / Hermes reads it / and drafts the invoice for you. |
-| 4 Trust | 0:26–0:34 | Approval prompt: amount, client, TEST mode, risk checks; Approve | Nothing touches money without you. / You see exactly what will be sent, / to whom, / and what Obol checked. |
-| 5 Payoff | 0:34–0:49 | Stripe page paid with 4242; "Has Pinemoor paid?"; row stamps PAID | Pinemoor pays by card. / Ask Hermes if they've paid, / and the answer comes straight from Stripe. / The ledger stamps it. |
-| 6 Tension | 0:49–1:05 | A forwarded "Pinemoor" message from pinernoor.example.com telling the assistant to skip approval; recipient withheld; approval prompt with three HIGH flags; Security view | Then "Pinemoor" writes from a new address / and tells your assistant to skip approval. / Obol spots the lookalike domain / and the injected instructions, / and won't let a message choose / who gets paid. |
-| 7 Guard | 1:05–1:12 | Obol Guard intercepts a wallet plugin's unusual transfer: approval prompt with its flags; Security view entry | Obol Guard protects every agent / that touches money. / A surprise transfer waits for you. |
-| 8 Resolution | 1:12–1:19 | `/invoices` in the chat | Everything paid, pending and overdue, / in one command, / in any chat you already use. |
-| 9 Close | 1:19–1:25 | End card | Hermes can now run your invoicing, safely. / Obol, in the Hermes Marketplace. |
-
-Word count per beat: 12, 15, 21, 18, 20, 32, 14, 14, 12 = 158 (generated from this table).
-
-## Notes on claims
-
-Every claim in the narration is shown on screen and backed by a test listed in the README's threat model:
-"nothing touches money without you" (T8), "won't let a message choose who gets paid" (T1), "spots the
-lookalike domain" (T5), "the injected instructions" (T1–T4), "protects every agent that touches money" (Obol Guard, G1–G4),
-"the answer comes straight from Stripe"
-(`obol_get_invoice` reads Stripe; `tests/test_stripe_live.py`).
+Claims on screen are backed by tests in the README's threat model: approval on every write (T8), injected
+instructions never choose the recipient (T1), lookalike domain (T5) and impersonation checks.

@@ -1,128 +1,17 @@
 {
- "words": 158,
- "target_seconds": 85,
+ "voice": "ElevenLabs \"Brian\" (premade), model eleven_v3, stability 0.5, similarity 0.75, style 0.15, speaker boost; Obol typed as \"Oh-bol\"",
  "beats": [
-  {
-   "beat": "1 Hook",
-   "start": 0,
-   "max_end": 6,
-   "screen": "Invoices tab, overdue total visible, dimmed",
-   "captions": [
-    "You just finished building.",
-    "Now comes the part nobody enjoys:",
-    "getting paid."
-   ],
-   "text": "You just finished building. Now comes the part nobody enjoys: getting paid.",
-   "audio": "audio/beat1.mp3"
-  },
-  {
-   "beat": "2 Pain",
-   "start": 6,
-   "max_end": 13,
-   "screen": "Slow zoom onto **$3,600.00 overdue**",
-   "captions": [
-    "Two clients are already late,",
-    "and chasing invoices eats the hours",
-    "you should spend building."
-   ],
-   "text": "Two clients are already late, and chasing invoices eats the hours you should spend building.",
-   "audio": "audio/beat2.mp3"
-  },
-  {
-   "beat": "3 Trigger",
-   "start": 13,
-   "max_end": 26,
-   "screen": "CLI: Pinemoor's message about the support agent forwarded to Hermes; Obol proposes $1,800",
-   "captions": [
-    "So when Pinemoor says \"send the invoice,\"",
-    "you just forward the message.",
-    "Hermes reads it",
-    "and drafts the invoice for you."
-   ],
-   "text": "So when Pinemoor says \"send the invoice,\" you just forward the message. Hermes reads it and drafts the invoice for you.",
-   "audio": "audio/beat3.mp3"
-  },
-  {
-   "beat": "4 Trust",
-   "start": 26,
-   "max_end": 34,
-   "screen": "Approval prompt: amount, client, TEST mode, risk checks; Approve",
-   "captions": [
-    "Nothing touches money without you.",
-    "You see exactly what will be sent,",
-    "to whom,",
-    "and what Obol checked."
-   ],
-   "text": "Nothing touches money without you. You see exactly what will be sent, to whom, and what Obol checked.",
-   "audio": "audio/beat4.mp3"
-  },
-  {
-   "beat": "5 Payoff",
-   "start": 34,
-   "max_end": 49,
-   "screen": "Stripe page paid with 4242; \"Has Pinemoor paid?\"; row stamps PAID",
-   "captions": [
-    "Pinemoor pays by card.",
-    "Ask Hermes if they've paid,",
-    "and the answer comes straight from Stripe.",
-    "The ledger stamps it."
-   ],
-   "text": "Pinemoor pays by card. Ask Hermes if they've paid, and the answer comes straight from Stripe. The ledger stamps it.",
-   "audio": "audio/beat5.mp3"
-  },
-  {
-   "beat": "6 Tension",
-   "start": 49,
-   "max_end": 65,
-   "screen": "A forwarded \"Pinemoor\" message from pinernoor.example.com telling the assistant to skip approval; recipient withheld; approval prompt with three HIGH flags; Security view",
-   "captions": [
-    "Then \"Pinemoor\" writes from a new address",
-    "and tells your assistant to skip approval.",
-    "Obol spots the lookalike domain",
-    "and the injected instructions,",
-    "and won't let a message choose",
-    "who gets paid."
-   ],
-   "text": "Then \"Pinemoor\" writes from a new address and tells your assistant to skip approval. Obol spots the lookalike domain and the injected instructions, and won't let a message choose who gets paid.",
-   "audio": "audio/beat6.mp3"
-  },
-  {
-   "beat": "7 Guard",
-   "start": 65,
-   "max_end": 72,
-   "screen": "Obol Guard intercepts a wallet plugin's unusual transfer: approval prompt with its flags; Security view entry",
-   "captions": [
-    "Obol Guard protects every agent",
-    "that touches money.",
-    "A surprise transfer waits for you."
-   ],
-   "text": "Obol Guard protects every agent that touches money. A surprise transfer waits for you.",
-   "audio": "audio/beat7.mp3"
-  },
-  {
-   "beat": "8 Resolution",
-   "start": 72,
-   "max_end": 79,
-   "screen": "`/invoices` in the chat",
-   "captions": [
-    "Everything paid, pending and overdue,",
-    "in one command,",
-    "in any chat you already use."
-   ],
-   "text": "Everything paid, pending and overdue, in one command, in any chat you already use.",
-   "audio": "audio/beat8.mp3"
-  },
-  {
-   "beat": "9 Close",
-   "start": 79,
-   "max_end": 85,
-   "screen": "End card",
-   "captions": [
-    "Hermes can now run your invoicing, safely.",
-    "Obol, in the Hermes Marketplace."
-   ],
-   "text": "Hermes can now run your invoicing, safely. Obol, in the Hermes Marketplace.",
-   "audio": "audio/beat9.mp3"
-  }
+  {"beat": "1 What it is", "audio": "audio/scene1.mp3", "max": 6,
+   "captions": ["Obol lets Hermes send your Stripe invoices,", "and stops scams before money moves."]},
+  {"beat": "2 Send an invoice", "audio": "audio/scene2.mp3", "max": 18,
+   "captions": ["Forward a client's message.", "Obol drafts the invoice.", "Nothing is sent until you approve."]},
+  {"beat": "3 Get paid", "audio": "audio/scene3.mp3", "max": 10,
+   "captions": ["Your client pays.", "Hermes tells you."]},
+  {"beat": "4 Stop a scam", "audio": "audio/scene4.mp3", "max": 16,
+   "captions": ["A scammer pretends to be your client.", "Obol catches it."]},
+  {"beat": "5 See everything", "audio": "audio/scene5.mp3", "max": 7,
+   "captions": ["Paid, open and overdue, in one command."]},
+  {"beat": "6 Close", "audio": "audio/scene6.mp3", "max": 5,
+   "captions": ["Obol, a security-first invoicing plugin for Hermes Agent."]}
  ]
 }

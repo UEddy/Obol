@@ -1,142 +1,108 @@
 import React from "react";
-import {
-  AbsoluteFill, Audio, Easing, interpolate, OffthreadVideo, Sequence, spring, staticFile, useCurrentFrame, useVideoConfig,
-} from "remotion";
+import { AbsoluteFill, Audio, Easing, interpolate, OffthreadVideo, Sequence, spring, staticFile, useCurrentFrame, useVideoConfig } from "remotion";
 import { linearTiming, TransitionSeries } from "@remotion/transitions";
 import type { TransitionPresentation, TransitionPresentationComponentProps } from "@remotion/transitions";
 import captions from "../captions.json";
-import views from "../public/captures/views.json";
 import { C, F, FPS } from "./theme";
 
 /*
- * The Obol demo: nine beats, each at least as long as its narration clip (public/audio/beatN.mp3, timed in
- * captions.json). Every shot is real footage from demo/capture: VHS recordings of the Hermes CLI (trigger,
- * attack, guard) and Playwright recordings of Stripe's hosted invoice page and the Obol dashboard. Segments
- * only choose a time range, a playback rate and a region to frame; sped-up stretches are labelled with their
- * rate. Graphics on top (transitions, highlight boxes, stamps) point at what the footage shows.
+ * The Obol demo, in six scenes: what it is, send an invoice, get paid, stop a scam, see everything, close.
+ * Every shot is real footage from demo/capture (VHS recordings of the Hermes CLI in a narrow, large-type
+ * terminal; Chrome screencasts of Stripe's hosted invoice page on a phone-sized viewport). Each shot frames
+ * the two or three lines that matter, so text stays readable on a phone. Each caption card plays its own slice
+ * of the voiceover (public/audio/sceneN.mp3, timed in captions.json) at the moment its action is on screen.
  */
 
-type Box = [number, number, number, number]; // x, y, w, h in the 1920x1080 source
-type Mark = { box: Box; card: number; note?: string };           // draw a box when caption card `card` starts
-type Seg = {
-  src: string; from: number; to: number; rate?: number;
-  box?: Box; zoomFrom?: Box; label?: string; dim?: number;
-  marks?: Mark[]; stampAt?: number;                              // stampAt: source second of a real deny
-  enter?: Inner;                                                 // transition into this segment
+type Box = [number, number, number, number];            // x, y, w, h in the source video's pixels
+type Mark = { box: Box; at: number };                    // highlight, `at` seconds into the shot
+type Shot = { src: string; from: number; to: number; rate?: number; box: Box; marks?: Mark[]; stampAt?: number; label: string };
+type Scene = { audio: number; cues: number[]; shots: Shot[]; card?: "logo" | "close"; len?: number; label?: string };
+
+const SIZE: Record<string, [number, number]> = {
+  "send_and_paid.mp4": [1240, 2000], "have_they_paid.mp4": [1240, 2000], "scam.mp4": [1240, 2000],
+  "stripe_pay.mp4": [1170, 2532], "stripe_paid.mp4": [1170, 2532],
 };
-type Inner = "zoom" | "whip";
-type Outer = { kind: "slab"; label?: string; tone?: "ink" | "magenta" | "paper" } | { kind: "whip"; dir: 1 | -1 } | { kind: "flash" };
-type Beat = { audio: number; segs: Seg[]; close?: boolean; next?: Outer };
+const CLI = "Hermes · Stripe test mode";
+const PAGE = "Stripe payment page · test card";
 
-const TERM: Box = [20, 0, 1320, 1080];
-const FULL: Box = [0, 0, 1920, 1080];
-const APPROVAL: Box = [40, 290, 1130, 530];
-const o = views.overdue;
-const OVERDUE: Box = [o.x - 40, o.y - 30, o.width + 80, o.height + 60];
-const TABLE_TOP: Box = [290, 470, 1570, 360];
-const SEC_TOP: Box = [290, 100, 1570, 620];
-const CLI = "Hermes CLI · Stripe test mode";
-const WALLET = CLI + " · wallet plugin: agentwalletapi";
-
-const BEATS: Beat[] = [
-  { audio: 1, next: { kind: "flash" }, segs: [
-    { src: "views.webm", from: 3.4, to: 9.3, rate: 0.92, dim: 0.5, box: [60, 20, 1800, 1013], zoomFrom: [-120, -70, 2160, 1215], label: "Obol dashboard in Hermes" }] },
-  { audio: 2, next: { kind: "slab", label: "The invoice", tone: "ink" }, segs: [
-    { src: "views.webm", from: 3.6, to: 9.3, rate: 0.95, box: OVERDUE, zoomFrom: FULL, label: "Obol dashboard in Hermes" }] },
-  { audio: 3, next: { kind: "whip", dir: -1 }, segs: [
-    { src: "trigger.mp4", from: 0, to: 3.6, rate: 1.4, box: TERM, label: CLI },
-    { src: "trigger.mp4", from: 3.6, to: 21.5, rate: 9, box: TERM, label: CLI, enter: "zoom" },
-    { src: "trigger.mp4", from: 21.5, to: 24.6, box: [20, 0, 1300, 560], zoomFrom: TERM, label: CLI, enter: "zoom" },
+const SCENES: Scene[] = [
+  { audio: 1, card: "logo", len: 6.3, cues: [0.35, 2.93], shots: [] },
+  { audio: 2, label: "Send an invoice", cues: [0.4, 5.1, 9.4], shots: [
+    { src: "send_and_paid.mp4", from: 4.2, to: 9.2, box: [30, 200, 1190, 300], label: CLI },                       // the forwarded message
+    { src: "send_and_paid.mp4", from: 17.6, to: 22.0, box: [30, 545, 1190, 225], label: CLI,
+      marks: [{ box: [32, 700, 560, 56], at: 1.2 }] },                                                               // Total: $1,800.00
+    { src: "send_and_paid.mp4", from: 23.0, to: 24.6, rate: 0.3, box: [70, 1060, 1060, 580], label: CLI,
+      marks: [{ box: [84, 1088, 330, 52], at: 0.6 }, { box: [84, 1572, 560, 54], at: 2.4 }] },                     // Allow once · Risk checks
+    { src: "send_and_paid.mp4", from: 27.4, to: 31.0, box: [30, 975, 1190, 280], label: CLI,
+      marks: [{ box: [32, 1026, 150, 54], at: 0.4 }] },                                                              // Sent.
   ] },
-  { audio: 4, next: { kind: "slab", label: "Getting paid", tone: "ink" }, segs: [
-    { src: "trigger.mp4", from: 25.8, to: 29.0, rate: 1.6, box: TERM, label: CLI },
-    { src: "trigger.mp4", from: 29.0, to: 30.6, rate: 0.3, box: APPROVAL, zoomFrom: TERM, label: CLI, enter: "zoom", marks: [
-      { box: [72, 642, 1056, 112], card: 1 },
-      { box: [72, 680, 480, 40], card: 2, note: "to whom" },
-      { box: [72, 752, 440, 40], card: 3, note: "what Obol checked" },
-    ] },
+  { audio: 3, label: "Get paid", cues: [0.4, 6.6], shots: [
+    { src: "stripe_pay.mp4", from: 0.0, to: 1.9, rate: 0.8, box: [40, 470, 1100, 420], label: PAGE },
+    { src: "stripe_pay.mp4", from: 2.9, to: 3.7, rate: 0.4, box: [60, 1640, 1100, 460], label: PAGE,
+      marks: [{ box: [110, 1755, 1050, 105], at: 0.8 }] },
+    { src: "stripe_paid.mp4", from: 0, to: 2.6, box: [150, 690, 870, 520], label: PAGE,
+      marks: [{ box: [300, 945, 590, 230], at: 0.3 }] },
+    { src: "have_they_paid.mp4", from: 1.7, to: 4.2, rate: 0.7, box: [30, 1075, 1190, 545], label: CLI,
+      marks: [{ box: [32, 1352, 330, 58], at: 0.5 }] },
   ] },
-  { audio: 5, next: { kind: "slab", label: "The attack", tone: "magenta" }, segs: [
-    { src: "stripe_pay.webm", from: 13.0, to: 17.0, rate: 2, label: "Stripe hosted invoice page · test card 4242" },
-    { src: "attack.mp4", from: 9.2, to: 12.8, box: [20, 300, 1500, 360], zoomFrom: TERM, label: CLI, enter: "whip" },
-    { src: "dashboard_flip.webm", from: 26.9, to: 29.0, box: TABLE_TOP, zoomFrom: FULL, label: "Obol dashboard in Hermes", enter: "whip" },
+  { audio: 4, label: "Stop a scam", cues: [0.4, 5.2], shots: [
+    { src: "scam.mp4", from: 6.0, to: 11.0, box: [30, 205, 1195, 395], label: CLI,
+      marks: [{ box: [36, 212, 1180, 112], at: 0.9 }, { box: [36, 432, 1180, 165], at: 2.2 }] },                 // fake address · skip approval
+    { src: "scam.mp4", from: 25.7, to: 26.8, rate: 0.3, box: [20, 270, 1200, 530], label: CLI,
+      marks: [{ box: [26, 280, 1188, 60], at: 0.3 }, { box: [26, 556, 1188, 130], at: 1.3 }, { box: [26, 716, 1188, 74], at: 2.3 }] }, // caught · injection · withheld
+    { src: "scam.mp4", from: 29.6, to: 32.6, rate: 0.5, box: [80, 1240, 1000, 318], label: CLI, stampAt: 31.85,
+      marks: [{ box: [86, 1296, 984, 110], at: 0.4 }, { box: [86, 1404, 984, 152], at: 1.6 }] },                 // impersonation · lookalike
   ] },
-  { audio: 6, next: { kind: "slab", label: "Obol Guard", tone: "ink" }, segs: [
-    { src: "attack.mp4", from: 12.0, to: 16.3, rate: 1.8, box: TERM, label: CLI },
-    { src: "attack.mp4", from: 16.3, to: 37.3, rate: 9.5, box: TERM, label: CLI, enter: "zoom" },
-    { src: "attack.mp4", from: 37.8, to: 41.4, box: [20, 130, 1880, 520], zoomFrom: TERM, label: CLI, enter: "zoom", marks: [
-      { box: [44, 540, 1832, 72], card: 2, note: "lookalike" },
-      { box: [44, 362, 1832, 76], card: 3, note: "injected instructions" },
-    ] },
-    { src: "attack.mp4", from: 45.0, to: 49.9, rate: 1.4, box: [40, 130, 1130, 690], zoomFrom: TERM, label: CLI, enter: "zoom", stampAt: 48.7, marks: [
-      { box: [72, 604, 1066, 192], card: 4 },
-    ] },
-    { src: "views.webm", from: 9.6, to: 10.65, box: SEC_TOP, label: "Obol dashboard · Security", enter: "whip" },
+  { audio: 5, label: "See everything", cues: [0.6], shots: [
+    { src: "scam.mp4", from: 37.6, to: 40.3, rate: 0.4, box: [30, 200, 760, 345], label: CLI,
+      marks: [{ box: [36, 372, 720, 172], at: 1.0 }] },
   ] },
-  { audio: 7, next: { kind: "whip", dir: 1 }, segs: [
-    { src: "guard.mp4", from: 6.0, to: 14.6, rate: 4, box: TERM, label: WALLET },
-    { src: "guard.mp4", from: 15.0, to: 19.7, rate: 0.85, box: APPROVAL, zoomFrom: TERM, label: WALLET, enter: "zoom", stampAt: 18.55, marks: [
-      { box: [72, 642, 1040, 76], card: 1 },
-      { box: [72, 752, 860, 40], card: 2, note: "hidden instruction" },
-    ] },
-  ] },
-  { audio: 8, next: { kind: "slab", tone: "paper" }, segs: [
-    { src: "guard.mp4", from: 20.4, to: 25.2, rate: 0.75, box: [20, 300, 1400, 520], zoomFrom: TERM, label: CLI, marks: [
-      { box: [50, 434, 1236, 36], card: 0 },
-      { box: [50, 364, 200, 36], card: 1, note: "one command" },
-    ] }] },
-  { audio: 9, segs: [], close: true },
+  { audio: 6, card: "close", len: 5.6, cues: [0.35], shots: [] },
 ];
 
-type Cap = { text: string; start: number; end: number };
-const CAPS = captions as { beat: string; duration: number | null; cards: Cap[] }[];
-const LEAD = 0.3;    // narration starts this far into each beat
-const TAIL = 0.5;    // and the beat holds this long after it ends (room for the next transition)
+type Card = { text: string; start: number; end: number };
+const CAPS = captions as { beat: string; duration: number | null; cards: Card[] }[];
 const fr = (sec: number) => Math.round(sec * FPS);
-const INNER = 7;                                   // frames of a cut between segments
-const outerLen = (t?: Outer) => !t ? 0 : t.kind === "slab" ? (t.label ? 24 : 18) : t.kind === "whip" ? 12 : 10;
+const INNER = 6;        // frames of a cut between shots
+const SLAB = 24;        // frames of a chapter wipe between scenes
+const shotFrames = (s: Shot) => fr((s.to - s.from) / (s.rate ?? 1));
 
-/* Frame plan: each segment's length and start inside its beat, and each beat's length. */
-type Plan = { segFrames: number[]; segStarts: number[]; frames: number };
-const plan = (b: Beat): Plan => {
-  const need = fr((CAPS[b.audio - 1].duration ?? 6) + LEAD + TAIL);
-  if (b.close || !b.segs.length) return { segFrames: [], segStarts: [], frames: need };
-  const segFrames = b.segs.map((s) => fr((s.to - s.from) / (s.rate ?? 1)));
-  const segStarts: number[] = [];
-  let at = 0;
-  segFrames.forEach((d, i) => { segStarts.push(at); at += d - (b.segs[i + 1]?.enter ? INNER : 0); });
-  if (at < need) segFrames[segFrames.length - 1] += need - at;   // hold the last shot until the narration ends
-  return { segFrames, segStarts, frames: Math.max(at, need) };
+type Plan = { shotFrames: number[]; shotStarts: number[]; frames: number };
+const plan = (sc: Scene, next?: Scene): Plan => {
+  const cards = CAPS[sc.audio - 1].cards;
+  const lastCue = sc.cues[sc.cues.length - 1] + ((CAPS[sc.audio - 1].duration ?? 0) - cards[cards.length - 1].start);
+  const need = fr(lastCue + 0.35) + (next ? SLAB : 0);     // narration finishes before the next wipe starts
+  if (sc.card) return { shotFrames: [], shotStarts: [], frames: Math.max(fr(sc.len ?? 5), need) };
+  const shotFramesArr = sc.shots.map(shotFrames);
+  const shotStarts: number[] = []; let at = 0;
+  shotFramesArr.forEach((d, i) => { shotStarts.push(at); at += d - (i < shotFramesArr.length - 1 ? INNER : 0); });
+  if (at < need) shotFramesArr[shotFramesArr.length - 1] += need - at;
+  return { shotFrames: shotFramesArr, shotStarts, frames: Math.max(at, need) };
 };
-const PLANS = BEATS.map(plan);
-export const DEMO_FRAMES = PLANS.reduce((a, p) => a + p.frames, 0) - BEATS.reduce((a, b) => a + outerLen(b.next), 0);
-export const DEMO_SECONDS = DEMO_FRAMES / FPS;
+const PLANS = SCENES.map((s, i) => plan(s, SCENES[i + 1]));
+export const DEMO_FRAMES = PLANS.reduce((a, p) => a + p.frames, 0) - SLAB * (SCENES.length - 1);
 
-/* ---------- transitions ---------- */
+/* ---------- transitions (no blur: every frame stays sharp) ---------- */
 
-type SlabProps = { label?: string; tone: "ink" | "magenta" | "paper"; vertical: boolean };
+type SlabProps = { label?: string; tone: "ink" | "paper"; vertical: boolean };
 const Slab: React.FC<TransitionPresentationComponentProps<SlabProps>> = ({ children, presentationDirection, presentationProgress: p, passedProps }) => {
-  // Cover (0 → 0.4), hold with the chapter label (0.4 → 0.6), reveal (0.6 → 1).
   if (presentationDirection === "exiting") return <AbsoluteFill>{children}</AbsoluteFill>;
-  const cover = interpolate(p, [0, 0.4], [0, 1], { extrapolateRight: "clamp", easing: Easing.bezier(0.7, 0, 0.3, 1) });
-  const reveal = interpolate(p, [0.6, 1], [0, 1], { extrapolateLeft: "clamp", easing: Easing.bezier(0.7, 0, 0.3, 1) });
-  const main = passedProps.tone === "magenta" ? C.magenta : passedProps.tone === "paper" ? C.paper : C.ink;
-  const under = passedProps.tone === "paper" ? C.ink : passedProps.tone === "magenta" ? C.ink : C.magenta;
+  const cover = interpolate(p, [0, 0.38], [0, 1], { extrapolateRight: "clamp", easing: Easing.bezier(0.7, 0, 0.3, 1) });
+  const reveal = interpolate(p, [0.62, 1], [0, 1], { extrapolateLeft: "clamp", easing: Easing.bezier(0.7, 0, 0.3, 1) });
+  const main = passedProps.tone === "paper" ? C.paper : C.ink;
   const text = passedProps.tone === "paper" ? C.ink : "#fbf8f2";
-  // The slab is a skewed band, wider than the frame, that slides in from the left and leaves to the right.
   const x = (-130 + cover * 115 + reveal * 130) + "%";
-  const lag = (-120 + cover * 105 + reveal * 125) + "%";   // leads on the way in, trails on the way out
-  const labelIn = interpolate(p, [0.3, 0.42], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
-  const labelOut = interpolate(p, [0.58, 0.66], [1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+  const lag = (-120 + cover * 105 + reveal * 125) + "%";
+  const k = interpolate(p, [0.3, 0.42, 0.58, 0.66], [0, 1, 1, 0], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
   return (
     <AbsoluteFill>
       <AbsoluteFill style={{ opacity: p >= 0.5 ? 1 : 0 }}>{children}</AbsoluteFill>
-      <AbsoluteFill style={{ transform: `translateX(${lag}) skewX(-14deg)`, background: under, width: "130%" }} />
+      <AbsoluteFill style={{ transform: `translateX(${lag}) skewX(-14deg)`, background: C.magenta, width: "130%" }} />
       <AbsoluteFill style={{ transform: `translateX(${x}) skewX(-14deg)`, background: main, width: "130%" }} />
       {passedProps.label ? (
-        <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", opacity: labelIn * labelOut }}>
-          <div style={{ fontFamily: F.grot, fontWeight: 900, fontSize: passedProps.vertical ? 120 : 150, letterSpacing: "-0.04em",
-            textTransform: "uppercase", color: text, transform: `translateX(${(1 - labelIn) * -60 + (1 - labelOut) * 60}px)` }}>
+        <AbsoluteFill style={{ alignItems: "center", justifyContent: "center", opacity: k }}>
+          <div style={{ fontFamily: F.grot, fontWeight: 900, fontSize: passedProps.vertical ? 116 : 150, letterSpacing: "-0.04em", lineHeight: 0.95,
+            textTransform: "uppercase", color: text, textAlign: "center", padding: "0 40px", transform: `translateY(${(1 - k) * 24}px)` }}>
             {passedProps.label}.
           </div>
         </AbsoluteFill>
@@ -146,56 +112,36 @@ const Slab: React.FC<TransitionPresentationComponentProps<SlabProps>> = ({ child
 };
 const slab = (props: SlabProps): TransitionPresentation<SlabProps> => ({ component: Slab, props });
 
-type WhipProps = { dir: 1 | -1 };
-const Whip: React.FC<TransitionPresentationComponentProps<WhipProps>> = ({ children, presentationDirection, presentationProgress: p, passedProps }) => {
-  const e = Easing.bezier(0.65, 0, 0.35, 1)(p);
-  const off = presentationDirection === "exiting" ? -e * 100 : (1 - e) * 100;
-  const blur = Math.sin(Math.PI * p) * 22;
-  return <AbsoluteFill style={{ transform: `translateX(${off * passedProps.dir}%)`, filter: `blur(${blur}px)` }}>{children}</AbsoluteFill>;
-};
-const whip = (dir: 1 | -1): TransitionPresentation<WhipProps> => ({ component: Whip, props: { dir } });
-
-type FlashProps = { strength: number };
-const Flash: React.FC<TransitionPresentationComponentProps<FlashProps>> = ({ children, presentationDirection, presentationProgress: p, passedProps }) => {
+const Punch: React.FC<TransitionPresentationComponentProps<Record<string, never>>> = ({ children, presentationDirection, presentationProgress: p }) => {
   const exiting = presentationDirection === "exiting";
-  const s = exiting ? 1 + p * 0.25 * passedProps.strength : 1 + (1 - p) * -0.12 * passedProps.strength;
-  const op = exiting ? 1 - p : p;
-  const glow = Math.max(0, 1 - Math.abs(p - 0.5) * 2.6) * 0.85 * passedProps.strength;
-  return (
-    <AbsoluteFill>
-      <AbsoluteFill style={{ transform: `scale(${s})`, opacity: op, filter: `blur(${Math.sin(Math.PI * p) * 8 * passedProps.strength}px)` }}>{children}</AbsoluteFill>
-      {!exiting ? <AbsoluteFill style={{ background: "#fbf8f2", opacity: glow, mixBlendMode: "screen" }} /> : null}
-    </AbsoluteFill>
-  );
+  return <AbsoluteFill style={{ opacity: exiting ? 1 - p : p, transform: `scale(${exiting ? 1 + p * 0.08 : 0.94 + p * 0.06})` }}>{children}</AbsoluteFill>;
 };
-const flash = (strength = 1): TransitionPresentation<FlashProps> => ({ component: Flash, props: { strength } });
-
-const outerPresentation = (t: Outer, vertical: boolean) =>
-  t.kind === "slab" ? slab({ label: t.label, tone: t.tone ?? "ink", vertical }) : t.kind === "whip" ? whip(t.dir) : flash(1);
+const punch: TransitionPresentation<Record<string, never>> = { component: Punch, props: {} };
 
 /* ---------- shots ---------- */
 
-const Highlight: React.FC<{ mark: Mark; since: number; scale: number; vertical: boolean }> = ({ mark, since, scale, vertical }) => {
-  // `since`: seconds since this mark's caption card started (negative = not yet).
-  if (since < 0) return null;
-  const [x, y, w, h] = mark.box;
-  const beside = !vertical && x + w + 18 < 1500;   // otherwise the note sits above the box
-  const draw = interpolate(since, [0, 0.45], [0, 1], { extrapolateRight: "clamp", easing: Easing.out(Easing.cubic) });
-  const per = 2 * (w + h);
-  const sw = 5 / Math.max(0.6, scale) * 1.4;
-  const noteIn = interpolate(since, [0.25, 0.5], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp" });
+/* Dim everything outside the shot's focus box, so cut-off neighbouring lines recede. */
+const Focus: React.FC<{ box: Box }> = ({ box: [x, y, w, h] }) => {
+  const dim = "rgba(11,11,11,0.8)"; const pad = 14; const big = 4000;
   return (
     <>
-      <svg style={{ position: "absolute", left: 0, top: 0, overflow: "visible" }} width={1920} height={1080}>
-        <rect x={x - 8} y={y - 6} width={w + 16} height={h + 12} rx={10} fill={`rgba(222,63,135,${0.12 * draw})`}
-          stroke={C.magenta} strokeWidth={sw} strokeDasharray={per + 80} strokeDashoffset={(1 - draw) * (per + 80)} />
-      </svg>
-      {mark.note && !vertical ? (   /* the narrow vertical frame has no room beside the box */
-        <div style={{ position: "absolute", left: beside ? x + w + 18 : Math.max(x, x + w - 520), top: beside ? y + h / 2 - 30 : y - 74, fontFamily: F.hand, fontWeight: 500,
-          fontSize: 46 / Math.max(0.6, scale) * 1.2, color: C.magenta, whiteSpace: "nowrap", opacity: noteIn,
-          transform: `rotate(-4deg) translateY(${(1 - noteIn) * 10}px)`, textShadow: "0 2px 10px rgba(0,0,0,.6)" }}>{beside ? "← " : "↓ "}{mark.note}</div>
-      ) : null}
+      <div style={{ position: "absolute", left: -big, top: -big, width: 3 * big, height: big + y - pad, background: dim }} />
+      <div style={{ position: "absolute", left: -big, top: y + h + pad, width: 3 * big, height: big, background: dim }} />
+      <div style={{ position: "absolute", left: -big, top: y - pad, width: big + x - pad, height: h + 2 * pad, background: dim }} />
+      <div style={{ position: "absolute", left: x + w + pad, top: y - pad, width: big, height: h + 2 * pad, background: dim }} />
     </>
+  );
+};
+
+const Highlight: React.FC<{ box: Box; since: number; scale: number }> = ({ box: [x, y, w, h], since, scale }) => {
+  if (since < 0) return null;
+  const draw = interpolate(since, [0, 0.4], [0, 1], { extrapolateRight: "clamp", easing: Easing.out(Easing.cubic) });
+  const per = 2 * (w + h) + 80;
+  return (
+    <svg style={{ position: "absolute", left: 0, top: 0, overflow: "visible" }} width={10} height={10}>
+      <rect x={x - 6} y={y - 4} width={w + 12} height={h + 8} rx={10} fill={`rgba(222,63,135,${0.13 * draw})`}
+        stroke={C.magenta} strokeWidth={6 / scale} strokeDasharray={per} strokeDashoffset={(1 - draw) * per} />
+    </svg>
   );
 };
 
@@ -204,136 +150,137 @@ const Stamp: React.FC<{ since: number; vertical: boolean }> = ({ since, vertical
   const k = interpolate(since, [0, 0.18], [2.6, 1], { extrapolateRight: "clamp", easing: Easing.out(Easing.back(1.8)) });
   const op = interpolate(since, [0, 0.08], [0, 1], { extrapolateRight: "clamp" });
   return (
-    <AbsoluteFill style={{ alignItems: "center", justifyContent: vertical ? "flex-start" : "center", paddingTop: vertical ? 360 : 0 }}>
+    <AbsoluteFill style={{ alignItems: "center", justifyContent: "flex-start", paddingTop: vertical ? 90 : 70 }}>
       <div style={{ transform: `rotate(-9deg) scale(${k})`, opacity: op, padding: "10px 34px 6px", border: `9px solid ${C.stamp}`,
-        outline: `3px solid ${C.stamp}`, outlineOffset: 6, color: C.stamp, fontFamily: F.grot, fontWeight: 900, fontSize: vertical ? 130 : 170,
-        letterSpacing: "0.06em", background: "rgba(233,227,216,0.92)", boxShadow: "0 18px 50px rgba(0,0,0,.45)" }}>DENIED</div>
+        outline: `3px solid ${C.stamp}`, outlineOffset: 6, color: C.stamp, fontFamily: F.grot, fontWeight: 900, fontSize: vertical ? 130 : 160,
+        letterSpacing: "0.06em", background: "rgba(233,227,216,0.95)", boxShadow: "0 18px 50px rgba(0,0,0,.45)" }}>DENIED</div>
     </AbsoluteFill>
   );
 };
 
-const ease = Easing.bezier(0.4, 0, 0.2, 1);
-const Shot: React.FC<{ seg: Seg; dur: number; start: number; beat: number; vertical: boolean }> = ({ seg, dur, start, beat, vertical }) => {
+const ShotView: React.FC<{ shot: Shot; dur: number; vertical: boolean }> = ({ shot, dur, vertical }) => {
   const frame = useCurrentFrame();
   const { width, height, fps } = useVideoConfig();
-  const areaH = vertical ? height - 330 : seg.box ? height - 170 : height;
-  const target = seg.box ?? (vertical ? TERM : FULL);
-  const from = seg.zoomFrom ? (vertical && seg.zoomFrom[2] >= 1920 ? TERM : seg.zoomFrom) : target;
-  // Spring into the framed region (a touch of overshoot), then a slow push so no shot sits still.
-  const p = seg.zoomFrom ? spring({ frame, fps, config: { damping: 15, stiffness: 120, mass: 0.9 }, durationInFrames: fr(1.1) }) : 1;
-  const b = from.map((v, i) => v + (target[i] - v) * p) as Box;
-  const drift = 1 + 0.035 * interpolate(frame, [0, Math.max(1, dur)], [0, 1], { easing: ease });
-  const s = Math.min(width / b[2], areaH / b[3]) * drift;
-  const tx = width / 2 - (b[0] + b[2] / 2) * s;
-  const ty = areaH / 2 - (b[1] + b[3] / 2) * s;
-  const rate = seg.rate ?? 1;
-  const srcNow = seg.from + (frame / fps) * rate;
-  const beatT = (start + frame) / fps - LEAD;                   // seconds into the narration of this beat
-  const cards = CAPS[beat - 1].cards;
-  const stampSince = seg.stampAt != null ? (srcNow - seg.stampAt) / rate : -1;
-  const shake = stampSince >= 0 && stampSince < 0.25 ? Math.sin(stampSince * 90) * (1 - stampSince / 0.25) * 10 : 0;
-  const fast = rate >= 1.5;
-  const chip = spring({ frame, fps, config: { damping: 12 }, durationInFrames: 12 });
+  const [sw, sh] = SIZE[shot.src];
+  const areaH = height - (vertical ? 300 : 170);           // the caption band stays clear below the picture
+  const [bx, by, bw, bh] = shot.box;
+  // Punch in from a slightly wider frame of the same lines (never the whole terminal), then drift gently.
+  const p = spring({ frame, fps, config: { damping: 16, stiffness: 130, mass: 0.9 }, durationInFrames: fr(0.9) });
+  const widen = 1 + 0.22 * (1 - p);
+  const drift = 1 + 0.025 * interpolate(frame, [0, Math.max(1, dur)], [0, 1]);
+  const s = Math.min(width / (bw * widen), areaH / (bh * widen)) * drift;
+  const tx = width / 2 - (bx + bw / 2) * s;
+  const ty = areaH / 2 - (by + bh / 2) * s;
+  const rate = shot.rate ?? 1;
+  const t = frame / fps;                                    // seconds into the shot (output time)
+  const stampSince = shot.stampAt != null ? t - (shot.stampAt - shot.from) / rate : -1;
+  const shake = stampSince >= 0 && stampSince < 0.25 ? Math.sin(stampSince * 90) * (1 - stampSince / 0.25) * 9 : 0;
+  const light = shot.src.startsWith("stripe");
   return (
-    <AbsoluteFill style={{ background: "#0b0b0b", overflow: "hidden", transform: `translate(${shake}px, ${shake * 0.6}px)` }}>
-      <div style={{ position: "absolute", left: 0, top: 0, width: 1920, height: 1080, transformOrigin: "0 0",
-        transform: `translate(${tx}px, ${ty}px) scale(${s})` }}>
-        <OffthreadVideo src={staticFile(`captures/${seg.src}`)} startFrom={fr(seg.from)} playbackRate={rate} muted style={{ width: 1920, height: 1080 }} />
-        {(seg.marks ?? []).map((m, i) => <Highlight key={i} mark={m} since={beatT - (cards[m.card]?.start ?? 1e9)} scale={s} vertical={vertical} />)}
+    <AbsoluteFill style={{ background: light ? "#f6f7f9" : "#0b0b0b", overflow: "hidden", transform: `translate(${shake}px, ${shake * 0.6}px)` }}>
+      <div style={{ position: "absolute", left: 0, top: 0, width: sw, height: sh, transformOrigin: "0 0", transform: `translate(${tx}px, ${ty}px) scale(${s})` }}>
+        <OffthreadVideo src={staticFile(`captures/${shot.src}`)} startFrom={fr(shot.from)} playbackRate={rate} muted style={{ width: sw, height: sh }} />
+        {light ? null : <Focus box={shot.box} />}
+        {(shot.marks ?? []).map((m, i) => <Highlight key={i} box={m.box} since={t - m.at} scale={s} />)}
       </div>
-      {seg.dim ? <AbsoluteFill style={{ background: `rgba(0,0,0,${seg.dim})` }} /> : null}
+      <AbsoluteFill style={{ top: areaH, background: "#0b0b0b" }} />
       <Stamp since={stampSince} vertical={vertical} />
-      <div style={{ position: "absolute", top: 28, left: 32, display: "flex", gap: 10, fontFamily: F.mono, fontSize: vertical ? 24 : 22,
-        transform: `translateY(${(1 - chip) * -20}px)`, opacity: chip }}>
-        {seg.label ? <span style={{ background: "rgba(16,14,12,.78)", color: "#e8e6e1", padding: "6px 12px", borderRadius: 6 }}>{seg.label}</span> : null}
-        {fast ? <span style={{ background: C.magenta, color: "#fff", padding: "6px 12px", borderRadius: 6, fontWeight: 700 }}>▸▸ {rate}×</span> : null}
-      </div>
+      <div style={{ position: "absolute", top: 26, left: 30, fontFamily: F.mono, fontSize: vertical ? 26 : 24, background: "rgba(16,14,12,.8)",
+        color: "#e8e6e1", padding: "6px 12px", borderRadius: 6 }}>{shot.label}</div>
     </AbsoluteFill>
   );
 };
 
-/* ---------- captions, close, assembly ---------- */
+/* ---------- cards ---------- */
 
-const Captions: React.FC<{ beat: number; vertical: boolean }> = ({ beat, vertical }) => {
-  const frame = useCurrentFrame();
-  const t = frame / FPS - LEAD;
-  const card = CAPS[beat - 1]?.cards.find((c) => t >= c.start && t < c.end + 0.15);
-  if (!card) return null;
-  const k = interpolate(t - card.start, [0, 0.16], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.out(Easing.back(2)) });
-  return (
-    <div style={{ position: "absolute", left: 0, right: 0, bottom: vertical ? 90 : 64, display: "flex", justifyContent: "center", padding: "0 40px",
-      opacity: Math.min(1, k * 1.5), transform: `translateY(${(1 - k) * 18}px) scale(${0.94 + 0.06 * k})` }}>
-      <div style={{ maxWidth: vertical ? 980 : 1500, padding: "16px 30px 18px", borderRadius: 14, background: "rgba(16,14,12,0.86)",
-        color: "#fbf8f2", fontFamily: F.grot, fontWeight: 800, fontSize: vertical ? 58 : 60, lineHeight: 1.12,
-        letterSpacing: "-0.015em", textAlign: "center", boxShadow: "0 10px 30px rgba(0,0,0,.35)" }}>{card.text}</div>
-    </div>
-  );
+const Rise: React.FC<{ delay: number; children: React.ReactNode; style?: React.CSSProperties }> = ({ delay, children, style }) => {
+  const frame = useCurrentFrame(); const { fps } = useVideoConfig();
+  const k = spring({ frame: frame - delay, fps, config: { damping: 14, mass: 0.8 } });
+  return <div style={{ ...style, opacity: Math.min(1, k * 1.4), transform: `translateY(${(1 - k) * 40}px)` }}>{children}</div>;
 };
 
-const Close: React.FC<{ vertical: boolean }> = ({ vertical }) => {
-  const frame = useCurrentFrame();
-  const { fps } = useVideoConfig();
-  const up = (delay: number) => spring({ frame: frame - delay, fps, config: { damping: 14, mass: 0.8 } });
-  const stamp = interpolate(frame, [22, 34], [2.4, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.out(Easing.back(2)) });
-  const letters = "OBOL.".split("");
+const Logo: React.FC<{ vertical: boolean; close?: boolean }> = ({ vertical, close }) => {
+  const frame = useCurrentFrame(); const { fps } = useVideoConfig();
+  const stamp = interpolate(frame, [20, 32], [2.4, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.out(Easing.back(2)) });
   return (
     <AbsoluteFill style={{ background: C.paper, alignItems: "center", justifyContent: "center" }}>
-      <div style={{ textAlign: "left", marginTop: vertical ? -260 : -120, padding: "0 60px" }}>
-        <div style={{ display: "inline-block", padding: "8px 16px 6px", border: `4px solid ${C.magenta}`, outline: `2px solid ${C.magenta}`,
-          outlineOffset: 3, color: C.magenta, fontFamily: F.grot, fontWeight: 900, fontSize: 26, letterSpacing: "0.12em",
-          transform: `rotate(-2deg) scale(${stamp})`, opacity: frame > 21 ? 1 : 0 }}>SECURITY-FIRST INVOICING</div>
-        <div style={{ display: "flex", fontFamily: F.grot, fontWeight: 800, fontSize: vertical ? 190 : 210, lineHeight: 0.9, letterSpacing: "-0.05em", color: C.ink, marginTop: 24 }}>
-          {letters.map((l, i) => {
-            const k = up(2 + i * 3);
+      <div style={{ marginTop: vertical ? -260 : -150, padding: "0 60px", textAlign: "left" }}>
+        <div style={{ display: "inline-block", padding: "8px 16px 6px", border: `4px solid ${C.magenta}`, outline: `2px solid ${C.magenta}`, outlineOffset: 3,
+          color: C.magenta, fontFamily: F.grot, fontWeight: 900, fontSize: vertical ? 30 : 30, letterSpacing: "0.12em",
+          transform: `rotate(-2deg) scale(${stamp})`, opacity: frame > 19 ? 1 : 0 }}>SECURITY-FIRST INVOICING</div>
+        <div style={{ display: "flex", fontFamily: F.grot, fontWeight: 800, fontSize: vertical ? 230 : 250, lineHeight: 0.9, letterSpacing: "-0.05em", color: C.ink, marginTop: 20 }}>
+          {"OBOL.".split("").map((l, i) => {
+            const k = spring({ frame: frame - 2 - i * 3, fps, config: { damping: 14, mass: 0.8 } });
             return <span key={i} style={{ display: "inline-block", transform: `translateY(${(1 - k) * 120}px)`, opacity: Math.min(1, k * 1.4) }}>{l}</span>;
           })}
         </div>
-        <div style={{ fontFamily: F.grot, fontWeight: 800, fontSize: vertical ? 38 : 44, color: C.ink, marginTop: 22, letterSpacing: "-0.01em",
-          textTransform: "uppercase", maxWidth: 960, opacity: up(18), transform: `translateY(${(1 - up(18)) * 30}px)` }}>
-          A Hermes Agent plugin · in the Hermes Marketplace
-        </div>
-        <div style={{ fontFamily: F.mono, fontSize: 30, color: C.inkSoft, marginTop: 14, opacity: up(26), transform: `translateY(${(1 - up(26)) * 20}px)` }}>
-          hermes plugins install ueddy/obol
-        </div>
+        <Rise delay={16} style={{ fontFamily: F.grot, fontWeight: 800, fontSize: vertical ? 46 : 52, color: C.ink, marginTop: 18, letterSpacing: "-0.01em" }}>
+          A plugin for Hermes Agent
+        </Rise>
+        {close ? (
+          <Rise delay={24} style={{ marginTop: 34, display: "inline-block", fontFamily: F.mono, fontWeight: 700, fontSize: vertical ? 42 : 48, color: "#fbf8f2",
+            background: C.ink, padding: "16px 26px", borderRadius: 12 }}>hermes plugins install ueddy/obol</Rise>
+        ) : null}
       </div>
     </AbsoluteFill>
   );
 };
 
-const innerPresentation = (kind: Inner) => (kind === "whip" ? whip(-1) : flash(0.6));
+/* ---------- captions and voice ---------- */
 
-const BeatView: React.FC<{ beat: Beat; plan: Plan; vertical: boolean }> = ({ beat, plan: pl, vertical }) => (
+const SceneVoice: React.FC<{ scene: Scene; frames: number; vertical: boolean }> = ({ scene, frames, vertical }) => {
+  const frame = useCurrentFrame();
+  const cap = CAPS[scene.audio - 1];
+  const t = frame / FPS;
+  const i = scene.cues.findIndex((c, k) => t >= c && t < (scene.cues[k + 1] ?? frames / FPS - SLAB / FPS + 0.1));
+  const card = i >= 0 ? cap.cards[i] : null;
+  const k = card ? interpolate(t - scene.cues[i], [0, 0.16], [0, 1], { extrapolateLeft: "clamp", extrapolateRight: "clamp", easing: Easing.out(Easing.back(2)) }) : 0;
+  return (
+    <>
+      {cap.cards.map((c, j) => {
+        const end = cap.cards[j + 1]?.start ?? cap.duration ?? c.end;
+        return (
+          <Sequence key={j} from={fr(scene.cues[j])} durationInFrames={Math.max(1, fr(end - c.start) + 2)}>
+            <Audio src={staticFile(`audio/scene${scene.audio}.mp3`)} startFrom={fr(c.start)} endAt={fr(end) + 2}
+              volume={(f) => interpolate(f, [0, 2], [0, 1], { extrapolateRight: "clamp" })} />
+          </Sequence>
+        );
+      })}
+      {card ? (
+        <div style={{ position: "absolute", left: 0, right: 0, bottom: vertical ? 70 : 34, display: "flex", justifyContent: "center", padding: "0 36px",
+          opacity: Math.min(1, k * 1.5), transform: `translateY(${(1 - k) * 14}px)` }}>
+          <div style={{ maxWidth: vertical ? 1000 : 1700, padding: "14px 30px 16px", borderRadius: 14, background: "rgba(16,14,12,0.9)", color: "#fbf8f2",
+            fontFamily: F.grot, fontWeight: 800, fontSize: vertical ? 62 : 64, lineHeight: 1.1, letterSpacing: "-0.015em", textAlign: "center" }}>{card.text}</div>
+        </div>
+      ) : null}
+    </>
+  );
+};
+
+const SceneView: React.FC<{ scene: Scene; plan: Plan; vertical: boolean }> = ({ scene, plan: pl, vertical }) => (
   <AbsoluteFill style={{ background: "#0b0b0b" }}>
-    {beat.close ? <Close vertical={vertical} /> : (
+    {scene.card ? <Logo vertical={vertical} close={scene.card === "close"} /> : (
       <TransitionSeries>
-        {beat.segs.flatMap((seg, i) => {
+        {scene.shots.flatMap((shot, i) => {
           const items = [];
-          if (i > 0 && seg.enter) items.push(
-            <TransitionSeries.Transition key={`t${i}`} presentation={innerPresentation(seg.enter)} timing={linearTiming({ durationInFrames: INNER })} />);
-          items.push(
-            <TransitionSeries.Sequence key={`s${i}`} durationInFrames={pl.segFrames[i]}>
-              <Shot seg={seg} dur={pl.segFrames[i]} start={pl.segStarts[i]} beat={beat.audio} vertical={vertical} />
-            </TransitionSeries.Sequence>);
+          if (i > 0) items.push(<TransitionSeries.Transition key={`t${i}`} presentation={punch} timing={linearTiming({ durationInFrames: INNER })} />);
+          items.push(<TransitionSeries.Sequence key={`s${i}`} durationInFrames={pl.shotFrames[i]}><ShotView shot={shot} dur={pl.shotFrames[i]} vertical={vertical} /></TransitionSeries.Sequence>);
           return items;
         })}
       </TransitionSeries>
     )}
-    <Sequence from={fr(LEAD)}><Audio src={staticFile(`audio/beat${beat.audio}.mp3`)} /></Sequence>
-    <Captions beat={beat.audio} vertical={vertical} />
+    <SceneVoice scene={scene} frames={pl.frames} vertical={vertical} />
   </AbsoluteFill>
 );
 
 export const Demo: React.FC<{ vertical?: boolean }> = ({ vertical = false }) => (
   <AbsoluteFill style={{ background: "#0b0b0b" }}>
     <TransitionSeries>
-      {BEATS.flatMap((b, i) => {
-        const items = [
-          <TransitionSeries.Sequence key={`b${i}`} durationInFrames={PLANS[i].frames}>
-            <BeatView beat={b} plan={PLANS[i]} vertical={vertical} />
-          </TransitionSeries.Sequence>,
-        ];
-        if (b.next) items.push(
-          <TransitionSeries.Transition key={`x${i}`} presentation={outerPresentation(b.next, vertical)} timing={linearTiming({ durationInFrames: outerLen(b.next) })} />);
+      {SCENES.flatMap((sc, i) => {
+        const items = [<TransitionSeries.Sequence key={`c${i}`} durationInFrames={PLANS[i].frames}><SceneView scene={sc} plan={PLANS[i]} vertical={vertical} /></TransitionSeries.Sequence>];
+        const next = SCENES[i + 1];
+        if (next) items.push(<TransitionSeries.Transition key={`x${i}`} timing={linearTiming({ durationInFrames: SLAB })}
+          presentation={slab({ label: next.label, tone: next.card ? "paper" : "ink", vertical })} />);
         return items;
       })}
     </TransitionSeries>

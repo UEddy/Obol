@@ -14,7 +14,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 from obol_lib.stripe_client import StripeClient, key_mode  # noqa: E402
 
-EMAILS = {"billing@pinemoor.example.com", "billing@pinernoor.example.com"}
+EMAILS = {"billing@pinemoor.example.com", "billing@pinernoor.example.com", "billing@acmestudio.example.com", "billing@acrnestudio.example.com"}
 
 key = os.environ.get("STRIPE_API_KEY") or os.environ.get("STRIPE_SECRET_KEY")
 if key_mode(key) != "test":

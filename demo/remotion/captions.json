@@ -1,215 +1,92 @@
 [
  {
-  "beat": "1 Hook",
-  "duration": 5.56,
+  "beat": "1 What it is",
+  "duration": 5.36,
   "cards": [
    {
-    "text": "You just finished building.",
+    "text": "Obol lets Hermes send your Stripe invoices,",
     "start": 0.0,
-    "end": 2.0
+    "end": 2.58
    },
    {
-    "text": "Now comes the part nobody enjoys:",
-    "start": 2.0,
-    "end": 4.54
-   },
-   {
-    "text": "getting paid.",
-    "start": 4.54,
-    "end": 5.56
+    "text": "and stops scams before money moves.",
+    "start": 2.58,
+    "end": 5.36
    }
   ]
  },
  {
-  "beat": "2 Pain",
-  "duration": 5.72,
+  "beat": "2 Send an invoice",
+  "duration": 6.8,
   "cards": [
    {
-    "text": "Two clients are already late,",
+    "text": "Forward a client's message.",
     "start": 0.0,
-    "end": 1.72
+    "end": 2.46
    },
    {
-    "text": "and chasing invoices eats the hours",
-    "start": 1.72,
-    "end": 4.1
+    "text": "Obol drafts the invoice.",
+    "start": 2.46,
+    "end": 4.68
    },
    {
-    "text": "you should spend building.",
-    "start": 4.1,
-    "end": 5.72
+    "text": "Nothing is sent until you approve.",
+    "start": 4.68,
+    "end": 6.8
    }
   ]
  },
  {
-  "beat": "3 Trigger",
-  "duration": 7.0,
+  "beat": "3 Get paid",
+  "duration": 2.64,
   "cards": [
    {
-    "text": "So when Pinemoor says \"send the invoice,\"",
+    "text": "Your client pays.",
     "start": 0.0,
-    "end": 2.72
+    "end": 1.7
    },
    {
-    "text": "you just forward the message.",
-    "start": 2.72,
-    "end": 4.5
-   },
-   {
-    "text": "Hermes reads it",
-    "start": 4.5,
-    "end": 5.2
-   },
-   {
-    "text": "and drafts the invoice for you.",
-    "start": 5.2,
-    "end": 7.0
+    "text": "Hermes tells you.",
+    "start": 1.7,
+    "end": 2.64
    }
   ]
  },
  {
-  "beat": "4 Trust",
-  "duration": 7.0,
+  "beat": "4 Stop a scam",
+  "duration": 3.52,
   "cards": [
    {
-    "text": "Nothing touches money without you.",
+    "text": "A scammer pretends to be your client.",
     "start": 0.0,
-    "end": 2.44
+    "end": 2.56
    },
    {
-    "text": "You see exactly what will be sent,",
-    "start": 2.44,
-    "end": 4.5
-   },
-   {
-    "text": "to whom,",
-    "start": 4.5,
-    "end": 5.0
-   },
-   {
-    "text": "and what Obol checked.",
-    "start": 5.0,
-    "end": 7.0
+    "text": "Obol catches it.",
+    "start": 2.56,
+    "end": 3.52
    }
   ]
  },
  {
-  "beat": "5 Payoff",
-  "duration": 7.16,
+  "beat": "5 See everything",
+  "duration": 3.84,
   "cards": [
    {
-    "text": "Pinemoor pays by card.",
+    "text": "Paid, open and overdue, in one command.",
     "start": 0.0,
-    "end": 2.08
-   },
-   {
-    "text": "Ask Hermes if they've paid,",
-    "start": 2.08,
-    "end": 3.32
-   },
-   {
-    "text": "and the answer comes straight from Stripe.",
-    "start": 3.32,
-    "end": 5.84
-   },
-   {
-    "text": "The ledger stamps it.",
-    "start": 5.84,
-    "end": 7.16
+    "end": 3.84
    }
   ]
  },
  {
-  "beat": "6 Tension",
-  "duration": 11.15,
+  "beat": "6 Close",
+  "duration": 4.48,
   "cards": [
    {
-    "text": "Then \"Pinemoor\" writes from a new address",
+    "text": "Obol, a security-first invoicing plugin for Hermes Agent.",
     "start": 0.0,
-    "end": 2.34
-   },
-   {
-    "text": "and tells your assistant to skip approval.",
-    "start": 2.34,
-    "end": 5.28
-   },
-   {
-    "text": "Obol spots the lookalike domain",
-    "start": 5.28,
-    "end": 6.84
-   },
-   {
-    "text": "and the injected instructions,",
-    "start": 6.84,
-    "end": 8.34
-   },
-   {
-    "text": "and won't let a message choose",
-    "start": 8.34,
-    "end": 10.08
-   },
-   {
-    "text": "who gets paid.",
-    "start": 10.08,
-    "end": 11.15
-   }
-  ]
- },
- {
-  "beat": "7 Guard",
-  "duration": 5.72,
-  "cards": [
-   {
-    "text": "Obol Guard protects every agent",
-    "start": 0.0,
-    "end": 2.12
-   },
-   {
-    "text": "that touches money.",
-    "start": 2.12,
-    "end": 3.68
-   },
-   {
-    "text": "A surprise transfer waits for you.",
-    "start": 3.68,
-    "end": 5.72
-   }
-  ]
- },
- {
-  "beat": "8 Resolution",
-  "duration": 5.88,
-  "cards": [
-   {
-    "text": "Everything paid, pending and overdue,",
-    "start": 0.0,
-    "end": 2.32
-   },
-   {
-    "text": "in one command,",
-    "start": 2.32,
-    "end": 3.46
-   },
-   {
-    "text": "in any chat you already use.",
-    "start": 3.46,
-    "end": 5.88
-   }
-  ]
- },
- {
-  "beat": "9 Close",
-  "duration": 5.84,
-  "cards": [
-   {
-    "text": "Hermes can now run your invoicing, safely.",
-    "start": 0.0,
-    "end": 3.56
-   },
-   {
-    "text": "Obol, in the Hermes Marketplace.",
-    "start": 3.56,
-    "end": 5.84
+    "end": 4.48
    }
   ]
  }

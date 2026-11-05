@@ -184,22 +184,18 @@ Obol reads it only through Hermes's secret route and never logs or stores it.
 
 ## 90-second demo
 
-The demo follows one AI consultant billing one client (Pinemoor) for an agent build, then one attack. Every shot is the real plugin
-against Stripe test mode, driven by a real model (Meta Muse Spark 1.3) in the Hermes CLI. One exception, for the
-Guard beat: the wallet plugin is the real catalog plugin `agentwalletapi`, but its backend is a local stand-in
-(`demo/capture/wallet_stub.py`, one wallet with test USDC) because the demo has no OpenClawCash account. The
-transfer is denied, so nothing would have been sent either way. `demo/` holds the seed script, capture scripts,
+The demo follows one freelancer billing one client (Acme Studio), then one scam attempt. Every shot is the real plugin
+against Stripe test mode, driven by a real model (Meta Muse Spark 1.3) in the Hermes CLI. `demo/` holds the seed script, capture scripts,
 VHS tapes, narration script and the Remotion project that assemble it.
 
-| Beat | On screen |
+| Scene | On screen |
 |---|---|
-| Hook | The Invoices tab: $3,600 overdue |
-| Trigger | Pinemoor's "loved the support agent, send the invoice" message is forwarded to Hermes in the CLI; `obol_draft_from_message` proposes $1,800 |
-| Trust | The approval prompt names the amount, client, test mode and risk checks; approve |
-| Payoff | Stripe's hosted invoice page paid with 4242; *"Has Pinemoor paid?"*; the row's stamp flips to PAID |
-| Tension | A forwarded "Pinemoor" message from `billing@pinernoor.example.com` tells the assistant to skip approval: the recipient is withheld, and the approval prompt shows prompt injection, lookalike domain and impersonation; then the Security view |
-| Guard | A vendor note with a hidden instruction leads to a 900 USDC wallet transfer; Obol Guard intercepts it with the injection flagged; deny |
-| Resolution | `/invoices` with everything paid, pending and overdue |
+| What it is | Obol logo card |
+| Send an invoice | A client's forwarded message; Obol drafts $1,800; the approval prompt; approve; sent |
+| Get paid | Stripe's hosted page paid with the 4242 test card; "Have they paid?" "Yes — paid." |
+| Stop a scam | An email from a lookalike address asks to change where invoices go and to skip approval: Hermes withholds the address, and the approval prompt shows impersonation and lookalike flags; denied |
+| See everything | `/invoices` with paid, open and overdue totals |
+| Close | Install command |
 
 ## How it works
 
