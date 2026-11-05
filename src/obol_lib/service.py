@@ -322,19 +322,21 @@ def ledger_text(store: Store, *, livemode: Optional[bool] = None, status: Option
     if not totals:
         lines.append("No invoices yet. Ask Hermes to invoice someone, or run /invoices sync.")
         return "\n".join(lines)
+    # Short lines (under ~42 characters) so the ledger reads in a phone chat without wrapping mid-number.
     for cur, t in sorted(totals.items()):
-        lines.append(f"{cur.upper()}  outstanding {money.fmt(t['outstanding'], cur)} ({t['count_outstanding']})"
-                     f" · overdue {money.fmt(t['overdue'], cur)} ({t['count_overdue']})"
-                     f" · paid {money.fmt(t['paid'], cur)} ({t['count_paid']})")
+        lines.append(cur.upper())
+        for label, key in (("Paid", "paid"), ("Open", "outstanding"), ("Overdue", "overdue")):
+            amount = money.fmt(t[key], cur)
+            lines.append(f"  {label:<8}{amount:>12}  ({t['count_' + key]})")
     rows = [r for r in store.invoices(status=status, livemode=livemode, limit=limit + 50)
             if status or r["status"] != "void"][:limit]
     if rows:
         lines.append("")
     for r in rows:
         v = view(r)
-        due = f" due {v['due_date']}" if v["due_date"] and v["status"] in ("open", "overdue") else ""
-        lines.append(f"[{v['status'].upper():>8}] {v['number'] or r['id']}  {v['customer'] or '-'}  "
-                     f"{v['amount_due']}{due}")
+        due = f" · due {v['due_date']}" if v["due_date"] and v["status"] in ("open", "overdue") else ""
+        lines.append(f"{v['status'].upper():<8} {v['amount_due']:>11}  {v['customer'] or '-'}")
+        lines.append(f"{'':9}{v['number'] or r['id']}{due}")
     last = store.get_meta("last_sync")
     if last:
         lines.append(f"\nlast synced {time.strftime('%Y-%m-%d %H:%M UTC', time.gmtime(int(last)))}")

@@ -145,8 +145,7 @@ def assess(store: Store, settings: Settings, *, customer_email: Optional[str], c
             flags.append(flag("impersonation", "high",
                               f"{customer_name} was billed before at {', '.join(sorted(known))}, not {email}. "
                               "Confirm the new address with the client through a channel you already trust.",
-                              f"Impersonation: {customer_name} is billed at "
-                              f"{', '.join(sorted(known_domains))}, not {email.rsplit('@', 1)[-1]}"))
+                              f"Impersonation: {customer_name} is billed at {', '.join(sorted(known_domains))}"))
 
     # lookalike domains ---------------------------------------------------------------------------
     if settings.risk_lookalike_domains:

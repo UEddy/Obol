@@ -129,6 +129,8 @@ def test_ledger_text(fake, client, store):
     service.create_invoice(client, store, S, {**PINEMOOR, "send": True})
     text = service.ledger_text(store, livemode=False)
     assert "TEST MODE" in text and "$1,200.00" in text and "OPEN" in text
+    assert "  Open       $1,200.00  (1)" in text
+    assert max(len(line) for line in text.splitlines() if not line.startswith("last synced")) <= 46   # phone chats
 
 
 def test_list_without_client_reads_cache(fake, client, store):
