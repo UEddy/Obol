@@ -52,7 +52,10 @@ How it's verified: `tests/test_gateways.py` loads Obol through Hermes's plugin m
 checks that the `obol` toolset is enabled on that platform; that a Stripe write called from a session on that
 platform goes through Hermes's real tool dispatch and asks for approval in that chat through the gateway's
 pending-approval path (deny sends nothing, approve sends the invoice); that the platform's approval card or
-typed fallback carries Obol's summary; and that `/invoices` typed there is dispatched to Obol.
+typed fallback carries Obol's summary; and that `/invoices` typed there is dispatched to Obol. Telegram was
+also run live end to end for the demo video: a real bot, Hermes's Telegram gateway and Telegram Web (a
+forwarded client message, the drafted invoice, **Allow Once** tapped in the chat, "Have they paid?", and
+`/invoices`); see `demo/capture/telegram/`.
 
 ---
 
