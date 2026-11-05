@@ -257,10 +257,19 @@ def _make_cli(ctx: Any) -> Callable[[Any], int]:
         if cmd == "ledger":
             print(service.ledger_text(runtime.store()))
             return 0
+        status = 0
         key = runtime.api_key()
         mode = key_mode(key)
         print(f"Stripe key: {mode}" + ("" if mode in ("test", "live") else f" (set {runtime.KEY_ENV})"))
         print(f"Approval: every Stripe write asks · live mode allowed: {settings.allow_live}")
+        for table, label in (("events", "Activity log"), ("security_events", "Security log")):
+            chain = runtime.store().verify_chain(table)
+            if chain["ok"]:
+                print(f"✓ {label}: {chain['entries']} entries, hash chain intact (head {chain['head'][:16]}…)")
+            else:
+                where = f"at entry #{chain['first_bad_seq']}" if chain["first_bad_seq"] else chain.get("reason", "")
+                print(f"✗ {label}: TAMPERED {where}. Someone edited Obol's local log outside Obol.")
+                status = 1
         try:
             with runtime.make_client(settings, key) as client:
                 out = service.sync(client, runtime.store(), max_pages=1 if cmd == "doctor" else 5)
@@ -270,7 +279,7 @@ def _make_cli(ctx: Any) -> Callable[[Any], int]:
         print(f"✓ Stripe reachable, {out['synced']} invoice(s) synced")
         if cmd == "sync":
             print(service.ledger_text(runtime.store(), livemode=mode == "live"))
-        return 0
+        return status
     return run
 
 

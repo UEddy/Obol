@@ -234,3 +234,25 @@ def test_injection_and_lookalike_reach_the_approval_prompt_and_security_log(herm
     linked = [e for e in events if e["invoice_id"] == created["invoice"]["invoice_id"]]
     assert {e["check_name"] for e in linked} >= {"prompt_injection", "lookalike_domain", "impersonation"}
     assert any(e["outcome"] == "withheld" for e in events)
+
+
+def test_doctor_reports_intact_then_tampered_log(hermes, fake, capsys):
+    import argparse
+    import importlib
+    plugin = importlib.import_module(next(n for n in sys.modules if n.startswith("hermes_plugins.") and n.endswith("obol")))
+    _, runtime = hermes
+
+    class Ctx:
+        @staticmethod
+        def get_config(key, default=None):
+            return default
+    doctor = plugin._make_cli(Ctx())
+    runtime.store().log("sent", "in_x", "to billing@acme.example.com")
+    assert doctor(argparse.Namespace(obol_command="doctor")) == 0
+    assert "hash chain intact" in capsys.readouterr().out
+    conn = runtime.store()._conn
+    conn.execute("UPDATE events SET detail = 'to billing@attacker.example' WHERE kind = 'sent'"); conn.commit()
+    assert doctor(argparse.Namespace(obol_command="doctor")) == 1
+    assert "TAMPERED" in capsys.readouterr().out
+    conn.execute("DELETE FROM events"); conn.execute("DELETE FROM meta WHERE key LIKE 'count:events' OR key LIKE 'anchor:events'")
+    conn.commit()

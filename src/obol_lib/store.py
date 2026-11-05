@@ -7,6 +7,7 @@ source of truth: a row is always the last invoice object Stripe returned.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import sqlite3
 import threading
@@ -58,6 +59,10 @@ CREATE TABLE IF NOT EXISTS security_events (
     ref        TEXT,
     detail     TEXT
 );
+CREATE TABLE IF NOT EXISTS security_links (
+    ref        TEXT NOT NULL,
+    invoice_id TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS intake_flags (
     key   TEXT NOT NULL,
     at    INTEGER NOT NULL,
@@ -71,6 +76,17 @@ CREATE TABLE IF NOT EXISTS pending_risk (
 """
 
 STATUSES = ("draft", "open", "paid", "void", "uncollectible")
+
+# Hash-chained (tamper-evident) tables and the fields each entry's hash covers, in order.
+CHAINED = {
+    "events": ("at", "invoice_id", "kind", "detail"),
+    "security_events": ("at", "check_name", "severity", "outcome", "invoice_id", "ref", "detail"),
+}
+GENESIS = "0" * 64
+
+
+def entry_hash(prev: str, values: list) -> str:
+    return hashlib.sha256((prev + json.dumps(values, separators=(",", ":"), ensure_ascii=False)).encode()).hexdigest()
 
 
 def row_from_invoice(inv: dict, now: Optional[int] = None) -> dict[str, Any]:
@@ -114,7 +130,79 @@ class Store:
         self._lock = threading.Lock()
         with self._lock:
             self._conn.executescript(SCHEMA)
+            for table in CHAINED:  # upgrade older databases, then seal any unhashed rows in order
+                cols = {r[1] for r in self._conn.execute(f"PRAGMA table_info({table})")}
+                for col in ("prev_hash", "hash"):
+                    if col not in cols:
+                        self._conn.execute(f"ALTER TABLE {table} ADD COLUMN {col} TEXT")
+                self._seal_unhashed(table)
             self._conn.commit()
+
+    # -- hash chain -------------------------------------------------------------------------------
+    def _head(self, table: str) -> str:
+        row = self._conn.execute(f"SELECT hash FROM {table} WHERE hash IS NOT NULL ORDER BY seq DESC LIMIT 1").fetchone()
+        if row:
+            return row[0]
+        anchor = self._conn.execute("SELECT value FROM meta WHERE key = ?", (f"anchor:{table}",)).fetchone()
+        return anchor[0] if anchor else GENESIS
+
+    def _seal_unhashed(self, table: str) -> None:
+        fields = CHAINED[table]
+        prev = None
+        for row in self._conn.execute(f"SELECT seq, {', '.join(fields)} FROM {table} WHERE hash IS NULL ORDER BY seq").fetchall():
+            prev = prev or self._head(table)
+            h = entry_hash(prev, list(row[1:]))
+            self._conn.execute(f"UPDATE {table} SET prev_hash = ?, hash = ? WHERE seq = ?", (prev, h, row[0]))
+            prev = h
+        if prev:
+            self._set_meta_unlocked(f"count:{table}", str(self._count(table)))
+
+    def _count(self, table: str) -> int:
+        return self._conn.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
+
+    def _set_meta_unlocked(self, key: str, value: str) -> None:
+        self._conn.execute("INSERT INTO meta (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+                           (key, value))
+
+    def _chain_insert(self, table: str, values: dict) -> None:
+        """Insert one entry whose hash covers the previous entry's hash (caller holds the lock)."""
+        fields = CHAINED[table]
+        vals = [values.get(f) for f in fields]
+        prev = self._head(table)
+        h = entry_hash(prev, vals)
+        self._conn.execute(f"INSERT INTO {table} ({', '.join(fields)}, prev_hash, hash) VALUES ({', '.join('?' * (len(fields) + 2))})",
+                           (*vals, prev, h))
+        self._set_meta_unlocked(f"count:{table}", str(self._count(table)))
+
+    def _prune(self, table: str, keep: int) -> None:
+        """Drop the oldest entries but keep the chain verifiable: the last dropped hash becomes the anchor."""
+        cutoff = self._conn.execute(f"SELECT MAX(seq) - ? FROM {table}", (keep,)).fetchone()[0]
+        if cutoff is None or cutoff <= 0:
+            return
+        last = self._conn.execute(f"SELECT hash FROM {table} WHERE seq <= ? ORDER BY seq DESC LIMIT 1", (cutoff,)).fetchone()
+        if last:
+            self._set_meta_unlocked(f"anchor:{table}", last[0])
+            self._conn.execute(f"DELETE FROM {table} WHERE seq <= ?", (cutoff,))
+            self._set_meta_unlocked(f"count:{table}", str(self._count(table)))
+
+    def verify_chain(self, table: str = "events") -> dict[str, Any]:
+        """Recompute every hash. Detects edited, deleted, reordered or truncated entries made by anything that
+        does not rewrite the whole chain."""
+        fields = CHAINED[table]
+        with self._lock:
+            anchor = self._conn.execute("SELECT value FROM meta WHERE key = ?", (f"anchor:{table}",)).fetchone()
+            expected_count = self._conn.execute("SELECT value FROM meta WHERE key = ?", (f"count:{table}",)).fetchone()
+            rows = self._conn.execute(f"SELECT seq, {', '.join(fields)}, prev_hash, hash FROM {table} ORDER BY seq").fetchall()
+        prev = anchor[0] if anchor else GENESIS
+        for row in rows:
+            seq, vals, prev_hash, h = row[0], list(row[1:1 + len(fields)]), row[-2], row[-1]
+            if prev_hash != prev or h != entry_hash(prev, vals):
+                return {"ok": False, "entries": len(rows), "first_bad_seq": seq, "head": None}
+            prev = h
+        if expected_count is not None and int(expected_count[0]) != len(rows):
+            return {"ok": False, "entries": len(rows), "first_bad_seq": None, "head": None,
+                    "reason": f"expected {expected_count[0]} entries, found {len(rows)} (entries removed)"}
+        return {"ok": True, "entries": len(rows), "first_bad_seq": None, "head": prev}
 
     @classmethod
     def memory(cls) -> "Store":
@@ -145,9 +233,9 @@ class Store:
 
     def log(self, kind: str, invoice_id: Optional[str] = None, detail: str = "", at: Optional[int] = None) -> None:
         with self._lock:
-            self._conn.execute("INSERT INTO events (at, invoice_id, kind, detail) VALUES (?, ?, ?, ?)",
-                               (int(at or time.time()), invoice_id, kind, detail[:500]))
-            self._conn.execute("DELETE FROM events WHERE seq <= (SELECT MAX(seq) - 1000 FROM events)")
+            self._chain_insert("events", {"at": int(at or time.time()), "invoice_id": invoice_id, "kind": kind,
+                                          "detail": detail[:500]})
+            self._prune("events", 1000)
             self._conn.commit()
 
     def set_meta(self, key: str, value: str) -> None:
@@ -201,20 +289,24 @@ class Store:
         """outcome: 'flagged' (shown in an approval prompt), 'withheld' (intake refused to auto-fill),
         'blocked' (the hook refused the call)."""
         with self._lock:
-            self._conn.execute(
-                "INSERT INTO security_events (at, check_name, severity, outcome, invoice_id, ref, detail) "
-                "VALUES (?, ?, ?, ?, ?, ?, ?)",
-                (int(at or time.time()), check, severity, outcome, invoice_id, ref, detail[:500]))
+            self._chain_insert("security_events", {"at": int(at or time.time()), "check_name": check, "severity": severity,
+                                                   "outcome": outcome, "invoice_id": invoice_id, "ref": ref,
+                                                   "detail": detail[:500]})
+            self._prune("security_events", 5000)
             self._conn.commit()
 
     def link_security_ref(self, ref: str, invoice_id: str) -> None:
+        """Link earlier flagged events (by approval fingerprint) to the invoice created from them. Stored apart
+        from the chained rows so the chain never has to change."""
         with self._lock:
-            self._conn.execute("UPDATE security_events SET invoice_id = ? WHERE ref = ? AND invoice_id IS NULL",
-                               (invoice_id, ref))
+            self._conn.execute("INSERT INTO security_links (ref, invoice_id) VALUES (?, ?)", (ref, invoice_id))
             self._conn.commit()
 
     def security_events(self, limit: int = 100) -> list[dict]:
-        return self._rows("SELECT * FROM security_events ORDER BY seq DESC LIMIT ?", (max(1, min(limit, 1000)),))
+        return self._rows(
+            "SELECT e.seq, e.at, e.check_name, e.severity, e.outcome, e.ref, e.detail, "
+            "COALESCE(e.invoice_id, (SELECT l.invoice_id FROM security_links l WHERE l.ref = e.ref LIMIT 1)) AS invoice_id "
+            "FROM security_events e ORDER BY e.seq DESC LIMIT ?", (max(1, min(limit, 1000)),))
 
     def stash_intake_flags(self, keys: Iterable[str], flags: list[dict]) -> None:
         now = int(time.time())

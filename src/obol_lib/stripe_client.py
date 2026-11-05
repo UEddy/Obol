@@ -10,6 +10,7 @@ Reliability rules:
 
 from __future__ import annotations
 
+import re
 import time
 import uuid
 from typing import Any, Callable, Mapping, Optional
@@ -22,6 +23,12 @@ API_VERSION = "2024-06-20"
 USER_AGENT = "obol-hermes-plugin/0.1"
 
 _RETRY_STATUSES = frozenset({409, 429, 500, 502, 503, 504})
+_KEY_RE = re.compile(r"\b(sk|rk|pk|whsec)_(test|live)?_?[A-Za-z0-9*]{4,}")
+
+
+def redact(text: str) -> str:
+    """Remove anything shaped like a Stripe key from text Obol shows or logs."""
+    return _KEY_RE.sub("[redacted key]", text)
 
 
 class StripeError(Exception):
@@ -168,7 +175,7 @@ class StripeClient:
             resp.status_code, "invalid_request" if resp.status_code == 400 else "api_error")
         if kind == "auth":
             message = "Stripe rejected the API key (401). Check STRIPE_API_KEY."
-        raise StripeError(message, kind=kind, status=resp.status_code,
+        raise StripeError(redact(str(message)), kind=kind, status=resp.status_code,
                           code=err.get("code"), param=err.get("param"))
 
     # -- endpoints ----------------------------------------------------------------------------

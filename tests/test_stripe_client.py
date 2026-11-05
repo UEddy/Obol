@@ -85,3 +85,26 @@ def test_non_json_error_body():
     with pytest.raises(StripeError) as exc:
         c.get_invoice("in_1")
     assert exc.value.status == 502
+
+
+def test_key_never_appears_in_errors_or_reprs():
+    secret = "sk_test_SUPERSECRETVALUE123456"
+    c = StripeClient(secret, max_retries=0, transport=httpx.MockTransport(
+        lambda r: httpx.Response(401, json={"error": {"message": f"Invalid API Key provided: {secret}"}})))
+    with pytest.raises(StripeError) as exc:
+        c.get_invoice("in_1")
+    assert secret not in str(exc.value) and secret not in repr(exc.value.as_dict())
+    boom = StripeClient(secret, max_retries=0, transport=httpx.MockTransport(
+        lambda r: (_ for _ in ()).throw(httpx.ConnectError("down", request=r))))
+    with pytest.raises(StripeError) as exc:
+        boom.get_invoice("in_1")
+    assert secret not in str(exc.value)
+    perm = StripeClient(secret, max_retries=0, transport=httpx.MockTransport(
+        lambda r: httpx.Response(403, json={"error": {"message": f"The provided key '{secret}' lacks permission"}})))
+    with pytest.raises(StripeError) as exc:
+        perm.get_invoice("in_1")
+    assert secret not in str(exc.value) and "[redacted key]" in str(exc.value)
+    for bad in ("sk_live_SECRET_LIVE_KEY", "pk_test_PUBLISHABLE_SECRET"):  # constructor refusal messages do not echo the key either
+        with pytest.raises(StripeError) as exc:
+            StripeClient(bad)
+        assert bad not in str(exc.value)
