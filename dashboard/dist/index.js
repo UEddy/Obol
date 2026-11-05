@@ -18,7 +18,7 @@
   var POLL_MS = 10000;       // re-read the local cache (no Stripe call)
   var AUTO_SYNC_MS = 45000;  // pull from Stripe while the tab is open (polling; Obol uses no webhooks)
 
-  var FILTERS = [["all", "All"], ["open", "Open"], ["overdue", "Overdue"], ["paid", "Paid"], ["draft", "Draft"], ["void", "Void"]];
+  var FILTERS = [["all", "Active"], ["open", "Open"], ["overdue", "Overdue"], ["paid", "Paid"], ["draft", "Draft"], ["void", "Void"]];
   var STAMP = { paid: "Paid", overdue: "Overdue", open: "Unpaid", draft: "Draft", void: "Void", uncollectible: "Written off" };
   var KIND = { created: "Drafted", sent: "Sent", reminded: "Reminded", paid: "Paid", voided: "Voided", deleted: "Deleted", synced: "Synced", proposed: "Proposed" };
 
@@ -139,9 +139,12 @@
 
     var mode = status ? status.mode : null;
     var cur = summary && summary.currencies && summary.currencies[0];
-    var counts = { all: invoices.length };
-    invoices.forEach(function (inv) { counts[inv.status] = (counts[inv.status] || 0) + 1; });
-    var shown = filter === "all" ? invoices : invoices.filter(function (inv) { return inv.status === filter; });
+    var counts = { all: 0 };
+    invoices.forEach(function (inv) {
+      counts[inv.status] = (counts[inv.status] || 0) + 1;
+      if (inv.status !== "void") counts.all += 1;
+    });
+    var shown = invoices.filter(function (inv) { return filter === "all" ? inv.status !== "void" : inv.status === filter; });
 
     return h("div", { className: "obol-desk" },
       h("header", { className: "obol-head" },

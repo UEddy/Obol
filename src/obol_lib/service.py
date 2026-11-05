@@ -275,7 +275,8 @@ def ledger_text(store: Store, *, livemode: Optional[bool] = None, status: Option
         lines.append(f"{cur.upper()}  outstanding {money.fmt(t['outstanding'], cur)} ({t['count_outstanding']})"
                      f" · overdue {money.fmt(t['overdue'], cur)} ({t['count_overdue']})"
                      f" · paid {money.fmt(t['paid'], cur)} ({t['count_paid']})")
-    rows = store.invoices(status=status, livemode=livemode, limit=limit)
+    rows = [r for r in store.invoices(status=status, livemode=livemode, limit=limit + 50)
+            if status or r["status"] != "void"][:limit]
     if rows:
         lines.append("")
     for r in rows:
