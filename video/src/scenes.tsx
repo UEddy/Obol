@@ -30,9 +30,9 @@ export const Intro: React.FC<{ dur: number }> = ({ dur }) => {
 
 /* 2 — the surfaces as a fan of labelled cards, like the reel's adjudicator / adapter / core row. */
 const FAN = [
-  { label: "TOOLS", sub: "6 obol_* tools", stamp: "CREATE · SEND · CHECK", color: C.ink },
-  { label: "APPROVAL", sub: "pre_tool_call hook", stamp: "APPROVED", color: C.stamp },
-  { label: "LEDGER", sub: "/invoices", stamp: "PAID", color: C.stamp },
+  { label: "INTAKE", sub: "forwarded messages", stamp: "PROPOSED", color: C.ink },
+  { label: "APPROVAL", sub: "risk-checked", stamp: "APPROVED", color: C.stamp },
+  { label: "LEDGER", sub: "dashboard + /invoices", stamp: "PAID", color: C.stamp },
   { label: "STRIPE", sub: "test mode first", stamp: "TEST", color: C.magenta },
 ];
 export const Fan: React.FC<{ dur: number }> = ({ dur }) => {
@@ -51,7 +51,7 @@ export const Fan: React.FC<{ dur: number }> = ({ dur }) => {
           </Card>
         );
       })}
-      <Caption text="Hermes proposes." from={40} to={dur} />
+      <Caption text="Four parts. One rule: you approve." from={40} to={dur} />
     </Desk>
   );
 };

@@ -17,7 +17,7 @@ jobs:
         with:
           python-version: "3.14"
       - name: Install test dependencies
-        # Same httpx version Hermes pins.
-        run: pip install "httpx==0.28.1" "pytest>=8,<10"
+        # Same httpx version Hermes pins; fastapi for the dashboard-API tests.
+        run: pip install "httpx==0.28.1" "fastapi>=0.115,<1" "pytest>=8,<10"
       - name: Run tests
         run: python -m pytest -q

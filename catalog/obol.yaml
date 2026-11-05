@@ -1,0 +1,30 @@
+# DRAFT of plugin-catalog/obol.yaml for NousResearch/hermes-agent.
+# Do not submit until: the repo is public, the demo is recorded, and `sha` is pinned to the
+# full 40-character commit being submitted (then re-run `hermes plugins validate` at that sha).
+name: obol
+title: Obol
+repo: https://github.com/UEddy/Obol
+sha: 0000000000000000000000000000000000000000   # TODO: pin to the submitted commit
+description: "Stripe invoicing from chat: Hermes drafts invoices (also from forwarded Telegram/WhatsApp/Slack/email messages via ctx.llm), sends Stripe payment links, checks who has paid, and shows outstanding/paid/overdue in an Invoices dashboard tab and /invoices. Every Stripe write goes through Hermes's approval prompt with risk checks (possible duplicate, unusual amount, recent email/payment-details change); live keys are refused unless allow_live is set; writes are refused in unattended (cron) runs. Disclosure: HTTPS calls to api.stripe.com only (on tool use, /invoices sync, hermes obol doctor|sync, inside the approval hook to refresh the customer's invoices and recent customer.updated events, and every 45 s while the dashboard tab is open); forwarded messages go to the user's configured model through ctx.llm; Stripe emails clients when invoices are sent or reminded; reads STRIPE_API_KEY via get_secret only; stores an invoice-metadata cache, risk results and an activity log in plugin-data/obol/data.db; polling, no webhooks; no telemetry, shell commands or background processes."
+maintainer: UEddy
+tier: community
+category: tools
+requires_hermes: ">=0.22"
+version: "0.1.0"
+docs_url: https://github.com/UEddy/Obol#readme
+screenshots: []   # TODO: raw.githubusercontent.com URLs pinned to the sha, from a real test-mode run
+platforms: []
+capabilities:
+  provides_tools:
+    - obol_create_invoice
+    - obol_send_invoice
+    - obol_get_invoice
+    - obol_list_invoices
+    - obol_send_reminder
+    - obol_void_invoice
+    - obol_draft_from_message
+  provides_hooks:
+    - pre_tool_call
+  provides_middleware: []
+  requires_env:
+    - STRIPE_API_KEY

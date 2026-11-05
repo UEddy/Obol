@@ -5,7 +5,7 @@ anything in this folder.
 
 The look is paper, index cards and rubber stamps. Scenes
 (78 s total, 1920×1080, 30 fps): intro → surfaces → **three real screen recordings**
-(chat + approval, Stripe payment, `/invoices` ledger) → pipeline → end card.
+(forwarded message + approval, Stripe payment, dashboard PAID) → pipeline → end card. It follows the 90-second demo script in the main README.
 
 ## 1. Record the clips (real Stripe test mode)
 
@@ -13,9 +13,9 @@ Put them in `public/clips/` and set the file names in `src/clips.ts`:
 
 | Clip | Length used | What to record |
 |---|---|---|
-| `chat.mp4` | 20 s | Ask Hermes: *"Invoice billing@acme.test (Acme Co) $1,200 for October consulting and send it."* Approve the prompt and show the payment link in the reply |
+| `chat.mp4` | 20 s | Forward Dana's message (12 hours at $100/hr, billing@acme.test). Hermes proposes $1,200.00; say *"send it"*; approve the prompt; show the payment link |
 | `pay.mp4` | 15 s | Open the link, pay with test card `4242 4242 4242 4242`, then ask *"Has Acme paid?"* |
-| `ledger.mp4` | 15 s | Type `/invoices sync` (CLI or Telegram): Acme shows PAID. Then ask *"What's overdue? Remind them."* |
+| `dashboard.mp4` | 15 s | Dashboard → **Invoices** → Sync. The Acme row's stamp flips to PAID |
 
 Use `startSeconds` in `src/clips.ts` to trim the start of a clip. Until a clip is set, its
 scene shows a labelled placeholder.

@@ -6,17 +6,17 @@
  */
 export type Clip = { file: string | null; startSeconds?: number; what: string };
 
-export const CLIPS: Record<"chat" | "pay" | "ledger", Clip> = {
+export const CLIPS: Record<"chat" | "pay" | "dashboard", Clip> = {
   chat: {
     file: null, // e.g. "clips/chat.mp4"
-    what: "Hermes chat: 'Invoice billing@acme.test $1,200 for October consulting and send it' → approval prompt → Approve → payment link",
+    what: "Forward Dana's message (12 h at $100/hr, billing@acme.test) → Hermes proposes $1,200.00 → 'send it' → approval prompt with risk checks → Approve → payment link",
   },
   pay: {
     file: null, // e.g. "clips/pay.mp4"
     what: "Open the payment link → Stripe test checkout → card 4242 4242 4242 4242 → Paid. Then ask Hermes 'Has Acme paid?'",
   },
-  ledger: {
-    file: null, // e.g. "clips/ledger.mp4"
-    what: "Type /invoices sync (CLI or Telegram) → the ledger shows Acme PAID; then 'What's overdue? Remind them.'",
+  dashboard: {
+    file: null, // e.g. "clips/dashboard.mp4"
+    what: "Hermes dashboard → Invoices (TEST MODE badge) → Sync → the Acme row's stamp flips to PAID; Paid total rises by $1,200.00",
   },
 };
