@@ -1,6 +1,6 @@
 name: obol
 version: 0.1.0
-description: "Invoices and payment links from chat, backed by Stripe. Hermes drafts and sends invoices, checks who has paid, chases overdue ones, and keeps a receivables ledger you can pull up with /invoices. Test mode by default; every send asks for your approval."
+description: "Security-first Stripe invoicing from chat. Hermes drafts invoices (also from forwarded messages), sends Stripe payment links and tracks who has paid, while Obol guards the money path: prompt-injection and lookalike-domain detection, impersonation and duplicate checks, approval on every Stripe write, Radar and dispute visibility, and a hash-chained log. Test mode by default."
 author: UEddy
 requires_hermes: ">=0.22"
 provides_tools:
