@@ -187,3 +187,21 @@ def test_llm_extractor_wiring():
     import pytest as _pt
     with _pt.raises(plugin.LlmUnavailable):
         plugin._llm_extractor(Broken())("i", "t")
+
+
+def test_risk_flags_in_prompt_and_attached_to_invoice(hermes, fake):
+    _, runtime = hermes
+    args = {"customer_email": "ops@hooli.test", "customer_name": "Hooli", "send": True,
+            "line_items": [{"description": "Workshop", "amount": 950}]}
+    first = _directive(tool_name="obol_create_invoice", args=args)
+    assert "Risk checks: none raised." in first["message"]
+    out = call("obol_create_invoice", args)
+    assert out.get("risk_flags") == []
+    second = _directive(tool_name="obol_create_invoice", args=args)
+    assert "[HIGH] Possible duplicate" in second["message"]
+    again = call("obol_create_invoice", args)
+    assert again["risk_flags"][0]["check"] == "duplicate"
+    stored = runtime.store().risk([again["invoice"]["invoice_id"]])
+    assert stored[again["invoice"]["invoice_id"]][0]["check"] == "duplicate"
+    send = _directive(tool_name="obol_send_reminder", args={"invoice_id": again["invoice"]["invoice_id"]})
+    assert "Possible duplicate" in send["message"]

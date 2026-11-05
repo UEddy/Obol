@@ -16,7 +16,7 @@ from typing import Any, Callable
 
 from . import schemas
 from .src.obol_lib import gate as gate_policy
-from .src.obol_lib import intake, money, runtime, service
+from .src.obol_lib import intake, money, risk, runtime, service
 from .src.obol_lib.service import ValidationError
 from .src.obol_lib.stripe_client import StripeError, key_mode
 
@@ -88,10 +88,57 @@ def _make_gate(ctx: Any) -> Callable[..., Any]:
 
 
 def _assess(ctx: Any, settings: service.Settings, tool_name: str, args: dict) -> list[dict]:
-    return []
+    """Run the risk checks for one write. Network calls use a short timeout and no retries."""
+    if tool_name == "obol_void_invoice":
+        return []  # cancelling cannot bill anyone
+    store = runtime.store()
+    try:
+        client = runtime.make_client(settings, timeout=5.0, max_retries=0)
+    except StripeError:
+        client = None
+    try:
+        if tool_name == "obol_create_invoice":
+            cur = str(args.get("currency") or settings.default_currency).lower()
+            try:
+                amount = sum(money.to_minor(i.get("amount"), cur) * int(i.get("quantity", 1) or 1)
+                             for i in args.get("line_items") or [])
+            except (money.MoneyError, TypeError, ValueError, AttributeError):
+                amount = None
+            flags = risk.assess(store, settings, customer_email=args.get("customer_email"),
+                                customer_name=args.get("customer_name"), amount_minor=amount, currency=cur, client=client)
+            fp = risk.create_fingerprint(args, settings.default_currency)
+            if fp:
+                store.stash_pending_risk(fp, flags)
+            return flags
+        inv_id = service.invoice_id(args.get("invoice_id"))
+        row = store.get(inv_id)
+        if row is None and client is not None:
+            store.upsert([client.get_invoice(inv_id)])
+            row = store.get(inv_id)
+        if row is None:
+            return [risk.flag("unavailable", "info", f"Invoice {inv_id} is not in Obol's cache; checks skipped.")]
+        flags = risk.assess(store, settings, customer_email=row.get("customer_email"),
+                            customer_name=row.get("customer_name"), amount_minor=row["amount_due"],
+                            currency=row["currency"], client=client, exclude_invoice_id=inv_id)
+        store.set_risk(inv_id, flags)
+        return flags
+    finally:
+        if client is not None:
+            client.close()
 
 
 # -- tools --------------------------------------------------------------------------------------
+def _create_with_risk(client: Any, store: Any, settings: service.Settings, args: dict) -> dict:
+    """Create the invoice, then attach the findings the approval hook showed for this exact call."""
+    result = service.create_invoice(client, store, settings, args)
+    fp = risk.create_fingerprint(args, settings.default_currency)
+    flags = store.pop_pending_risk(fp) if fp else None
+    if flags is not None:
+        store.set_risk(result["invoice"]["invoice_id"], flags)
+        result["risk_flags"] = flags
+    return result
+
+
 def _tool_handlers(ctx: Any) -> dict[str, Callable[..., str]]:
     def settings() -> service.Settings:
         return runtime.settings_from(ctx.get_config)
@@ -104,7 +151,7 @@ def _tool_handlers(ctx: Any) -> dict[str, Callable[..., str]]:
         return op
 
     ops: dict[str, Callable[[dict], dict]] = {
-        "obol_create_invoice": with_client(lambda c, s, st, a: service.create_invoice(c, s, st, a)),
+        "obol_create_invoice": with_client(_create_with_risk),
         "obol_send_invoice": with_client(lambda c, s, st, a: service.send_invoice(c, s, a)),
         "obol_get_invoice": with_client(lambda c, s, st, a: service.get_invoice(c, s, a)),
         "obol_list_invoices": with_client(lambda c, s, st, a: service.list_invoices(c, s, a)),

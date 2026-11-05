@@ -60,8 +60,8 @@ def api_key() -> Optional[str]:
     return get_secret(KEY_ENV)
 
 
-def make_client(settings: Settings, key: Optional[str] = None) -> StripeClient:
-    return client_factory(key if key is not None else api_key(), allow_live=settings.allow_live)
+def make_client(settings: Settings, key: Optional[str] = None, **kwargs: Any) -> StripeClient:
+    return client_factory(key if key is not None else api_key(), allow_live=settings.allow_live, **kwargs)
 
 
 def store() -> Store:
