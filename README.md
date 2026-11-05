@@ -36,6 +36,26 @@ withheld or blocked, each linked to its invoice. Every security claim below name
 
 ---
 
+## Works anywhere Hermes runs
+
+Obol is a Hermes plugin, so it works in every chat Hermes is connected to. Verified for:
+
+| Surface | Tools | Approval prompt | `/invoices` |
+|---|---|---|---|
+| **Telegram** | ✓ | buttons | ✓ |
+| **WhatsApp** | ✓ | buttons (Cloud API) or typed `/approve` (bridge) | ✓ |
+| **Slack** | ✓ | buttons | ✓ (also `/hermes invoices`) |
+| **Email** | ✓ | typed `/approve` | ✓ (body starts with `/invoices`, no new subject) |
+| **Terminal** (CLI/TUI) | ✓ | approval panel | ✓ |
+
+How it's verified: `tests/test_gateways.py` loads Obol through Hermes's plugin manager and, for each surface,
+checks that the `obol` toolset is enabled on that platform; that a Stripe write called from a session on that
+platform goes through Hermes's real tool dispatch and asks for approval in that chat through the gateway's
+pending-approval path (deny sends nothing, approve sends the invoice); that the platform's approval card or
+typed fallback carries Obol's summary; and that `/invoices` typed there is dispatched to Obol.
+
+---
+
 ## Hermes surfaces used
 
 | Surface | What Obol registers |
@@ -44,7 +64,7 @@ withheld or blocked, each linked to its invoice. Every security claim below name
 | **Hooks** | `pre_tool_call` escalates **every** Stripe write to Hermes's approval prompt with amount, client, mode and risk findings, and refuses live keys and unattended (cron) writes. Other plugins' tools are left alone |
 | **Plugin LLM** (`ctx.llm.complete_structured`) | Extracts client, amounts, line items and due date from a forwarded message, using your Hermes model and credentials |
 | **Dashboard** (`dashboard/`) | *Invoices* tab (totals, ledger table, status stamps, Radar and risk columns) and *Security* view (threats by type and over time, log integrity, links to invoices), served from a local cache |
-| **Slash command** | `/invoices [open\|overdue\|paid\|draft\|sync]` in the CLI, TUI, Desktop, Telegram, Discord, Slack and every other gateway |
+| **Slash command** | `/invoices [open\|overdue\|paid\|draft\|sync]` in the terminal and every chat gateway (see [Works anywhere Hermes runs](#works-anywhere-hermes-runs)) |
 | **CLI** | `hermes obol doctor` (key mode, Stripe reachable, **log integrity**), `hermes obol sync`, `hermes obol ledger` |
 | **Automation blueprint** | *Chase overdue invoices*: a weekly report of who to chase. It never sends anything on its own |
 | **Skill** | `obol:invoicing`: how to invoice, handle forwarded messages and treat risk flags |
