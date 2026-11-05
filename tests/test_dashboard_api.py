@@ -92,10 +92,3 @@ def test_security_route_groups_links_and_verifies(api, fake, store):
     assert sec["integrity"]["activity"]["ok"] and sec["integrity"]["security"]["ok"]
     store._conn.execute("UPDATE security_events SET outcome = 'ignored' WHERE check_name = 'live_key'"); store._conn.commit()
     assert api.get("/api/plugins/obol/security").json()["integrity"]["security"]["ok"] is False
-
-
-def test_security_route_names_guarded_tools(api, store):
-    store.record_security("guard_address_poisoning", "high", "flagged", "agentwalletapi_transfer_send: imitates",
-                          ref="guard:agentwalletapi_transfer_send:abc")
-    ev = api.get("/api/plugins/obol/security").json()["events"][0]
-    assert ev["tool"] == "agentwalletapi_transfer_send" and ev["label"] == "Guard: address poisoning"

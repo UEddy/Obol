@@ -16,7 +16,7 @@ from typing import Any, Callable
 
 from . import schemas
 from .src.obol_lib import gate as gate_policy
-from .src.obol_lib import guard, intake, money, risk, runtime, service
+from .src.obol_lib import intake, money, risk, runtime, service
 from .src.obol_lib.service import ValidationError
 from .src.obol_lib.stripe_client import StripeError, key_mode
 
@@ -66,7 +66,7 @@ def _unattended(ctx: Any) -> bool:
 def _make_gate(ctx: Any) -> Callable[..., Any]:
     def gate(tool_name: str = "", args: dict | None = None, **kwargs: Any):
         if tool_name not in gate_policy.WRITE_TOOLS:
-            return _guard_gate(ctx, tool_name, args if isinstance(args, dict) else {}, kwargs)
+            return None  # only Obol's own Stripe writes are gated; other tools are left alone
         args = args if isinstance(args, dict) else {}
         try:
             settings = runtime.settings_from(ctx.get_config)
@@ -90,103 +90,6 @@ def _make_gate(ctx: Any) -> Callable[..., Any]:
             logger.exception("obol: approval gate failed; blocking the call")
             return {"action": "block", "message": f"Obol could not check {tool_name} safely, so nothing was sent."}
     return gate
-
-
-# -- Obol Guard: other plugins' money tools (opt-in) ----------------------------------------------
-def _session_key(kwargs: dict) -> str:
-    return str(kwargs.get("session_id") or kwargs.get("task_id") or "")
-
-
-def _guard_settings(ctx: Any) -> service.Settings | None:
-    try:
-        settings = runtime.settings_from(ctx.get_config)
-    except Exception:
-        return None
-    return settings if settings.guard_tools else None
-
-
-def _guard_gate(ctx: Any, tool_name: str, args: dict, kwargs: dict) -> Any:
-    settings = _guard_settings(ctx)
-    if settings is None or not guard.matches(tool_name, settings.guard_tools):
-        return None
-    try:
-        store = runtime.store()
-        info = guard.extract(args)
-        if _unattended(ctx):
-            msg = (f"Obol Guard refused {tool_name}: this is an unattended run (cron) and a guarded money tool needs "
-                   "a person to approve it. Nothing was sent.")
-            store.record_security("guard_unattended", "high", "blocked", msg, ref=guard.new_ref(tool_name))
-            return {"action": "block", "message": msg}
-        history = store.guard_history(tool_name)
-        flags = list(reversed(store.guard_context(_session_key(kwargs))))   # newest first
-        flags += guard.scan_context([("this call's arguments", guard.history_text(args))])
-        flags += guard.amount_findings(info["amount"], [h["amount"] for h in history if h["amount"] is not None],
-                                       settings.guard_amount_multiplier, settings.guard_min_history)
-        flags += guard.recipient_findings(info["recipient"], [h["recipient"] for h in history])
-        flags = _dedupe(flags)
-        ref = guard.new_ref(tool_name)
-        store.log("guard_prompted", None, f"{tool_name}: {info['amount']} {info['token'] or ''} to {info['recipient']}".strip())
-        for f in flags:
-            store.record_security(f["check"], f["severity"], "flagged", f"{tool_name}: {f['message']}", ref=ref)
-        message = f"{guard.describe(tool_name, info)}.\n{gate_policy.format_flags(flags)}"
-        return {"action": "approve", "message": message, "rule_key": f"obol:guard:{ref}"}
-    except Exception:
-        logger.exception("obol: Guard failed; blocking the guarded call")
-        return {"action": "block", "message": f"Obol Guard could not check {tool_name} safely, so it was not run."}
-
-
-def _dedupe(flags: list[dict]) -> list[dict]:
-    """One flag per finding, newest context first, at most MAX_CONTEXT_FLAGS context flags."""
-    seen, out, context = set(), [], 0
-    for f in sorted(flags, key=lambda f: f.get("check") != "guard_injection"):
-        msg = str(f.get("message"))
-        key = (f.get("check"), msg.split("): ", 1)[-1] if f.get("check") == "guard_injection" else msg)
-        if key in seen:
-            continue
-        if f.get("check") == "guard_injection":
-            if context >= guard.MAX_CONTEXT_FLAGS:
-                continue
-            context += 1
-        seen.add(key)
-        out.append(f)
-    return out
-
-
-def _make_guard_observers(ctx: Any) -> tuple[Callable[..., Any], Callable[..., Any]]:
-    def after_tool(tool_name: str = "", args: dict | None = None, result: Any = None, status: str = "", **kwargs: Any):
-        settings = _guard_settings(ctx)
-        if settings is None or not tool_name or tool_name.startswith("obol_"):
-            return None
-        try:
-            store = runtime.store()
-            if not guard.matches(tool_name, settings.guard_tools) and not guard.context_source_counts(tool_name):
-                return None
-            if guard.matches(tool_name, settings.guard_tools):
-                if status in ("ok", "", None):
-                    info = guard.extract(args if isinstance(args, dict) else {})
-                    store.add_guard_spend(tool_name, info["amount"], info["token"], info["recipient"])
-                    store.log("guard_spent", None, f"{tool_name}: {info['amount']} {info['token'] or ''} to {info['recipient']}".strip())
-                return None
-            # Any other tool's output (a fetched page, an email, a file) is context a later spend may act on.
-            store.add_guard_context(_session_key(kwargs), guard.scan_context([(f"output of {tool_name}", guard.history_text(result))]))
-        except Exception:
-            logger.exception("obol: Guard post_tool_call observer failed")
-        return None
-
-    def before_turn(user_message: str = "", conversation_history: list | None = None, **kwargs: Any):
-        if _guard_settings(ctx) is None:
-            return None
-        try:
-            # Tool outputs are scanned as they arrive (after_tool); the assistant's own replies are not
-            # context, since they quote attacks when reporting them.
-            store, session = runtime.store(), _session_key(kwargs)
-            store.start_guard_turn(session)
-            store.add_guard_context(session, guard.scan_context([("your message", user_message or "")]))
-        except Exception:
-            logger.exception("obol: Guard pre_llm_call observer failed")
-        return None  # observer only: never injects context or blocks the turn
-
-    return after_tool, before_turn
 
 
 def _assess(ctx: Any, settings: service.Settings, tool_name: str, args: dict) -> list[dict]:
@@ -409,9 +312,6 @@ def register(ctx: Any) -> None:
         ctx.register_tool(name=schema["name"], toolset="obol", schema=schema,
                           handler=handlers[schema["name"]], description=schema["description"], emoji="🪙")
     ctx.register_hook("pre_tool_call", _make_gate(ctx))
-    after_tool, before_turn = _make_guard_observers(ctx)
-    ctx.register_hook("post_tool_call", after_tool)
-    ctx.register_hook("pre_llm_call", before_turn)
     ctx.register_command("invoices", _make_command(ctx), description="Obol receivables ledger",
                          args_hint="[open|overdue|paid|draft|sync]")
     ctx.register_cli_command(name="obol", help="Obol invoicing: doctor, sync, ledger",

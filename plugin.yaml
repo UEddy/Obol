@@ -1,6 +1,6 @@
 name: obol
 version: 0.1.0
-description: "Security-first Stripe invoicing for builders who bill clients (indie developers, AI consultants, agencies). Hermes drafts invoices (also from forwarded messages), sends Stripe payment links and tracks who has paid, while Obol guards the money path: prompt-injection and lookalike-domain detection, impersonation and duplicate checks, approval on every Stripe write, Radar and dispute visibility, and a hash-chained log. Test mode by default."
+description: "Security-first Stripe invoicing for builders who bill clients (indie developers, AI consultants, agencies). Hermes drafts invoices (also from forwarded messages), sends Stripe payment links and tracks who has paid, while Obol protects the money path: prompt-injection and lookalike-domain detection, impersonation and duplicate checks, approval on every Stripe write, Radar and dispute visibility, and a hash-chained log. Test mode by default."
 author: UEddy
 requires_hermes: ">=0.22"
 provides_tools:
@@ -13,8 +13,6 @@ provides_tools:
   - obol_draft_from_message
 provides_hooks:
   - pre_tool_call
-  - post_tool_call
-  - pre_llm_call
 requires_env:
   - name: STRIPE_API_KEY
     description: "Stripe secret or restricted key. Use a TEST key (sk_test_...) unless you have turned on allow_live."
@@ -64,20 +62,6 @@ config_schema:
     default: true
     label: "Risk check: lookalike domains"
     description: "Flag a billing email whose domain imitates one you've billed (pinernoor.example vs pinemoor.example)."
-  guard_tools:
-    type: list
-    default: []
-    label: "Obol Guard: other plugins' money tools"
-    description: "Off when empty. Tool names (or patterns like laso_*) from other plugins that move money, e.g. agentwalletapi_transfer_send. Each call then needs your approval, is blocked in unattended runs, is checked for injected instructions and unusual amounts or recipients, and is logged."
-  guard_amount_multiplier:
-    type: float
-    default: 3.0
-    label: "Obol Guard: unusual amount (x typical)"
-    description: "Flag a guarded call above this multiple of that tool's typical amount. 0 turns it off."
-  guard_min_history:
-    type: int
-    default: 3
-    label: "Obol Guard: calls needed for a typical amount"
   risk_impersonation:
     type: bool
     default: true

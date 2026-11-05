@@ -116,6 +116,16 @@ def test_approval_gate_directives(hermes, fake):
     assert _directive(tool_name="obol_list_invoices", args={}) is None
 
 
+def test_other_plugins_tools_are_left_alone(hermes, fake):
+    """Obol gates only its own Stripe writes; it registers no hooks that watch or change other tools."""
+    for tool in ("web_search", "terminal", "send_message", "some_plugin_transfer"):
+        assert _directive(tool_name=tool, args={"amount": 900, "to": "someone"}) is None
+    import re
+    from pathlib import Path
+    manifest = (Path(__file__).resolve().parents[1] / "plugin.yaml").read_text()
+    assert re.findall(r"provides_hooks:\n((?:  - \w+\n)+)", manifest) == ["  - pre_tool_call\n"]
+
+
 def test_live_key_blocked_by_hook(hermes, fake):
     os.environ["STRIPE_API_KEY"] = "sk_live_should_never_be_used"
     try:

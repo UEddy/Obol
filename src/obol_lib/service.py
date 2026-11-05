@@ -33,10 +33,6 @@ class Settings:
     risk_contact_change_days: int = 14
     risk_lookalike_domains: bool = True
     risk_impersonation: bool = True
-    # Obol Guard (other plugins' money tools); empty = off
-    guard_tools: tuple = ()
-    guard_amount_multiplier: float = 3.0
-    guard_min_history: int = 3
 
 
 class ValidationError(ValueError):

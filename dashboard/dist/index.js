@@ -102,9 +102,7 @@
   }
 
   var LABEL_COLOR = { prompt_injection: "#de3f87", lookalike_domain: "#d4471f", impersonation: "#b3201a", dispute: "#151311",
-    payment_risk: "#3b3631", contact_change: "#9a6a00", duplicate: "#7a7266", unusual_amount: "#a08c6e", live_key: "#151311", unattended_write: "#5b544b",
-    guard_injection: "#de3f87", guard_unusual_amount: "#9a6a00", guard_new_recipient: "#a08c6e", guard_address_poisoning: "#b3201a",
-    guard_lookalike_recipient: "#d4471f", guard_unattended: "#5b544b" };
+    payment_risk: "#3b3631", contact_change: "#9a6a00", duplicate: "#7a7266", unusual_amount: "#a08c6e", live_key: "#151311", unattended_write: "#5b544b" };
   var OUTCOME = { flagged: "Flagged in approval", withheld: "Recipient withheld", blocked: "Blocked" };
 
   function SecurityView(props) {
@@ -160,7 +158,7 @@
               h("td", { className: "desc sec-detail" }, e.detail),
               h("td", null, e.invoice_id ? h("button", { className: "obol-link-btn", onClick: function () { props.onOpenInvoice(e.invoice_id); } },
                 (e.invoice_number || "draft") + (e.customer ? " · " + e.customer : "") + " →") :
-                e.tool ? h("span", { className: "obol-mono" }, "Guard · " + e.tool) : h("span", { className: "muted" }, "not created")));
+                h("span", { className: "muted" }, "not created")));
           })))));
   }
 
