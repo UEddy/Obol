@@ -53,16 +53,26 @@ _SCANNER_PHRASES = [
     r"pretend\s+(?:\w+\s+)*(you\s+are|to\s+be)\s+",
     r"new\s+(?:\w+\s+)*policy|updated\s+(?:\w+\s+)*guidelines|revised\s+(?:\w+\s+)*instructions",
 ]
-_SKIP = {"tests", "node_modules", ".git", "__pycache__", "out", "public"}
+_SKIP = {"tests", "node_modules", ".git", "__pycache__", ".pytest_cache", "out", "public"}
+
+
+def _tracked_files() -> list[Path]:
+    """Files git tracks (what the catalog clones), or every file if git isn't available."""
+    import subprocess
+    try:
+        out = subprocess.run(["git", "ls-files", "-z"], cwd=ROOT, capture_output=True, check=True).stdout
+        return [ROOT / f for f in out.decode().split("\0") if f]
+    except (OSError, subprocess.CalledProcessError):
+        return [p for p in ROOT.rglob("*") if p.is_file()]
 
 
 def test_no_scanner_injection_phrases_outside_tests():
     hits = []
-    for path in ROOT.rglob("*"):
+    for path in _tracked_files():
         rel = path.relative_to(ROOT)
-        if path.is_dir() or _SKIP.intersection(rel.parts) or path.suffix in {".png", ".mp4", ".jpg", ".ico", ".lock"}:
+        if _SKIP.intersection(rel.parts) or path.suffix in {".png", ".mp4", ".jpg", ".ico", ".lock", ".mp3", ".webm"}:
             continue
-        if path.name == "package-lock.json":
+        if path.name == "package-lock.json" or not path.is_file():
             continue
         try:
             text = path.read_text(encoding="utf-8")
