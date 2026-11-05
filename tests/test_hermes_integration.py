@@ -30,11 +30,12 @@ def hermes(tmp_path_factory):
     old = {k: os.environ.get(k) for k in ("HERMES_HOME", "STRIPE_API_KEY")}
     os.environ["HERMES_HOME"] = str(home)
     os.environ["STRIPE_API_KEY"] = "sk_test_integration"
-    from hermes_cli.plugins import discover_plugins, get_plugin_manager
+    from hermes_cli.plugins import _reset_plugin_managers_for_tests, discover_plugins, get_plugin_manager
+    _reset_plugin_managers_for_tests()          # clean slate: other test modules load their own Hermes homes
     discover_plugins(force=True)
-    runtime = next(m for name, m in sys.modules.items()
-                   if name.startswith("hermes_plugins.") and name.endswith(".src.obol_lib.runtime"))
+    runtime = sys.modules["hermes_plugins.obol"].runtime  # the copy the loaded plugin actually uses
     yield get_plugin_manager(), runtime
+    _reset_plugin_managers_for_tests()
     for k, v in old.items():
         if v is None:
             os.environ.pop(k, None)
@@ -71,6 +72,7 @@ def test_tools_registered(hermes):
 def test_full_flow_through_registry(hermes, fake):
     out = call("obol_create_invoice", {"customer_email": "ap@globex.test", "customer_name": "Globex",
                                        "line_items": [{"description": "Retainer", "amount": 2500}], "send": True})
+    assert "invoice" in out, out
     inv_id = out["invoice"]["invoice_id"]
     assert out["sent"] and out["payment_link"]
     fake.pay(inv_id)
@@ -125,7 +127,7 @@ def test_live_key_blocked_by_hook(hermes, fake):
 
 def test_cron_detection_fails_closed():
     import importlib
-    plugin = importlib.import_module(next(n for n in sys.modules if n.startswith("hermes_plugins.") and n.endswith("obol")))
+    plugin = importlib.import_module([n for n in sys.modules if n.startswith("hermes_plugins.") and n.endswith("obol")][-1])
 
     class Ctx:
         def __init__(self, value=None, boom=False):
@@ -161,7 +163,7 @@ def test_intake_tool_uses_ctx_llm_and_reports_failure_cleanly(hermes, fake):
 
 def test_llm_extractor_wiring():
     import importlib
-    plugin = importlib.import_module(next(n for n in sys.modules if n.startswith("hermes_plugins.") and n.endswith("obol")))
+    plugin = importlib.import_module([n for n in sys.modules if n.startswith("hermes_plugins.") and n.endswith("obol")][-1])
     calls = {}
 
     class Result:
@@ -239,7 +241,7 @@ def test_injection_and_lookalike_reach_the_approval_prompt_and_security_log(herm
 def test_doctor_reports_intact_then_tampered_log(hermes, fake, capsys):
     import argparse
     import importlib
-    plugin = importlib.import_module(next(n for n in sys.modules if n.startswith("hermes_plugins.") and n.endswith("obol")))
+    plugin = importlib.import_module([n for n in sys.modules if n.startswith("hermes_plugins.") and n.endswith("obol")][-1])
     _, runtime = hermes
 
     class Ctx:

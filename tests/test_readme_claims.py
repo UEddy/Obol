@@ -31,7 +31,7 @@ def test_every_referenced_test_exists():
 
 def test_every_threat_row_cites_a_test():
     section = README.split("## Threat model", 1)[1].split("### What Obol does not protect against", 1)[0]
-    rows = [line for line in section.splitlines() if re.match(r"\|\s*T\d+\s*\|", line)]
+    rows = [line for line in section.splitlines() if re.match(r"\|\s*[TG]\d+\s*\|", line)]
     assert len(rows) >= 15
     for row in rows:
         assert REF.search(row), f"threat-model row without a test: {row[:80]}"

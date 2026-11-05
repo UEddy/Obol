@@ -45,7 +45,19 @@ def settings_from(getter: Callable[[str, Any], Any]) -> Settings:
         risk_contact_change_days=_number(getter, "risk_contact_change_days", d.risk_contact_change_days, 0, 30, int),
         risk_lookalike_domains=getter("risk_lookalike_domains", d.risk_lookalike_domains) is not False,
         risk_impersonation=getter("risk_impersonation", d.risk_impersonation) is not False,
+        guard_tools=_tool_list(getter("guard_tools", list(d.guard_tools))),
+        guard_amount_multiplier=_number(getter, "guard_amount_multiplier", d.guard_amount_multiplier, 0, 1000, float),
+        guard_min_history=_number(getter, "guard_min_history", d.guard_min_history, 1, 100, int),
     )
+
+
+def _tool_list(value: Any) -> tuple:
+    """guard_tools as a tuple of non-empty strings (a comma-separated string is accepted too)."""
+    if isinstance(value, str):
+        value = value.split(",")
+    if not isinstance(value, (list, tuple)):
+        return ()
+    return tuple(v.strip() for v in value if isinstance(v, str) and v.strip())
 
 
 def settings_from_config(config: Mapping[str, Any]) -> Settings:

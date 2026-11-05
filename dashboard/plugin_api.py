@@ -85,6 +85,9 @@ SECURITY_LABELS = {
     "contact_change": "Changed contact details", "duplicate": "Possible duplicate", "unusual_amount": "Unusual amount",
     "payment_risk": "Radar risk", "dispute": "Dispute", "live_key": "Live key refused",
     "unattended_write": "Unattended write refused",
+    "guard_injection": "Guard: injected instructions", "guard_unusual_amount": "Guard: unusual amount",
+    "guard_new_recipient": "Guard: new recipient", "guard_address_poisoning": "Guard: address poisoning",
+    "guard_lookalike_recipient": "Guard: lookalike recipient", "guard_unattended": "Guard: unattended spend refused",
 }
 
 
@@ -112,6 +115,7 @@ def security(days: int = 30, limit: int = 200) -> dict[str, Any]:
             "seq": e["seq"], "at": e["at"], "check": check, "label": SECURITY_LABELS.get(check, check),
             "severity": e["severity"], "outcome": e["outcome"], "detail": e["detail"],
             "invoice_id": e.get("invoice_id"),
+            "tool": (e.get("ref") or "").split(":")[1] if (e.get("ref") or "").startswith("guard:") else None,
             "invoice_number": inv.get("number") if inv else None,
             "customer": (inv.get("customer_name") or inv.get("customer_email")) if inv else None,
             "invoice_status": display_status(inv, now) if inv else None,

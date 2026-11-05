@@ -1,12 +1,13 @@
 # Obol
 
-**Security-first Stripe invoicing for [Hermes Agent](https://github.com/NousResearch/hermes-agent).**
+**Security-first Stripe invoicing for [Hermes Agent](https://github.com/NousResearch/hermes-agent), for builders who bill clients:**
+indie developers, AI consultants and agencies building agents for clients.
 
 > Obol protects the money path against the attacks that actually hit invoicing: prompt injection in
 > forwarded messages, lookalike and impersonated clients, double billing, an agent acting without consent,
 > and quiet edits to the record. It does not prevent all fraud, and this README says exactly what it doesn't cover.
 
-Forward a client's message and Hermes drafts the invoice. Obol checks it, you approve it, and Stripe
+You ship the build; the client says "send the invoice". Forward their message and Hermes drafts it. Obol checks it, you approve it, and Stripe
 emails your client a payment link. Ask *"has Acme paid?"* and Hermes checks Stripe. The **Invoices**
 tab shows what's outstanding, overdue and paid; the **Security** tab shows every threat Obol flagged,
 withheld or blocked, each linked to its invoice. Every security claim below names the test that proves it.
@@ -28,7 +29,7 @@ withheld or blocked, each linked to its invoice. Every security claim below name
 
 | Criterion | Evidence |
 |---|---|
-| **Usefulness** | Freelancers and small studios invoice from the chat they already use: forward a message, approve, get paid. Overdue chasing, payment status and a receivables ledger come with it. |
+| **Usefulness** | Developers, AI consultants and agencies invoice from the chat they already work in: forward the client's "send the invoice" message, approve, get paid. Overdue chasing, payment status and a receivables ledger come with it; Obol Guard extends the same protection to other money-moving plugins. |
 | **Reliability** | Idempotent Stripe writes with bounded retries, a pinned Stripe API version, validation before any network call, half-built drafts cleaned up, errors returned as JSON, and tests against a Stripe fake, recorded real responses and live Stripe test mode. |
 | **Polish** | Approval prompts that say exactly what will happen and why it might be risky; a dashboard with a TEST MODE badge, stamps that flip to PAID, a Security tab; `/invoices` on every chat surface; `hermes obol doctor`. |
 | **Creativity** | Agents that move money are a new attack surface. Obol treats forwarded messages as untrusted input, detects injected instructions in plain, hidden, multilingual and encoded forms, checks recipients against lookalikes of your real clients, and hash-chains its own log. |
@@ -40,7 +41,7 @@ withheld or blocked, each linked to its invoice. Every security claim below name
 | Surface | What Obol registers |
 |---|---|
 | **Tools** (`ctx.register_tool`) | `obol_create_invoice`, `obol_send_invoice`, `obol_get_invoice`, `obol_list_invoices`, `obol_send_reminder`, `obol_void_invoice`, `obol_draft_from_message` |
-| **Hook** (`pre_tool_call`) | Escalates **every** Stripe write to Hermes's approval prompt with amount, client, mode and risk findings; refuses live keys and unattended (cron) writes |
+| **Hooks** | `pre_tool_call` escalates **every** Stripe write to Hermes's approval prompt with amount, client, mode and risk findings, refuses live keys and unattended (cron) writes, and runs **Obol Guard** for other plugins' money tools you opt in; `post_tool_call` and `pre_llm_call` are observers Guard uses to remember executed spends and scan the context that led to a call (they never inject text or block a turn) |
 | **Plugin LLM** (`ctx.llm.complete_structured`) | Extracts client, amounts, line items and due date from a forwarded message, using your Hermes model and credentials |
 | **Dashboard** (`dashboard/`) | *Invoices* tab (totals, ledger table, status stamps, Radar and risk columns) and *Security* view (threats by type and over time, log integrity, links to invoices), served from a local cache |
 | **Slash command** | `/invoices [open\|overdue\|paid\|draft\|sync]` in the CLI, TUI, Desktop, Telegram, Discord, Slack and every other gateway |
@@ -48,6 +49,37 @@ withheld or blocked, each linked to its invoice. Every security claim below name
 | **Automation blueprint** | *Chase overdue invoices*: a weekly report of who to chase. It never sends anything on its own |
 | **Skill** | `obol:invoicing`: how to invoice, handle forwarded messages and treat risk flags |
 | **Settings** (`config_schema`) | Live-mode switch, defaults, and every risk check (Desktop renders the form) |
+
+---
+
+## Obol Guard: the same protection for other plugins that move money
+
+Hermes users install other plugins that spend money: wallets, card issuers, pay-per-request APIs. Guard
+puts Obol's money-path checks in front of them. It's **off by default**; Obol's own tools are always
+guarded.
+
+```yaml
+plugins:
+  entries:
+    obol:
+      settings:
+        guard_tools: [agentwalletapi_transfer_send, laso_buy_*]   # exact names or * patterns
+```
+
+For every call to a guarded tool, Obol's `pre_tool_call` hook:
+
+- asks you to approve **that call** (a fresh approval each time; "always" never carries over);
+- blocks it outright in unattended (cron) runs;
+- shows the amount and recipient it can read from the call's arguments, and flags
+  - injected instructions in the context that led to the call: your turn, earlier messages, and the output of
+    other tools in the same session (a fetched page, an email, a file),
+  - an amount far above that tool's typical amount, a first payment to a new recipient, and a recipient that
+    imitates one you've paid (crypto **address poisoning**, lookalike domains);
+- records the prompt, the flags and each executed spend in the hash-chained logs and the Security tab.
+
+Guard uses only public Hermes hooks. `hermes plugins validate` passes its "no core override" check, and the
+tests run Guard against the real catalog plugin **agentwalletapi** (OpenClawCash wallets), installed by Hermes
+at its pinned commit, with only its network call mocked.
 
 ---
 
@@ -75,6 +107,12 @@ Each row is an attack that hits invoicing in practice, how Obol responds, and th
 | T15 | **Quiet edits to the record** (rewriting who an invoice was sent to, deleting an entry) | Activity and security logs are hash-chained; `hermes obol doctor` and the Security tab verify the chain and detect edits, deletions, reordering and truncation | `tests/test_activity_log.py::test_edited_entry_is_detected`, `tests/test_activity_log.py::test_deleted_middle_entry_is_detected`, `tests/test_activity_log.py::test_truncated_tail_is_detected`, `tests/test_hermes_integration.py::test_doctor_reports_intact_then_tampered_log` |
 | T16 | **Key leakage through errors or output** | Obol reads `STRIPE_API_KEY` only via Hermes's secret route; anything key-shaped is scrubbed from Stripe error messages | `tests/test_stripe_client.py::test_key_never_appears_in_errors_or_reprs` |
 | T17 | **A broken check silently hiding the prompt** | A failing risk check still shows the approval prompt, marked incomplete; a failing hook blocks the call | `tests/test_gate.py::test_flags_shown_and_broken_checks_do_not_hide_prompt`, `tests/test_risk.py::test_stripe_failures_degrade_to_info` |
+| G1 | **Another plugin spends without asking** (a wallet or card tool the model calls on its own) | With Guard on, each call to a guarded tool needs its own approval; the real dispatch path fails closed when nobody can approve | `tests/test_guard_real_plugin.py::test_guarded_call_needs_its_own_approval`, `tests/test_guard_real_plugin.py::test_real_dispatch_blocks_when_nobody_can_approve` |
+| G2 | **Indirect injection drives a spend** (a fetched page or email tells the agent to pay someone) | Guard scans the session's context, including other tools' outputs, and shows what it found in the spend's approval prompt | `tests/test_guard_real_plugin.py::test_injection_in_an_earlier_tool_output_reaches_the_prompt`, `tests/test_guard.py::test_context_injection_found_in_tool_output` |
+| G3 | **Address poisoning and unusual amounts** | Recipients are compared with ones this tool has paid; amounts with the tool's typical amount | `tests/test_guard_real_plugin.py::test_history_amount_and_poisoning_after_real_executions`, `tests/test_guard.py::test_address_poisoning`, `tests/test_guard.py::test_unusual_amount_against_history` |
+| G4 | **Unattended spending** | Guarded calls are blocked during cron and logged | `tests/test_guard_real_plugin.py::test_unattended_guarded_call_is_blocked_and_logged` |
+| G5 | **No trace of what was spent** | Prompts, flags and executed spends go into the hash-chained logs | `tests/test_guard_real_plugin.py::test_guard_events_are_in_the_chained_logs` |
+| G6 | **Guard getting in the way** | Off by default; unguarded tools untouched; its observers never inject or block | `tests/test_guard_real_plugin.py::test_guard_is_off_by_default`, `tests/test_guard_real_plugin.py::test_pre_llm_observer_never_injects_or_blocks`, `tests/test_guard.py::test_matching_is_opt_in_and_never_covers_obol_tools` |
 | T18 | **Hostile input** (malformed invoice ids, path tricks, bad amounts) | Validated locally before any Stripe call | `tests/test_service.py::test_bad_invoice_id_rejected_locally`, `tests/test_service.py::test_validation_happens_before_any_call` |
 
 **No noise in normal use.** The checks stay quiet on everyday client messages ("send the invoice to
@@ -95,6 +133,10 @@ demo's own client list: `tests/test_security.py::test_normal_messages_raise_noth
 - **An attacker who can rewrite the whole database.** The hash chain catches edits by anything that doesn't recompute the chain; someone with full write access can rebuild it. `hermes obol doctor` prints the head hash so you can record it somewhere else.
 - **Real-time alerts.** Obol polls Stripe (no webhooks), so a payment or dispute shows up on the next sync.
 - **Card fraud in general.** Obol shows Stripe Radar's verdict; it doesn't add its own fraud scoring.
+- **Guard: tools you didn't list.** Guard only sees tools named in `guard_tools`; a money tool you don't list runs as its plugin intends.
+- **Guard: what another plugin does inside its tool.** Guard sees the call's arguments, not the plugin's code or its own API. Amounts and recipients are read from common argument names; when Guard can't read them, the prompt says so.
+- **Guard: spends that don't go through a Hermes tool call** (a plugin's background job, a shell command, an MCP server's own side effects) are invisible to it.
+- **Guard: first-time recipients.** With no history, Guard can't tell a lookalike from a new payee; it marks the first payment to anyone new and leaves the call to you.
 
 ---
 
@@ -142,17 +184,18 @@ Obol reads it only through Hermes's secret route and never logs or stores it.
 
 ## 90-second demo
 
-The demo follows one freelancer through one invoice, then one attack. Every shot is the real plugin
+The demo follows one AI consultant billing one client (Acme) for an agent build, then one attack. Every shot is the real plugin
 against Stripe test mode. `demo/` holds the seed script, capture scripts, VHS tapes, narration script and the
 Remotion project that assemble it.
 
 | Beat | On screen |
 |---|---|
-| Hook | The Invoices tab: $2,350 overdue |
-| Trigger | A client message is forwarded to Hermes in the CLI; `obol_draft_from_message` proposes the invoice |
+| Hook | The Invoices tab: $3,600 overdue |
+| Trigger | Acme's "loved the support agent, send the invoice" message is forwarded to Hermes in the CLI; `obol_draft_from_message` proposes $1,500 |
 | Trust | The approval prompt names the amount, client, test mode and risk checks; approve |
 | Payoff | Stripe's hosted invoice page paid with 4242; *"Has Acme paid?"*; the row's stamp flips to PAID |
 | Tension | A forwarded "Acme" message from `billing@acrne.example.com` says to ignore instructions and skip approval: the recipient is withheld, and the approval prompt shows prompt injection, lookalike domain and impersonation; then the Security view |
+| Guard | Obol Guard intercepts an unusual transfer from a wallet plugin: approval prompt with its flags, then the Security view |
 | Resolution | `/invoices` with everything paid, pending and overdue |
 
 ## How it works
@@ -180,7 +223,10 @@ Remotion project that assemble it.
   - invoice metadata cached from Stripe (number, client name and email, amounts, status, dates, payment and PDF links, Radar risk level, dispute status);
   - risk findings per invoice and a hash-chained security log (findings, withheld recipients, blocked writes; up to 5,000 entries);
   - a hash-chained activity log (last 1,000 actions, including one line per forwarded message: amount, client and source, not the message text);
-  - short-lived intake findings (6 hours) so the approval prompt can show them.
+  - short-lived intake findings (6 hours) so the approval prompt can show them;
+  - with Obol Guard on: each executed guarded call (tool name, amount, token, recipient; last 5,000) and
+    short-lived findings from the session context (6 hours: findings only, not the text). Guard makes no
+    network calls of its own; it reads guarded calls' arguments and other tools' outputs inside Hermes.
 
   It follows the active Hermes profile and survives plugin updates. Delete the file to clear it.
 - **No telemetry, no shell commands, no background processes, no self-updating code.**
