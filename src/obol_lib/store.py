@@ -112,6 +112,15 @@ def entry_hash(prev: str, values: list) -> str:
     return hashlib.sha256((prev + json.dumps(values, separators=(",", ":"), ensure_ascii=False)).encode()).hexdigest()
 
 
+def _first_line(inv: dict) -> Optional[str]:
+    """What the invoice is for when it has no memo: its line items' descriptions."""
+    lines = [l for l in (inv.get("lines") or {}).get("data") or [] if isinstance(l, dict) and l.get("description")]
+    if not lines:
+        return None
+    main = max(lines, key=lambda l: int(l.get("amount") or 0))   # Stripe lists lines newest first
+    return main["description"] if len(lines) == 1 else f"{main['description']} (+{len(lines) - 1} more)"
+
+
 def row_from_invoice(inv: dict, now: Optional[int] = None) -> dict[str, Any]:
     customer = inv.get("customer")
     customer_id = customer.get("id") if isinstance(customer, dict) else customer
@@ -122,7 +131,7 @@ def row_from_invoice(inv: dict, now: Optional[int] = None) -> dict[str, Any]:
         "customer_id": customer_id,
         "customer_name": inv.get("customer_name"),
         "customer_email": inv.get("customer_email"),
-        "description": inv.get("description"),
+        "description": inv.get("description") or _first_line(inv),
         "currency": (inv.get("currency") or "usd").lower(),
         "amount_due": int(inv.get("amount_due") or 0),
         "amount_paid": int(inv.get("amount_paid") or 0),

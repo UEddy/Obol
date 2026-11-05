@@ -149,3 +149,15 @@ def test_sync_includes_test_clock_invoices_in_test_mode(fake, client, store):
     assert client.list_invoices()["data"] == []            # hidden from the normal list, as on Stripe
     assert service.sync(client, store)["synced"] == 1
     assert store.get(inv["id"])["customer_name"] == "Fernhill Books"
+
+
+def test_invoice_without_memo_is_described_by_its_line_items():
+    from obol_lib.store import row_from_invoice
+    base = {"id": "in_1", "status": "open", "currency": "usd"}
+    one = {**base, "lines": {"data": [{"description": "Support agent build"}]}}
+    two = {**base, "lines": {"data": [{"description": "Evals", "amount": 30000},
+                                      {"description": "Agent build", "amount": 120000}]}}
+    assert row_from_invoice(one)["description"] == "Support agent build"
+    assert row_from_invoice(two)["description"] == "Agent build (+1 more)"
+    assert row_from_invoice({**one, "description": "Memo wins"})["description"] == "Memo wins"
+    assert row_from_invoice(base)["description"] is None
