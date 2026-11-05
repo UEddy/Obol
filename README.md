@@ -35,7 +35,7 @@ You need a Stripe account (free) and its **test** secret key from
 <https://dashboard.stripe.com/test/apikeys>. It starts with `sk_test_`. A restricted key
 (`rk_test_`) works too if it can read and write Customers, Invoices and Invoice Items.
 
-Restart the dashboard (or open *Plugins → Rescan*) to see the **Invoices** tab.
+Restart `hermes dashboard` (or call `GET /api/dashboard/plugins/rescan`) to see the **Invoices** tab.
 
 Requires Hermes Agent 0.22.7 or newer. No extra Python packages: Obol uses the `httpx`
 that ships with Hermes.
