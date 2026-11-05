@@ -21,6 +21,7 @@ class FakeStripe:
         self.invoices: dict[str, dict] = {}
         self.items: dict[str, list[dict]] = {}
         self.sent: list[str] = []
+        self.events: list[dict] = []
         self.calls: list[tuple[str, str]] = []
         self.idem: dict[str, httpx.Response] = {}
         self.fail_queue: list[tuple[str, int]] = []   # (path substring, status) consumed in order
@@ -31,6 +32,12 @@ class FakeStripe:
     # -- helpers --------------------------------------------------------------------------------
     def _id(self, prefix: str) -> str:
         return f"{prefix}_{next(self._ids):08d}TEST"
+
+    def customer_updated(self, customer_id: str, previous: dict, at: int | None = None) -> None:
+        """Record a customer.updated event, as Stripe does when email or payment details change."""
+        self.events.append({"id": self._id("evt"), "object": "event", "type": "customer.updated",
+                            "created": at or self.now, "data": {"object": self.customers[customer_id],
+                                                                "previous_attributes": previous}})
 
     def pay(self, inv_id: str) -> None:
         inv = self.invoices[inv_id]
@@ -69,7 +76,7 @@ class FakeStripe:
             if key in self.idem:
                 return self.idem[key]
         form = dict(parse_qsl(request.content.decode())) if request.content else {}
-        query = dict(request.url.params)
+        query = request.url.params
         resp = self._route(method, path, form, query)
         if method == "POST" and resp.status_code < 500:
             self.idem[key] = resp
@@ -110,6 +117,11 @@ class FakeStripe:
                 data = data[ids.index(query["starting_after"]) + 1:]
             limit = int(query.get("limit", 10))
             return self._json(200, {"object": "list", "data": data[:limit], "has_more": len(data) > limit})
+        if parts == ["events"] and method == "GET":
+            types = set(query.get_list("types[]")) if hasattr(query, "get_list") else set()
+            gte = int(query.get("created[gte]", 0))
+            data = [e for e in reversed(self.events) if e["created"] >= gte and (not types or e["type"] in types)]
+            return self._json(200, {"object": "list", "data": data[: int(query.get("limit", 10))], "has_more": False})
         if parts == ["invoiceitems"] and method == "POST":
             inv = self.invoices.get(form.get("invoice", ""))
             if inv is None or inv["status"] != "draft":
