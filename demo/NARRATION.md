@@ -15,7 +15,7 @@ Remotion captions from `narration.json`, so change both together.
 - Voice: warm, mid-range, unhurried, natural American or neutral English. Avoid announcer or "trailer" voices.
 - Settings to start from: Stability 0.45, Similarity 0.75, Style 0.15, Speaker boost on, speed 1.0.
   Lower stability (0.35) if it sounds flat; raise it (0.55) if words wobble.
-- Pronunciation: **Obol** = "OH-bol". **Hermes** = "HER-meez". Say "four-two-four-two" for the test card if it is spoken (it isn't in this script).
+- Pronunciation: **Obol** = "OH-bol" (with the Archer voice, type it as "Oh-bol" in the pasted text; captions keep "Obol"). **Hermes** = "HER-meez". Say "four-two-four-two" for the test card if it is spoken (it isn't in this script).
 - Leave about 0.3 s of silence at the start and end of each file.
 
 ## Script

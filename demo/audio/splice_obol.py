@@ -26,19 +26,15 @@ SR = 44100
 
 # beat -> (approx start, approx end) of the spoken "Obol" in that take, seconds.
 SPANS = {
-    4: (5.86, 6.28),   # "...and what Obol checked."
-    6: (5.06, 5.32),   # "Obol spots the lookalike domain..."
-    7: (0.08, 0.36),   # "Obol Guard protects..." (Whisper ran the two words together)
     9: (3.42, 3.74),   # "...safely. Obol, in the Hermes Marketplace."
 }
+# Beats 4, 6 and 7 were regenerated with the name respelled "Oh-bol", which ElevenLabs then said
+# correctly in context, so they are used as recorded (no splice).
 # Per-beat fit of the single-word take to the sentence around it (targets measured from the voice around the
 # word; confirm by ear after any change):
 # target pitch in Hz (None = leave as recorded) and target length as a multiple of the replaced span.
 # The single word was spoken on its own, so it comes out higher and slower than a word mid-sentence.
 FIT = {
-    4: (110.0, 1.15),  # sentence-final: falls to ~107 Hz in the original take
-    6: (120.0, 1.25),  # voice around it ~120 Hz
-    7: (130.0, 1.25),  # sentence start, voice ~133 Hz
     9: (None, None),   # approved by ear as first spliced
 }
 SEARCH = 0.06   # look this far either side of each boundary for the quietest cut point
