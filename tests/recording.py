@@ -100,7 +100,7 @@ def run_flow(client: Any, store: Any, settings: Any, email: str, check: Callable
     from obol_lib.stripe_client import StripeError
 
     created = service.create_invoice(client, store, settings, {
-        "customer_email": email, "customer_name": "Acme Co",
+        "customer_email": email, "customer_name": "Pinemoor Labs",
         "line_items": [{"description": "October consulting", "amount": 1200}],
         "memo": "Obol fixture recording"})
     check("create_draft", created)

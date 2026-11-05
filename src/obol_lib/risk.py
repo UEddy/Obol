@@ -9,7 +9,7 @@ Checks (each one turned off by setting its config value to 0):
 * unusual_amount   amount above N x the customer's average invoice (needs enough history)
 * contact_change   the customer's email or payment details changed in Stripe within N days
 * impersonation    a client name you've billed before, now at a domain you've never used for them
-* lookalike_domain the email's domain imitates one you've billed (acrne.example vs acme.example)
+* lookalike_domain the email's domain imitates one you've billed (pinernoor.example vs pinemoor.example)
 * prompt_injection the invoice was drafted from a forwarded message that tried to inject instructions
 """
 

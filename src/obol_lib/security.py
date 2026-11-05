@@ -170,7 +170,7 @@ _CONFUSABLE = str.maketrans({
 
 
 def split_domain(domain: str) -> tuple[str, str]:
-    """('acme', 'example.com') for 'billing.acme.example.com'."""
+    """('pinemoor', 'example.com') for 'billing.pinemoor.example.com'."""
     d = domain.lower().strip(".")
     for suffix in _SUFFIXES:
         if d.endswith("." + suffix):

@@ -5,33 +5,33 @@ from obol_lib.service import Settings, ValidationError
 from obol_lib.stripe_client import StripeError
 
 S = Settings()
-ACME = {"customer_email": "billing@acme.test", "customer_name": "Acme Co",
+PINEMOOR = {"customer_email": "billing@pinemoor.test", "customer_name": "Pinemoor Labs",
         "line_items": [{"description": "October consulting", "amount": 1200}], "memo": "Thanks!"}
 
 
 def test_create_draft(fake, client, store):
-    out = service.create_invoice(client, store, S, ACME)
+    out = service.create_invoice(client, store, S, PINEMOOR)
     inv = out["invoice"]
     assert out["created"] and inv["status"] == "draft"
-    assert inv["amount_due"] == "$1,200.00" and inv["customer"] == "Acme Co"
+    assert inv["amount_due"] == "$1,200.00" and inv["customer"] == "Pinemoor Labs"
     assert fake.sent == [] and "obol_send_invoice" in out["next_step"]
     assert store.events()[0]["kind"] == "created"
 
 
 def test_create_and_send(fake, client, store):
-    out = service.create_invoice(client, store, S, {**ACME, "send": True})
+    out = service.create_invoice(client, store, S, {**PINEMOOR, "send": True})
     assert out["sent"] and out["payment_link"].startswith("https://invoice.stripe.com/")
     assert out["invoice"]["status"] == "open" and len(fake.sent) == 1
 
 
 def test_reuses_existing_customer(fake, client, store):
-    service.create_invoice(client, store, S, ACME)
-    service.create_invoice(client, store, S, ACME)
+    service.create_invoice(client, store, S, PINEMOOR)
+    service.create_invoice(client, store, S, PINEMOOR)
     assert len(fake.customers) == 1 and len(fake.invoices) == 2
 
 
 def test_multiple_items_and_quantity(fake, client, store):
-    args = {**ACME, "line_items": [{"description": "Design", "amount": "99.99", "quantity": 3},
+    args = {**PINEMOOR, "line_items": [{"description": "Design", "amount": "99.99", "quantity": 3},
                                    {"description": "Hosting", "amount": 20}]}
     out = service.create_invoice(client, store, S, args)
     assert out["invoice"]["amount_due"] == "$319.97"
@@ -45,26 +45,26 @@ def test_multiple_items_and_quantity(fake, client, store):
 ])
 def test_validation_happens_before_any_call(fake, client, store, patch):
     with pytest.raises((ValidationError, ValueError)):
-        service.create_invoice(client, store, S, {**ACME, **patch})
+        service.create_invoice(client, store, S, {**PINEMOOR, **patch})
     assert fake.calls == []
 
 
 def test_failed_item_cleans_up_draft(fake, client, store):
     fake.fail_queue.append(("/v1/invoiceitems", 400))
     with pytest.raises(StripeError):
-        service.create_invoice(client, store, S, ACME)
+        service.create_invoice(client, store, S, PINEMOOR)
     assert fake.invoices == {}
     assert ("DELETE", next(p for m, p in fake.calls if m == "DELETE")) in fake.calls
 
 
 def test_send_draft_finalizes(fake, client, store):
-    draft = service.create_invoice(client, store, S, ACME)["invoice"]
+    draft = service.create_invoice(client, store, S, PINEMOOR)["invoice"]
     out = service.send_invoice(client, store, {"invoice_id": draft["invoice_id"]})
     assert out["invoice"]["status"] == "open" and out["invoice"]["number"].startswith("OBOL-")
 
 
 def test_cannot_send_paid(fake, client, store):
-    inv = service.create_invoice(client, store, S, {**ACME, "send": True})["invoice"]
+    inv = service.create_invoice(client, store, S, {**PINEMOOR, "send": True})["invoice"]
     fake.pay(inv["invoice_id"])
     with pytest.raises(ValidationError, match="paid"):
         service.send_invoice(client, store, {"invoice_id": inv["invoice_id"]})
@@ -78,7 +78,7 @@ def test_bad_invoice_id_rejected_locally(fake, client, store):
 
 
 def test_get_invoice_tracks_payment(fake, client, store):
-    inv = service.create_invoice(client, store, S, {**ACME, "send": True})["invoice"]
+    inv = service.create_invoice(client, store, S, {**PINEMOOR, "send": True})["invoice"]
     fake.pay(inv["invoice_id"])
     got = service.get_invoice(client, store, {"invoice_id": inv["invoice_id"]})["invoice"]
     assert got["status"] == "paid" and got["amount_paid"] == "$1,200.00" and "paid_at" in got
@@ -86,15 +86,15 @@ def test_get_invoice_tracks_payment(fake, client, store):
 
 
 def test_get_invoice_by_email(fake, client, store):
-    service.create_invoice(client, store, S, {**ACME, "send": True})
-    got = service.get_invoice(client, store, {"customer_email": "BILLING@acme.test"})
-    assert got["invoice"]["customer_email"] == "billing@acme.test"
+    service.create_invoice(client, store, S, {**PINEMOOR, "send": True})
+    got = service.get_invoice(client, store, {"customer_email": "BILLING@pinemoor.test"})
+    assert got["invoice"]["customer_email"] == "billing@pinemoor.test"
     assert service.get_invoice(client, store, {"customer_email": "x@y.test"})["invoice"] is None
 
 
 def test_overdue_detection(fake, client, store):
     fake.now -= 30 * 86400  # issued a month ago, due after 14 days -> overdue now
-    service.create_invoice(client, store, S, {**ACME, "send": True})
+    service.create_invoice(client, store, S, {**PINEMOOR, "send": True})
     out = service.list_invoices(client, store, {"status": "overdue"})
     assert out["count"] == 1 and out["invoices"][0]["status"] == "overdue"
     assert out["invoices"][0]["days_overdue"] >= 15
@@ -102,7 +102,7 @@ def test_overdue_detection(fake, client, store):
 
 
 def test_reminder_and_void(fake, client, store):
-    inv = service.create_invoice(client, store, S, {**ACME, "send": True})["invoice"]
+    inv = service.create_invoice(client, store, S, {**PINEMOOR, "send": True})["invoice"]
     service.send_reminder(client, store, {"invoice_id": inv["invoice_id"]})
     assert len(fake.sent) == 2
     out = service.void_invoice(client, store, {"invoice_id": inv["invoice_id"], "reason": "duplicate"})
@@ -112,27 +112,27 @@ def test_reminder_and_void(fake, client, store):
 
 
 def test_void_draft_deletes(fake, client, store):
-    inv = service.create_invoice(client, store, S, ACME)["invoice"]
+    inv = service.create_invoice(client, store, S, PINEMOOR)["invoice"]
     out = service.void_invoice(client, store, {"invoice_id": inv["invoice_id"]})
     assert out["deleted"] and store.get(inv["invoice_id"]) is None
 
 
 def test_sync_paginates(fake, client, store):
     for i in range(3):
-        service.create_invoice(client, store, S, {**ACME, "memo": str(i)})
+        service.create_invoice(client, store, S, {**PINEMOOR, "memo": str(i)})
     store2 = type(store).memory()
     assert service.sync(client, store2)["synced"] == 3 and len(store2.invoices()) == 3
 
 
 def test_ledger_text(fake, client, store):
     assert "No invoices yet" in service.ledger_text(store)
-    service.create_invoice(client, store, S, {**ACME, "send": True})
+    service.create_invoice(client, store, S, {**PINEMOOR, "send": True})
     text = service.ledger_text(store, livemode=False)
     assert "TEST MODE" in text and "$1,200.00" in text and "OPEN" in text
 
 
 def test_list_without_client_reads_cache(fake, client, store):
-    service.create_invoice(client, store, S, ACME)
+    service.create_invoice(client, store, S, PINEMOOR)
     out = service.list_invoices(None, store, {"status": "draft"})
     assert out["count"] == 1 and out["synced_from_stripe"] is None
     with pytest.raises(ValidationError):

@@ -32,14 +32,14 @@
    "beat": "3 Trigger",
    "start": 12,
    "max_end": 26,
-   "screen": "CLI: Acme's message about the support agent forwarded to Hermes; Obol proposes $1,500",
+   "screen": "CLI: Pinemoor's message about the support agent forwarded to Hermes; Obol proposes $1,500",
    "captions": [
-    "So when Acme says \"send the invoice,\"",
+    "So when Pinemoor says \"send the invoice,\"",
     "you just forward the message.",
     "Hermes reads it",
     "and drafts the invoice for you."
    ],
-   "text": "So when Acme says \"send the invoice,\" you just forward the message. Hermes reads it and drafts the invoice for you.",
+   "text": "So when Pinemoor says \"send the invoice,\" you just forward the message. Hermes reads it and drafts the invoice for you.",
    "audio": "audio/beat3.mp3"
   },
   {
@@ -60,30 +60,30 @@
    "beat": "5 Payoff",
    "start": 34,
    "max_end": 49,
-   "screen": "Stripe page paid with 4242; \"Has Acme paid?\"; row stamps PAID",
+   "screen": "Stripe page paid with 4242; \"Has Pinemoor paid?\"; row stamps PAID",
    "captions": [
-    "Acme pays by card.",
+    "Pinemoor pays by card.",
     "Ask Hermes if they've paid,",
     "and the answer comes straight from Stripe.",
     "The ledger stamps it."
    ],
-   "text": "Acme pays by card. Ask Hermes if they've paid, and the answer comes straight from Stripe. The ledger stamps it.",
+   "text": "Pinemoor pays by card. Ask Hermes if they've paid, and the answer comes straight from Stripe. The ledger stamps it.",
    "audio": "audio/beat5.mp3"
   },
   {
    "beat": "6 Tension",
    "start": 49,
    "max_end": 65,
-   "screen": "A forwarded \"Acme\" message from acrne.example.com telling the assistant to skip approval; recipient withheld; approval prompt with three HIGH flags; Security view",
+   "screen": "A forwarded \"Pinemoor\" message from pinernoor.example.com telling the assistant to skip approval; recipient withheld; approval prompt with three HIGH flags; Security view",
    "captions": [
-    "Then \"Acme\" writes from a new address",
+    "Then \"Pinemoor\" writes from a new address",
     "and tells your assistant to skip approval.",
     "Obol spots the lookalike domain",
     "and the injected instructions,",
     "and won't let a message choose",
     "who gets paid."
    ],
-   "text": "Then \"Acme\" writes from a new address and tells your assistant to skip approval. Obol spots the lookalike domain and the injected instructions, and won't let a message choose who gets paid.",
+   "text": "Then \"Pinemoor\" writes from a new address and tells your assistant to skip approval. Obol spots the lookalike domain and the injected instructions, and won't let a message choose who gets paid.",
    "audio": "audio/beat6.mp3"
   },
   {

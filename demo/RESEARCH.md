@@ -24,7 +24,7 @@ practice, not research findings; none of their statistics are used in the video.
 |---|---|---|
 | Hook on a black screen with captions only (0–6 s) | Same two lines, over the real dashboard with the overdue total visible, from second 0; 4 s instead of 6 | Guidance is consistent that the product should appear in the first seconds; a black screen spends the most valuable seconds on text alone |
 | Pain beat 6–14 s | 4–12 s, slow zoom onto the overdue total | Follows directly from the shortened hook |
-| Tension: duplicate invoice | Forwarded "Acme" message from a lookalike domain that tells the assistant to skip approval; Obol withholds the recipient and flags injection, lookalike and impersonation, then a cut to the Security view | The new positioning is security-first; this is the strongest single moment that a prompt or skill could not do |
+| Tension: duplicate invoice | Forwarded "Pinemoor" message from a lookalike domain that tells the assistant to skip approval; Obol withholds the recipient and flags injection, lookalike and impersonation, then a cut to the Security view | The new positioning is security-first; this is the strongest single moment that a prompt or skill could not do |
 | Close: "Obol for Hermes, in the Marketplace" | Adds the install line on the end card | Gives the viewer one concrete next step |
 
 The other beats keep their order and roughly their timing; see `NARRATION.md`.

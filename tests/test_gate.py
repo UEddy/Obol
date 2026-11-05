@@ -1,6 +1,6 @@
 from obol_lib import gate
 
-CREATE = {"customer_email": "billing@acme.test", "customer_name": "Acme Co",
+CREATE = {"customer_email": "billing@pinemoor.test", "customer_name": "Pinemoor Labs",
           "line_items": [{"description": "October consulting", "amount": 1200}], "send": True}
 
 
@@ -24,7 +24,7 @@ def test_every_write_asks_including_drafts():
 
 def test_message_names_amount_client_and_mode():
     d = _decide()
-    assert "$1,200.00" in d["message"] and "billing@acme.test" in d["message"] and "TEST mode" in d["message"]
+    assert "$1,200.00" in d["message"] and "billing@pinemoor.test" in d["message"] and "TEST mode" in d["message"]
 
 
 def test_rule_key_is_unique_per_call():

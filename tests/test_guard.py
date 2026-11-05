@@ -36,7 +36,7 @@ def test_address_poisoning():
 
 def test_new_and_lookalike_recipients():
     assert guard.recipient_findings("0x" + "1" * 40, [KNOWN])[0]["check"] == "guard_new_recipient"
-    assert guard.recipient_findings("pay@acrne.example.com", ["pay@acme.example.com"])[0]["check"] == "guard_lookalike_recipient"
+    assert guard.recipient_findings("pay@pinernoor.example.com", ["pay@pinemoor.example.com"])[0]["check"] == "guard_lookalike_recipient"
     assert guard.recipient_findings("anyone@example.org", []) == []      # no history: nothing to compare
 
 

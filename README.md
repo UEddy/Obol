@@ -8,7 +8,7 @@ indie developers, AI consultants and agencies building agents for clients.
 > and quiet edits to the record. It does not prevent all fraud, and this README says exactly what it doesn't cover.
 
 You ship the build; the client says "send the invoice". Forward their message and Hermes drafts it. Obol checks it, you approve it, and Stripe
-emails your client a payment link. Ask *"has Acme paid?"* and Hermes checks Stripe. The **Invoices**
+emails your client a payment link. Ask *"has Pinemoor paid?"* and Hermes checks Stripe. The **Invoices**
 tab shows what's outstanding, overdue and paid; the **Security** tab shows every threat Obol flagged,
 withheld or blocked, each linked to its invoice. Every security claim below names the test that proves it.
 
@@ -94,7 +94,7 @@ Each row is an attack that hits invoicing in practice, how Obol responds, and th
 | T2 | **Hidden injection** (zero-width characters, bidi overrides, invisible Unicode tag characters, HTML comments, full-width letters) | Text is normalised (NFKC, invisible characters removed, tag characters decoded) before scanning; hidden text alone is flagged | `tests/test_security.py::test_zero_width_split_words`, `tests/test_security.py::test_unicode_tag_smuggling`, `tests/test_security.py::test_html_comment`, `tests/test_security.py::test_bidi_override_and_fullwidth`, `tests/test_security.py::test_hidden_text_without_instructions_is_medium` |
 | T3 | **Multilingual injection** (Spanish, French, German, Portuguese, Italian, Chinese, Japanese, Russian, Arabic) | Patterns for each language | `tests/test_security.py::test_multilingual_injection` |
 | T4 | **Encoded injection** (base64, URL-encoding, hex escapes) | Encoded blobs are decoded and scanned too | `tests/test_security.py::test_base64_payload`, `tests/test_security.py::test_url_encoded_payload`, `tests/test_security.py::test_hex_escaped_payload` |
-| T5 | **Lookalike domain** (acrne.example vs acme.example, Cyrillic а, northw1nd, acme.co vs acme.com, acme-billing.com) | The recipient's domain is compared with every domain you've billed: homoglyph skeletons, 1–2 character edits, the same name on another TLD, a known name plus extra words | `tests/test_security.py::test_lookalikes_are_caught`, `tests/test_security.py::test_lookalike_finding_names_the_real_domain` |
+| T5 | **Lookalike domain** (pinernoor.example vs pinemoor.example, Cyrillic а, northw1nd, pinemoor.co vs pinemoor.com, pinemoor-billing.com) | The recipient's domain is compared with every domain you've billed: homoglyph skeletons, 1–2 character edits, the same name on another TLD, a known name plus extra words | `tests/test_security.py::test_lookalikes_are_caught`, `tests/test_security.py::test_lookalike_finding_names_the_real_domain` |
 | T6 | **Impersonation**: a known client "writes from a new address" | A client name you've billed before, at a domain you've never used for them, is flagged (a new mailbox at their usual domain isn't) | `tests/test_risk.py::test_same_name_new_email`, `tests/test_intake.py::test_changed_email_for_known_client_warns` |
 | T7 | **Account takeover / BEC**: the client's email or payment details changed in Stripe just before you bill | Recent `customer.updated` events touching email or payment details are flagged | `tests/test_risk.py::test_stripe_customer_updated_event`, `tests/test_risk.py::test_old_or_irrelevant_events_ignored` |
 | T8 | **Agent acting without consent** (a fooled or overeager model creating, sending, reminding or voiding) | Every Stripe write goes through Hermes's approval prompt, drafts included; there's no setting to turn it off | `tests/test_gate.py::test_every_write_asks_including_drafts`, `tests/test_hermes_integration.py::test_approval_gate_directives` |
@@ -184,17 +184,17 @@ Obol reads it only through Hermes's secret route and never logs or stores it.
 
 ## 90-second demo
 
-The demo follows one AI consultant billing one client (Acme) for an agent build, then one attack. Every shot is the real plugin
+The demo follows one AI consultant billing one client (Pinemoor) for an agent build, then one attack. Every shot is the real plugin
 against Stripe test mode. `demo/` holds the seed script, capture scripts, VHS tapes, narration script and the
 Remotion project that assemble it.
 
 | Beat | On screen |
 |---|---|
 | Hook | The Invoices tab: $3,600 overdue |
-| Trigger | Acme's "loved the support agent, send the invoice" message is forwarded to Hermes in the CLI; `obol_draft_from_message` proposes $1,500 |
+| Trigger | Pinemoor's "loved the support agent, send the invoice" message is forwarded to Hermes in the CLI; `obol_draft_from_message` proposes $1,500 |
 | Trust | The approval prompt names the amount, client, test mode and risk checks; approve |
-| Payoff | Stripe's hosted invoice page paid with 4242; *"Has Acme paid?"*; the row's stamp flips to PAID |
-| Tension | A forwarded "Acme" message from `billing@acrne.example.com` says to ignore instructions and skip approval: the recipient is withheld, and the approval prompt shows prompt injection, lookalike domain and impersonation; then the Security view |
+| Payoff | Stripe's hosted invoice page paid with 4242; *"Has Pinemoor paid?"*; the row's stamp flips to PAID |
+| Tension | A forwarded "Pinemoor" message from `billing@pinernoor.example.com` says to ignore instructions and skip approval: the recipient is withheld, and the approval prompt shows prompt injection, lookalike domain and impersonation; then the Security view |
 | Guard | Obol Guard intercepts an unusual transfer from a wallet plugin: approval prompt with its flags, then the Security view |
 | Resolution | `/invoices` with everything paid, pending and overdue |
 

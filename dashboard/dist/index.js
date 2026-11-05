@@ -98,7 +98,7 @@
     }
     return h("div", { className: "obol-empty" }, props.filtered ? "No invoices with this status." :
       h(React.Fragment, null, h("b", null, "No invoices yet."), " Ask Hermes: ",
-        h("code", null, "Invoice billing@acme.example.com $1,200 for the landing page and send it")));
+        h("code", null, "Invoice billing@pinemoor.example.com $1,200 for the landing page and send it")));
   }
 
   var LABEL_COLOR = { prompt_injection: "#de3f87", lookalike_domain: "#d4471f", impersonation: "#b3201a", dispute: "#151311",

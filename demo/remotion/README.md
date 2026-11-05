@@ -13,9 +13,9 @@ Put them in `public/clips/` and set the file names in `src/clips.ts`:
 
 | Clip | Length used | What to record |
 |---|---|---|
-| `chat.mp4` | 20 s | Forward Dana's message (12 hours at $100/hr, billing@acme.test). Hermes proposes $1,200.00; say *"send it"*; approve the prompt; show the payment link |
-| `pay.mp4` | 15 s | Open the link, pay with test card `4242 4242 4242 4242`, then ask *"Has Acme paid?"* |
-| `dashboard.mp4` | 15 s | Dashboard → **Invoices** → Sync. The Acme row's stamp flips to PAID |
+| `chat.mp4` | 20 s | Forward Dana's message (12 hours at $100/hr, billing@pinemoor.test). Hermes proposes $1,200.00; say *"send it"*; approve the prompt; show the payment link |
+| `pay.mp4` | 15 s | Open the link, pay with test card `4242 4242 4242 4242`, then ask *"Has Pinemoor paid?"* |
+| `dashboard.mp4` | 15 s | Dashboard → **Invoices** → Sync. The Pinemoor row's stamp flips to PAID |
 
 Use `startSeconds` in `src/clips.ts` to trim the start of a clip. Until a clip is set, its
 scene shows a labelled placeholder.

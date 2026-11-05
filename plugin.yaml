@@ -63,7 +63,7 @@ config_schema:
     type: bool
     default: true
     label: "Risk check: lookalike domains"
-    description: "Flag a billing email whose domain imitates one you've billed (acrne.example vs acme.example)."
+    description: "Flag a billing email whose domain imitates one you've billed (pinernoor.example vs pinemoor.example)."
   guard_tools:
     type: list
     default: []
