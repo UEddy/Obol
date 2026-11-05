@@ -23,21 +23,26 @@ _stores_lock = threading.Lock()
 client_factory: Callable[..., StripeClient] = StripeClient
 
 
+def _number(getter: Callable[[str, Any], Any], key: str, default: Any, lo: float, hi: float, cast: type) -> Any:
+    try:
+        value = cast(getter(key, default))
+    except (TypeError, ValueError):
+        return default
+    return value if lo <= value <= hi else default
+
+
 def settings_from(getter: Callable[[str, Any], Any]) -> Settings:
     """Build Settings from a ``(key, default) -> value`` getter, coercing bad values to defaults."""
     d = Settings()
-    approval = getter("approval", d.approval)
-    days = getter("default_days_until_due", d.default_days_until_due)
-    try:
-        days = int(days)
-    except (TypeError, ValueError):
-        days = d.default_days_until_due
     currency = getter("default_currency", d.default_currency)
     return Settings(
-        default_currency=currency if isinstance(currency, str) and len(currency) == 3 else d.default_currency,
-        default_days_until_due=days if 0 <= days <= 365 else d.default_days_until_due,
-        approval=approval if approval in ("always", "live_only", "never") else d.approval,
+        default_currency=currency.lower() if isinstance(currency, str) and len(currency) == 3 else d.default_currency,
+        default_days_until_due=_number(getter, "default_days_until_due", d.default_days_until_due, 0, 365, int),
         allow_live=getter("allow_live", d.allow_live) is True,
+        risk_duplicate_window_days=_number(getter, "risk_duplicate_window_days", d.risk_duplicate_window_days, 0, 365, int),
+        risk_amount_multiplier=_number(getter, "risk_amount_multiplier", d.risk_amount_multiplier, 0, 1000, float),
+        risk_amount_min_history=_number(getter, "risk_amount_min_history", d.risk_amount_min_history, 1, 100, int),
+        risk_contact_change_days=_number(getter, "risk_contact_change_days", d.risk_contact_change_days, 0, 30, int),
     )
 
 

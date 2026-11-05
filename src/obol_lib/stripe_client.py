@@ -214,3 +214,8 @@ class StripeClient:
                       customer: Optional[str] = None, starting_after: Optional[str] = None) -> dict:
         return self.request("GET", "/v1/invoices", params={
             "limit": limit, "status": status, "customer": customer, "starting_after": starting_after})
+
+    def list_events(self, *, types: list[str], created_gte: int, limit: int = 100) -> dict:
+        """Account events (Stripe keeps 30 days). Used by the contact-change risk check."""
+        return self.request("GET", "/v1/events", params={
+            "types": list(types), "created": {"gte": int(created_gte)}, "limit": limit})

@@ -2,7 +2,7 @@ name: obol
 version: 0.1.0
 description: "Invoices and payment links from chat, backed by Stripe. Hermes drafts and sends invoices, checks who has paid, chases overdue ones, and keeps a receivables ledger you can pull up with /invoices. Test mode by default; every send asks for your approval."
 author: UEddy
-requires_hermes: ">=0.22.7"
+requires_hermes: ">=0.22"
 provides_tools:
   - obol_create_invoice
   - obol_send_invoice
@@ -23,12 +23,6 @@ config_schema:
     env: STRIPE_API_KEY
     label: "Stripe API key"
     description: "Test key (sk_test_...) recommended. Stored in Hermes's .env, never in config.yaml."
-  approval:
-    type: str
-    choices: [always, live_only, never]
-    default: always
-    label: "Ask before sending"
-    description: "When Hermes must ask you before it sends, reminds or voids an invoice."
   allow_live:
     type: bool
     default: false
@@ -42,3 +36,23 @@ config_schema:
     type: int
     default: 14
     label: "Days until due"
+  risk_duplicate_window_days:
+    type: int
+    default: 30
+    label: "Risk check: duplicate window (days)"
+    description: "Flag an invoice with the same customer and amount as one created within this many days. 0 turns it off."
+  risk_amount_multiplier:
+    type: float
+    default: 3.0
+    label: "Risk check: unusual amount (x average)"
+    description: "Flag an invoice above this multiple of the customer's average invoice. 0 turns it off."
+  risk_amount_min_history:
+    type: int
+    default: 3
+    label: "Risk check: invoices needed for an average"
+    description: "How many past invoices a customer needs before the unusual-amount check applies."
+  risk_contact_change_days:
+    type: int
+    default: 14
+    label: "Risk check: recent contact/payment change (days)"
+    description: "Flag when the customer's email or payment details changed in Stripe this recently, or when the same client name was billed at a different email. 0 turns it off. Max 30 (Stripe keeps 30 days of events)."

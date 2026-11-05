@@ -25,8 +25,12 @@ LIST_STATUSES = ("draft", "open", "paid", "void", "uncollectible", "overdue", "o
 class Settings:
     default_currency: str = "usd"
     default_days_until_due: int = 14
-    approval: str = "always"          # always | live_only | never
     allow_live: bool = False
+    # Risk checks (0 turns a check off).
+    risk_duplicate_window_days: int = 30
+    risk_amount_multiplier: float = 3.0
+    risk_amount_min_history: int = 3
+    risk_contact_change_days: int = 14
 
 
 class ValidationError(ValueError):

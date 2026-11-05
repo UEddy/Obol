@@ -15,6 +15,7 @@ from pathlib import Path
 from typing import Any, Callable
 
 from . import schemas
+from .src.obol_lib import gate as gate_policy
 from .src.obol_lib import money, runtime, service
 from .src.obol_lib.service import ValidationError
 from .src.obol_lib.stripe_client import StripeError, key_mode
@@ -22,7 +23,6 @@ from .src.obol_lib.stripe_client import StripeError, key_mode
 logger = logging.getLogger(__name__)
 
 _PLUGIN_DIR = Path(__file__).resolve().parent
-GATED_TOOLS = frozenset({"obol_send_invoice", "obol_send_reminder", "obol_void_invoice"})
 
 
 def _result(data: dict) -> str:
@@ -53,49 +53,40 @@ def _run(op: Callable[[dict], dict], args: dict) -> str:
 
 
 # -- approval gate ------------------------------------------------------------------------------
-def _approval_message(ctx: Any, tool_name: str, args: dict, mode: str) -> str:
-    tag = "LIVE MONEY" if mode == "live" else "test mode"
-    if tool_name == "obol_create_invoice":
-        cur = str(args.get("currency") or runtime.settings_from(ctx.get_config).default_currency).lower()
-        try:
-            total = sum(money.to_minor(i.get("amount"), cur) * int(i.get("quantity", 1) or 1)
-                        for i in args.get("line_items") or [])
-            amount = money.fmt(total, cur)
-        except (money.MoneyError, TypeError, ValueError, AttributeError):
-            amount = "an invoice"
-        return f"Obol will email {args.get('customer_email')} a payment link for {amount} ({tag})."
-    verb = {"obol_send_invoice": "send", "obol_send_reminder": "send a reminder for",
-            "obol_void_invoice": "VOID (cannot be undone)"}[tool_name]
-    inv_id = str(args.get("invoice_id"))
-    row = None
+def _unattended(ctx: Any) -> bool:
+    current = getattr(ctx, "current_cron_execution", None)
     try:
-        row = runtime.store().get(inv_id)
+        return current is not None and current() is not None
     except Exception:
-        row = None
-    if row:
-        who = row.get("customer_name") or row.get("customer_email")
-        return (f"Obol will {verb} {row.get('number') or inv_id}: "
-                f"{money.fmt(row['amount_due'], row['currency'])} for {who} ({tag}).")
-    return f"Obol will {verb} invoice {inv_id} ({tag})."
+        return True  # cannot tell: treat as unattended (fail closed)
 
 
 def _make_gate(ctx: Any) -> Callable[..., Any]:
     def gate(tool_name: str = "", args: dict | None = None, **kwargs: Any):
-        args = args if isinstance(args, dict) else {}
-        if tool_name not in GATED_TOOLS and not (tool_name == "obol_create_invoice" and args.get("send")):
+        if tool_name not in gate_policy.WRITE_TOOLS:
             return None
+        args = args if isinstance(args, dict) else {}
         try:
             settings = runtime.settings_from(ctx.get_config)
             mode = key_mode(runtime.api_key())
-            if settings.approval == "never" or (settings.approval == "live_only" and mode != "live"):
-                return None
-            return {"action": "approve", "message": _approval_message(ctx, tool_name, args, mode),
-                    "rule_key": f"obol:{tool_name}"}
+
+            def summary() -> str:
+                if tool_name == "obol_create_invoice":
+                    return gate_policy.describe_create(args, settings.default_currency)
+                inv_id = str(args.get("invoice_id"))
+                return gate_policy.describe_existing(tool_name, inv_id, runtime.store().get(inv_id))
+
+            return gate_policy.decide(tool_name, args, mode=mode, allow_live=settings.allow_live,
+                                      unattended=_unattended(ctx), summary=summary,
+                                      assess=lambda: _assess(ctx, settings, tool_name, args))
         except Exception:
-            logger.exception("obol: approval gate failed; asking for approval anyway")
-            return {"action": "approve", "message": f"Obol wants to run {tool_name}.",
-                    "rule_key": f"obol:{tool_name}"}
+            logger.exception("obol: approval gate failed; blocking the call")
+            return {"action": "block", "message": f"Obol could not check {tool_name} safely, so nothing was sent."}
     return gate
+
+
+def _assess(ctx: Any, settings: service.Settings, tool_name: str, args: dict) -> list[dict]:
+    return []
 
 
 # -- tools --------------------------------------------------------------------------------------
@@ -174,7 +165,7 @@ def _make_cli(ctx: Any) -> Callable[[Any], int]:
         key = runtime.api_key()
         mode = key_mode(key)
         print(f"Stripe key: {mode}" + ("" if mode in ("test", "live") else f" (set {runtime.KEY_ENV})"))
-        print(f"Approval: {settings.approval} · live mode allowed: {settings.allow_live}")
+        print(f"Approval: every Stripe write asks · live mode allowed: {settings.allow_live}")
         try:
             with runtime.make_client(settings, key) as client:
                 out = service.sync(client, runtime.store(), max_pages=1 if cmd == "doctor" else 5)
@@ -212,14 +203,15 @@ def _register_blueprint(ctx: Any) -> None:
     register_bp(
         "overdue-chase",
         title="Chase overdue invoices",
-        description="Every week, find overdue Stripe invoices, remind the ones past a grace period, and report.",
+        description="Every Monday, list overdue Stripe invoices and tell you who to chase. Nothing is sent without you.",
         category="work",
         schedule_template="{minute} {hour} * * 1",
         prompt_template=(
-            "Use obol_list_invoices with status='overdue'. For each invoice more than {grace} days overdue, "
-            "call obol_send_reminder once. Then reply with a short receivables report: total outstanding, "
-            "total overdue, who was reminded, and anything that needs a human (for example invoices more "
-            "than 60 days overdue). If a reminder needs approval and nobody can approve it, list it instead."
+            "Use obol_list_invoices with status='overdue'. Reply with a short receivables report: total "
+            "outstanding, total overdue, and each invoice more than {grace} days overdue (client, number, "
+            "amount, days late), oldest first. Flag anything more than 60 days overdue. Do NOT call "
+            "obol_send_reminder or any other Obol write tool: this run is unattended and Obol refuses writes "
+            "without a person to approve them. End with one line the user can send back to approve the reminders."
         ),
         slots=[
             {"name": "time", "type": "time", "label": "What time on Mondays?", "default": "09:10"},

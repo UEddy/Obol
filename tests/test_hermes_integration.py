@@ -26,7 +26,7 @@ def hermes(tmp_path_factory):
     (home / "plugins" / "obol").symlink_to(ROOT, target_is_directory=True)
     (home / "config.yaml").write_text(
         "plugins:\n  enabled: [obol]\n  isolation: in_process\n"
-        "  entries:\n    obol:\n      settings:\n        approval: always\n")
+        "  entries:\n    obol:\n      settings:\n        default_currency: usd\n")
     old = {k: os.environ.get(k) for k in ("HERMES_HOME", "STRIPE_API_KEY")}
     os.environ["HERMES_HOME"] = str(home)
     os.environ["STRIPE_API_KEY"] = "sk_test_integration"
@@ -96,19 +96,48 @@ def test_missing_key_message(hermes, fake):
         os.environ["STRIPE_API_KEY"] = "sk_test_integration"
 
 
-def test_approval_gate_directives(hermes, fake):
+def _directive(**kw):
     from hermes_cli.plugins import invoke_hook
-    results = invoke_hook("pre_tool_call", tool_name="obol_create_invoice", task_id="t",
-                          args={"customer_email": "a@b.test", "send": True,
-                                "line_items": [{"description": "x", "amount": 1200}]})
-    directive = next(r for r in results if isinstance(r, dict))
-    assert directive["action"] == "approve" and "$1,200.00" in directive["message"]
-    assert "test mode" in directive["message"]
-    drafts = invoke_hook("pre_tool_call", tool_name="obol_create_invoice", task_id="t",
-                         args={"customer_email": "a@b.test", "line_items": []})
-    assert not any(isinstance(r, dict) for r in drafts)
-    reads = invoke_hook("pre_tool_call", tool_name="obol_get_invoice", task_id="t", args={})
-    assert not any(isinstance(r, dict) for r in reads)
+    return next((r for r in invoke_hook("pre_tool_call", task_id="t", **kw) if isinstance(r, dict)), None)
+
+
+def test_approval_gate_directives(hermes, fake):
+    send = _directive(tool_name="obol_create_invoice", args={
+        "customer_email": "billing@acme.test", "send": True, "line_items": [{"description": "x", "amount": 1200}]})
+    assert send["action"] == "approve" and "$1,200.00" in send["message"] and "TEST mode" in send["message"]
+    draft = _directive(tool_name="obol_create_invoice", args={
+        "customer_email": "billing@acme.test", "line_items": [{"description": "x", "amount": 50}]})
+    assert draft["action"] == "approve"
+    for tool in ("obol_send_invoice", "obol_send_reminder", "obol_void_invoice"):
+        assert _directive(tool_name=tool, args={"invoice_id": "in_1Abcdef"})["action"] == "approve"
+    assert _directive(tool_name="obol_get_invoice", args={}) is None
+    assert _directive(tool_name="obol_list_invoices", args={}) is None
+
+
+def test_live_key_blocked_by_hook(hermes, fake):
+    os.environ["STRIPE_API_KEY"] = "sk_live_should_never_be_used"
+    try:
+        d = _directive(tool_name="obol_send_invoice", args={"invoice_id": "in_1Abcdef"})
+        assert d["action"] == "block" and "LIVE" in d["message"]
+    finally:
+        os.environ["STRIPE_API_KEY"] = "sk_test_integration"
+
+
+def test_cron_detection_fails_closed():
+    import importlib
+    plugin = importlib.import_module(next(n for n in sys.modules if n.startswith("hermes_plugins.") and n.endswith("obol")))
+
+    class Ctx:
+        def __init__(self, value=None, boom=False):
+            self.value, self.boom = value, boom
+
+        def current_cron_execution(self):
+            if self.boom:
+                raise RuntimeError
+            return self.value
+    assert plugin._unattended(Ctx()) is False
+    assert plugin._unattended(Ctx(value=object())) is True
+    assert plugin._unattended(Ctx(boom=True)) is True
 
 
 def test_slash_command(hermes, fake):

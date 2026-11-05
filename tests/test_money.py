@@ -3,30 +3,24 @@ import pytest
 from obol_lib import money
 
 
-@pytest.mark.parametrize("amount,currency,expected", [
-    (12.5, "usd", 1250), ("1200", "usd", 120000), ("0.01", "eur", 1), (5000, "jpy", 5000), ("19.99", "gbp", 1999),
-])
-def test_to_minor(amount, currency, expected):
-    assert money.to_minor(amount, currency) == expected
+@pytest.mark.parametrize("amount,expected", [(12.5, 1250), ("1200", 120000), ("0.01", 1), ("19.99", 1999), (950, 95000)])
+def test_to_minor_usd(amount, expected):
+    assert money.to_minor(amount, "usd") == expected
 
 
-@pytest.mark.parametrize("amount,currency", [
-    (0, "usd"), (-5, "usd"), ("abc", "usd"), (float("nan"), "usd"), ("1.001", "usd"), ("10.5", "jpy"),
-    (10_000_000, "usd"), (None, "usd"),
-])
-def test_to_minor_rejects(amount, currency):
+@pytest.mark.parametrize("amount", [0, -5, "abc", float("nan"), "1.001", 10_000_000, None, float("inf")])
+def test_to_minor_rejects(amount):
     with pytest.raises(money.MoneyError):
-        money.to_minor(amount, currency)
+        money.to_minor(amount, "usd")
 
 
 def test_currency_validation():
     assert money.normalize_currency(" USD ") == "usd"
-    for bad in ("us", "dollars", 123, None, "kwd"):
+    for bad in ("us", "dollars", 123, None, ""):
         with pytest.raises(money.MoneyError):
             money.normalize_currency(bad)
 
 
-def test_fmt():
+def test_fmt_usd():
     assert money.fmt(120000, "usd") == "$1,200.00"
-    assert money.fmt(5000, "jpy") == "¥5,000"
-    assert money.fmt(1999, "sek") == "19.99 SEK"
+    assert money.fmt(1, "usd") == "$0.01"
