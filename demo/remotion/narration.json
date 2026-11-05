@@ -1,0 +1,116 @@
+{
+ "words": 148,
+ "target_seconds": 85,
+ "beats": [
+  {
+   "beat": "1 Hook",
+   "start": 0,
+   "max_end": 5,
+   "screen": "Invoices tab, overdue total visible, dimmed",
+   "captions": [
+    "You did the work.",
+    "Now comes the part nobody enjoys:",
+    "getting paid."
+   ],
+   "text": "You did the work. Now comes the part nobody enjoys: getting paid.",
+   "audio": "audio/beat1.mp3"
+  },
+  {
+   "beat": "2 Pain",
+   "start": 5,
+   "max_end": 13,
+   "screen": "Slow zoom onto **$2,350.00 overdue**",
+   "captions": [
+    "Two clients are already late,",
+    "and chasing invoices eats the hours",
+    "you should spend designing",
+    "for the next one."
+   ],
+   "text": "Two clients are already late, and chasing invoices eats the hours you should spend designing for the next one.",
+   "audio": "audio/beat2.mp3"
+  },
+  {
+   "beat": "3 Trigger",
+   "start": 13,
+   "max_end": 28,
+   "screen": "CLI: Acme's message forwarded to Hermes; Obol proposes $1,500",
+   "captions": [
+    "So when Acme says \"send the invoice,\"",
+    "you just forward the message.",
+    "Hermes reads it",
+    "and drafts the invoice for you."
+   ],
+   "text": "So when Acme says \"send the invoice,\" you just forward the message. Hermes reads it and drafts the invoice for you.",
+   "audio": "audio/beat3.mp3"
+  },
+  {
+   "beat": "4 Trust",
+   "start": 28,
+   "max_end": 37,
+   "screen": "Approval prompt: amount, client, TEST mode, risk checks; Approve",
+   "captions": [
+    "Nothing touches money without you.",
+    "You see exactly what will be sent,",
+    "to whom,",
+    "and what Obol checked."
+   ],
+   "text": "Nothing touches money without you. You see exactly what will be sent, to whom, and what Obol checked.",
+   "audio": "audio/beat4.mp3"
+  },
+  {
+   "beat": "5 Payoff",
+   "start": 37,
+   "max_end": 54,
+   "screen": "Stripe page paid with 4242; \"Has Acme paid?\"; row stamps PAID",
+   "captions": [
+    "Acme pays by card.",
+    "Ask Hermes if they've paid,",
+    "and the answer comes straight from Stripe.",
+    "The ledger stamps it."
+   ],
+   "text": "Acme pays by card. Ask Hermes if they've paid, and the answer comes straight from Stripe. The ledger stamps it.",
+   "audio": "audio/beat5.mp3"
+  },
+  {
+   "beat": "6 Tension",
+   "start": 54,
+   "max_end": 72,
+   "screen": "A forwarded \"Acme\" message from acrne.example.com telling the assistant to skip approval; recipient withheld; approval prompt with three HIGH flags; Security view",
+   "captions": [
+    "Then \"Acme\" writes from a new address",
+    "and tells your assistant to skip approval.",
+    "Obol spots the lookalike domain",
+    "and the injected instructions,",
+    "and won't let a message choose",
+    "who gets paid."
+   ],
+   "text": "Then \"Acme\" writes from a new address and tells your assistant to skip approval. Obol spots the lookalike domain and the injected instructions, and won't let a message choose who gets paid.",
+   "audio": "audio/beat6.mp3"
+  },
+  {
+   "beat": "7 Resolution",
+   "start": 72,
+   "max_end": 80,
+   "screen": "`/invoices` in the chat",
+   "captions": [
+    "Everything paid, pending and overdue,",
+    "in one command,",
+    "in any chat you already use."
+   ],
+   "text": "Everything paid, pending and overdue, in one command, in any chat you already use.",
+   "audio": "audio/beat7.mp3"
+  },
+  {
+   "beat": "8 Close",
+   "start": 80,
+   "max_end": 85,
+   "screen": "End card",
+   "captions": [
+    "Hermes can now run your invoicing, safely.",
+    "Obol, in the Hermes Marketplace."
+   ],
+   "text": "Hermes can now run your invoicing, safely. Obol, in the Hermes Marketplace.",
+   "audio": "audio/beat8.mp3"
+  }
+ ]
+}
