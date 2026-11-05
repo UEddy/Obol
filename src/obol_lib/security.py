@@ -241,5 +241,6 @@ def lookalike_findings(email: str, known_emails: Iterable[str]) -> list[dict]:
         if reason:
             return [{"check": "lookalike_domain", "severity": "high",
                      "message": f"{domain} looks like {kd}, a domain you've billed before ({reason}). "
-                                "Possible impersonation: verify with the client through a channel you already trust."}]
+                                "Possible impersonation: verify with the client through a channel you already trust.",
+                     "short": f"Lookalike domain: {domain} imitates {kd}"}]
     return []

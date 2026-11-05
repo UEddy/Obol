@@ -7,8 +7,9 @@ to a guarded tool:
 * asks for approval per call (a fresh rule key each time, so no blanket "always");
 * blocks it outright in unattended (cron) runs;
 * shows what it can read of the amount and recipient, and flags
-  - prompt injection found in the context that led to the call (the user's turn, earlier messages,
-    and outputs of other tools in the same session, e.g. a fetched page or an email),
+  - prompt injection found in the context that led to the call: the user's message and other tools'
+    outputs (e.g. a fetched page, an email, a file) in this turn and the one before. The assistant's
+    own replies, Obol's outputs and Hermes's tool and skill documentation are not counted,
   - an amount far above that tool's history, a first payment to a new recipient, and a recipient
     that imitates a previous one (crypto address poisoning or a lookalike domain);
 * records the prompt, the flags and (from ``post_tool_call``) the executed spend in Obol's
@@ -36,6 +37,10 @@ RECIPIENT_KEYS = ("to", "recipient", "address", "destination", "dest", "payee", 
                   "merchant", "account", "wallet_address", "toAddress", "to_address", "url", "endpoint")
 TOKEN_KEYS = ("token", "currency", "asset", "symbol", "coin")
 MAX_CONTEXT_CHARS = 20_000
+MAX_CONTEXT_FLAGS = 3
+# Hermes's own introspection tools return installed tool and skill documentation, which describes attacks
+# (Obol's skill does) without being one. Their outputs are not scanned as context for a spend.
+TRUSTED_OUTPUTS = frozenset({"tool_describe", "tool_search", "skill_view", "skills_list", "todo", "clarify"})
 _ADDRESS_RE = re.compile(r"^(0x[0-9a-fA-F]{40}|[1-9A-HJ-NP-Za-km-z]{32,44})$")
 
 
@@ -106,7 +111,8 @@ def recipient_findings(recipient: Optional[str], history_recipients: list[str]) 
         reason = poisoning_reason(recipient, k)
         if reason:
             return [{"check": "guard_address_poisoning", "severity": "high",
-                     "message": f"Recipient {recipient} imitates {k}: {reason}."}]
+                     "message": f"Recipient {recipient} imitates {k}: {reason}.",
+                     "short": f"Recipient imitates {k[:6]}…{k[-4:]} (address poisoning)"}]
     if "@" in recipient or "." in recipient:
         host = recipient.rsplit("@", 1)[-1].split("/")[2] if recipient.startswith("http") else recipient.rsplit("@", 1)[-1]
         for k in sorted(set(known)):
@@ -114,10 +120,12 @@ def recipient_findings(recipient: Optional[str], history_recipients: list[str]) 
             reason = security.lookalike_reason(host, khost)
             if reason:
                 return [{"check": "guard_lookalike_recipient", "severity": "high",
-                         "message": f"Recipient {recipient} looks like {k} ({reason})."}]
+                         "message": f"Recipient {recipient} looks like {k} ({reason}).",
+                         "short": f"Recipient looks like {k}"}]
     if known:
         return [{"check": "guard_new_recipient", "severity": "medium",
-                 "message": f"First payment through this tool to {recipient}."}]
+                 "message": f"First payment through this tool to {recipient}.",
+                 "short": "First payment to this recipient"}]
     return []
 
 
@@ -131,8 +139,14 @@ def amount_findings(amount: Optional[float], history_amounts: list[float], multi
     typical = statistics.median(past)
     if typical > 0 and amount > multiplier * typical:
         return [{"check": "guard_unusual_amount", "severity": "high",
-                 "message": f"{amount:g} is {amount / typical:.1f}x this tool's typical amount ({typical:g} over {len(past)} calls)."}]
+                 "message": f"{amount:g} is {amount / typical:.1f}x this tool's typical amount ({typical:g} over {len(past)} calls).",
+                 "short": f"{amount / typical:.1f}x this tool's typical amount"}]
     return []
+
+
+def context_source_counts(tool_name: str) -> bool:
+    """Whether a tool's output is untrusted context for a later spend."""
+    return bool(tool_name) and not tool_name.startswith("obol_") and tool_name not in TRUSTED_OUTPUTS
 
 
 def scan_context(texts: Iterable[tuple[str, str]]) -> list[dict]:
@@ -144,7 +158,8 @@ def scan_context(texts: Iterable[tuple[str, str]]) -> list[dict]:
         for f in security.detect_injection(text[-MAX_CONTEXT_CHARS:]):
             if f["severity"] == "high":
                 findings.append({"check": "guard_injection", "severity": "high",
-                                 "message": f"Context before this call ({source}): {f['message']}"})
+                                 "message": f"Context before this call ({source}): {f['message']}",
+                                 "short": f"Injected instructions in {source}"})
                 break
     return findings
 

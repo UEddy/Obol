@@ -229,12 +229,16 @@ def test_injection_and_lookalike_reach_the_approval_prompt_and_security_log(herm
             "line_items": [{"description": "Landing page build", "amount": 1500}]}
     d = _directive(tool_name="obol_create_invoice", args=args)
     assert d["action"] == "approve"
-    for needle in ("tried to inject instructions", "looks like pinemoor.example.com", "was billed before at billing@pinemoor.example.com"):
+    for needle in ("injected instructions", "pinernoor.example.com imitates pinemoor.example.com",
+                   "Pinemoor Labs is billed at pinemoor.example.com"):
         assert needle in d["message"], needle
+    body = d["message"].split("\n", 1)[1]                                 # Hermes shows at most 10 rows of ~60
+    assert len(body.splitlines()) <= 4 and all(len(l) <= 110 for l in body.splitlines())
     created = call("obol_create_invoice", args)
     events = st.security_events()
     linked = [e for e in events if e["invoice_id"] == created["invoice"]["invoice_id"]]
     assert {e["check_name"] for e in linked} >= {"prompt_injection", "lookalike_domain", "impersonation"}
+    assert any("tried to inject instructions" in e["detail"] for e in linked)   # full detail kept in the log
     assert any(e["outcome"] == "withheld" for e in events)
 
 

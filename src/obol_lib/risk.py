@@ -29,8 +29,13 @@ CONTACT_FIELDS = ("email", "invoice_settings", "default_source", "sources", "add
 _LIVE_STATUSES = ("draft", "open", "paid", "uncollectible")
 
 
-def flag(check: str, severity: str, message: str) -> dict[str, str]:
-    return {"check": check, "severity": severity, "message": message}
+def flag(check: str, severity: str, message: str, short: str | None = None) -> dict[str, str]:
+    """A risk finding. ``short`` is the one-line headline for the approval prompt; ``message`` the full
+    detail kept in the Security tab and logs."""
+    f = {"check": check, "severity": severity, "message": message}
+    if short:
+        f["short"] = short
+    return f
 
 
 def create_fingerprint(args: dict, default_currency: str) -> Optional[str]:
@@ -91,7 +96,8 @@ def assess(store: Store, settings: Settings, *, customer_email: Optional[str], c
                 flags.append(flag("duplicate", "high",
                                   f"Possible duplicate: {r.get('number') or 'a draft'} to {email} for "
                                   f"{money.fmt(amount_minor, currency)} was created {_ago(now - (r.get('created') or now))} "
-                                  f"({r['status']})."))
+                                  f"({r['status']}).",
+                                  f"Possible duplicate of {r.get('number') or 'a draft'} ({r['status']})"))
                 break
 
     # unusual amount ----------------------------------------------------------------------------
@@ -104,7 +110,8 @@ def assess(store: Store, settings: Settings, *, customer_email: Optional[str], c
                 who = customer_name or email
                 flags.append(flag("unusual_amount", "medium",
                                   f"{money.fmt(amount_minor, currency)} is {amount_minor / avg:.1f}x {who}'s average "
-                                  f"invoice ({money.fmt(int(avg), currency)} over {len(past)} invoices)."))
+                                  f"invoice ({money.fmt(int(avg), currency)} over {len(past)} invoices).",
+                                  f"{amount_minor / avg:.1f}x {who}'s average invoice"))
 
     # contact / payment details change ----------------------------------------------------------
     days = settings.risk_contact_change_days
@@ -127,7 +134,8 @@ def assess(store: Store, settings: Settings, *, customer_email: Optional[str], c
                     detail = f" (email was {prev.get('email') or 'empty'}, now {obj.get('email')})"
                 flags.append(flag("contact_change", "high",
                                   f"This customer's {', '.join(c.replace('_', ' ') for c in changed)} changed in Stripe "
-                                  f"{_ago(now - (ev.get('created') or now))}{detail}. Verify before sending."))
+                                  f"{_ago(now - (ev.get('created') or now))}{detail}. Verify before sending.",
+                                  f"Customer's contact details changed in Stripe {_ago(now - (ev.get('created') or now))}"))
                 break
     # impersonation: a client you know, writing from a domain you've never billed for them ---------
     if settings.risk_impersonation and customer_name:
@@ -136,7 +144,9 @@ def assess(store: Store, settings: Settings, *, customer_email: Optional[str], c
         if known and email.rsplit("@", 1)[-1] not in known_domains:
             flags.append(flag("impersonation", "high",
                               f"{customer_name} was billed before at {', '.join(sorted(known))}, not {email}. "
-                              "Confirm the new address with the client through a channel you already trust."))
+                              "Confirm the new address with the client through a channel you already trust.",
+                              f"Impersonation: {customer_name} is billed at "
+                              f"{', '.join(sorted(known_domains))}, not {email.rsplit('@', 1)[-1]}"))
 
     # lookalike domains ---------------------------------------------------------------------------
     if settings.risk_lookalike_domains:
@@ -148,5 +158,5 @@ def assess(store: Store, settings: Settings, *, customer_email: Optional[str], c
         worst = next(f for f in carried if f.get("check") == "prompt_injection")
         flags.append(flag("prompt_injection", "high",
                           "This invoice was drafted from a forwarded message that tried to inject instructions: "
-                          + worst["message"]))
+                          + worst["message"], "Drafted from a message with injected instructions"))
     return flags

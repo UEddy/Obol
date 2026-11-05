@@ -108,7 +108,7 @@ Each row is an attack that hits invoicing in practice, how Obol responds, and th
 | T16 | **Key leakage through errors or output** | Obol reads `STRIPE_API_KEY` only via Hermes's secret route; anything key-shaped is scrubbed from Stripe error messages | `tests/test_stripe_client.py::test_key_never_appears_in_errors_or_reprs` |
 | T17 | **A broken check silently hiding the prompt** | A failing risk check still shows the approval prompt, marked incomplete; a failing hook blocks the call | `tests/test_gate.py::test_flags_shown_and_broken_checks_do_not_hide_prompt`, `tests/test_risk.py::test_stripe_failures_degrade_to_info` |
 | G1 | **Another plugin spends without asking** (a wallet or card tool the model calls on its own) | With Guard on, each call to a guarded tool needs its own approval; the real dispatch path fails closed when nobody can approve | `tests/test_guard_real_plugin.py::test_guarded_call_needs_its_own_approval`, `tests/test_guard_real_plugin.py::test_real_dispatch_blocks_when_nobody_can_approve` |
-| G2 | **Indirect injection drives a spend** (a fetched page or email tells the agent to pay someone) | Guard scans the session's context, including other tools' outputs, and shows what it found in the spend's approval prompt | `tests/test_guard_real_plugin.py::test_injection_in_an_earlier_tool_output_reaches_the_prompt`, `tests/test_guard.py::test_context_injection_found_in_tool_output` |
+| G2 | **Indirect injection drives a spend** (a fetched page or email tells the agent to pay someone) | Guard scans your message and other tools' outputs from this turn and the one before, and shows each finding once in the spend's approval prompt. The assistant's own replies, Obol's outputs and Hermes's tool and skill documentation are not counted, so reporting an attack doesn't flag later spends | `tests/test_guard_real_plugin.py::test_injection_in_an_earlier_tool_output_reaches_the_prompt`, `tests/test_guard.py::test_context_injection_found_in_tool_output`, `tests/test_guard_real_plugin.py::test_context_counts_for_this_turn_and_the_next_only`, `tests/test_guard_real_plugin.py::test_context_ignores_assistant_replies_and_tool_documentation`, `tests/test_guard_real_plugin.py::test_repeated_context_findings_are_shown_once` |
 | G3 | **Address poisoning and unusual amounts** | Recipients are compared with ones this tool has paid; amounts with the tool's typical amount | `tests/test_guard_real_plugin.py::test_history_amount_and_poisoning_after_real_executions`, `tests/test_guard.py::test_address_poisoning`, `tests/test_guard.py::test_unusual_amount_against_history` |
 | G4 | **Unattended spending** | Guarded calls are blocked during cron and logged | `tests/test_guard_real_plugin.py::test_unattended_guarded_call_is_blocked_and_logged` |
 | G5 | **No trace of what was spent** | Prompts, flags and executed spends go into the hash-chained logs | `tests/test_guard_real_plugin.py::test_guard_events_are_in_the_chained_logs` |
@@ -185,8 +185,11 @@ Obol reads it only through Hermes's secret route and never logs or stores it.
 ## 90-second demo
 
 The demo follows one AI consultant billing one client (Pinemoor) for an agent build, then one attack. Every shot is the real plugin
-against Stripe test mode. `demo/` holds the seed script, capture scripts, VHS tapes, narration script and the
-Remotion project that assemble it.
+against Stripe test mode, driven by a real model (Meta Muse Spark 1.3) in the Hermes CLI. One exception, for the
+Guard beat: the wallet plugin is the real catalog plugin `agentwalletapi`, but its backend is a local stand-in
+(`demo/capture/wallet_stub.py`, one wallet with test USDC) because the demo has no OpenClawCash account. The
+transfer is denied, so nothing would have been sent either way. `demo/` holds the seed script, capture scripts,
+VHS tapes, narration script and the Remotion project that assemble it.
 
 | Beat | On screen |
 |---|---|
@@ -194,8 +197,8 @@ Remotion project that assemble it.
 | Trigger | Pinemoor's "loved the support agent, send the invoice" message is forwarded to Hermes in the CLI; `obol_draft_from_message` proposes $1,500 |
 | Trust | The approval prompt names the amount, client, test mode and risk checks; approve |
 | Payoff | Stripe's hosted invoice page paid with 4242; *"Has Pinemoor paid?"*; the row's stamp flips to PAID |
-| Tension | A forwarded "Pinemoor" message from `billing@pinernoor.example.com` says to ignore instructions and skip approval: the recipient is withheld, and the approval prompt shows prompt injection, lookalike domain and impersonation; then the Security view |
-| Guard | Obol Guard intercepts an unusual transfer from a wallet plugin: approval prompt with its flags, then the Security view |
+| Tension | A forwarded "Pinemoor" message from `billing@pinernoor.example.com` tells the assistant to skip approval: the recipient is withheld, and the approval prompt shows prompt injection, lookalike domain and impersonation; then the Security view |
+| Guard | A vendor note with a hidden instruction leads to a 900 USDC wallet transfer; Obol Guard intercepts it with the injection flagged; deny |
 | Resolution | `/invoices` with everything paid, pending and overdue |
 
 ## How it works

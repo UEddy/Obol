@@ -46,11 +46,16 @@ def describe_existing(tool_name: str, invoice_id: str, row: Optional[dict]) -> s
 
 
 def format_flags(flags: list[dict]) -> str:
+    """Flags for an approval prompt: one headline each, so they fit Hermes's prompt box. The full detail of
+    every flag is in the Security tab and ``hermes obol ledger``."""
     if not flags:
         return "Risk checks: none raised."
-    lines = ["RISK CHECKS:"]
+    lines = ["RISK CHECKS (details in the Security tab):"]
     for f in flags:
-        lines.append(f"  [{str(f.get('severity', 'info')).upper()}] {f.get('message')}")
+        text = f.get("short") or str(f.get("message"))
+        if len(text) > 110:
+            text = text[:109] + "…"
+        lines.append(f"[{str(f.get('severity', 'info')).upper()}] {text}")
     return "\n".join(lines)
 
 

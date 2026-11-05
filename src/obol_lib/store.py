@@ -70,7 +70,12 @@ CREATE TABLE IF NOT EXISTS guard_spends (
 CREATE TABLE IF NOT EXISTS guard_context (
     session TEXT NOT NULL,
     at      INTEGER NOT NULL,
-    flags   TEXT NOT NULL
+    flags   TEXT NOT NULL,
+    turn    INTEGER NOT NULL DEFAULT 0
+);
+CREATE TABLE IF NOT EXISTS guard_turns (
+    session TEXT PRIMARY KEY,
+    turn    INTEGER NOT NULL
 );
 CREATE TABLE IF NOT EXISTS security_links (
     ref        TEXT NOT NULL,
@@ -153,6 +158,8 @@ class Store:
             for col, typ in PAYMENT_COLUMNS:
                 if col not in inv_cols:
                     self._conn.execute(f"ALTER TABLE invoices ADD COLUMN {col} {typ}")
+            if "turn" not in {r[1] for r in self._conn.execute("PRAGMA table_info(guard_context)")}:
+                self._conn.execute("ALTER TABLE guard_context ADD COLUMN turn INTEGER NOT NULL DEFAULT 0")
             for table in CHAINED:  # upgrade older databases, then seal any unhashed rows in order
                 cols = {r[1] for r in self._conn.execute(f"PRAGMA table_info({table})")}
                 for col in ("prev_hash", "hash"):
@@ -375,22 +382,39 @@ class Store:
     def guard_history(self, tool: str, limit: int = 200) -> list[dict]:
         return self._rows("SELECT * FROM guard_spends WHERE tool = ? ORDER BY seq DESC LIMIT ?", (tool, limit))
 
+    def start_guard_turn(self, session: str) -> int:
+        """Mark the start of a user turn; Guard context older than the previous turn stops counting."""
+        if not session:
+            return 0
+        with self._lock:
+            self._conn.execute("INSERT INTO guard_turns (session, turn) VALUES (?, 1) "
+                               "ON CONFLICT(session) DO UPDATE SET turn = turn + 1", (session,))
+            self._conn.commit()
+            return int(self._conn.execute("SELECT turn FROM guard_turns WHERE session = ?", (session,)).fetchone()[0])
+
+    def _guard_turn(self, session: str) -> int:
+        row = self._conn.execute("SELECT turn FROM guard_turns WHERE session = ?", (session,)).fetchone()
+        return int(row[0]) if row else 0
+
     def add_guard_context(self, session: str, flags: list[dict]) -> None:
         if not session or not flags:
             return
         now = int(time.time())
         with self._lock:
             self._conn.execute("DELETE FROM guard_context WHERE at < ?", (now - 6 * 3600,))
-            self._conn.execute("INSERT INTO guard_context (session, at, flags) VALUES (?, ?, ?)",
-                               (session, now, json.dumps(flags)))
+            self._conn.execute("INSERT INTO guard_context (session, at, flags, turn) VALUES (?, ?, ?, ?)",
+                               (session, now, json.dumps(flags), self._guard_turn(session)))
             self._conn.commit()
 
-    def guard_context(self, session: str, within: int = 6 * 3600) -> list[dict]:
+    def guard_context(self, session: str, within: int = 6 * 3600, turns: int = 2) -> list[dict]:
+        """Findings from this turn and the one before (where a spend is usually set up, then confirmed)."""
         if not session:
             return []
+        with self._lock:
+            current = self._guard_turn(session)
         out: list[dict] = []
-        for r in self._rows("SELECT flags FROM guard_context WHERE session = ? AND at >= ? ORDER BY at",
-                            (session, int(time.time()) - within)):
+        for r in self._rows("SELECT flags FROM guard_context WHERE session = ? AND at >= ? AND turn > ? ORDER BY at",
+                            (session, int(time.time()) - within, current - turns)):
             out.extend(json.loads(r["flags"]))
         return out
 

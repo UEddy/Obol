@@ -118,7 +118,7 @@ def _guard_gate(ctx: Any, tool_name: str, args: dict, kwargs: dict) -> Any:
             store.record_security("guard_unattended", "high", "blocked", msg, ref=guard.new_ref(tool_name))
             return {"action": "block", "message": msg}
         history = store.guard_history(tool_name)
-        flags = list(store.guard_context(_session_key(kwargs)))
+        flags = list(reversed(store.guard_context(_session_key(kwargs))))   # newest first
         flags += guard.scan_context([("this call's arguments", guard.history_text(args))])
         flags += guard.amount_findings(info["amount"], [h["amount"] for h in history if h["amount"] is not None],
                                        settings.guard_amount_multiplier, settings.guard_min_history)
@@ -136,12 +136,19 @@ def _guard_gate(ctx: Any, tool_name: str, args: dict, kwargs: dict) -> Any:
 
 
 def _dedupe(flags: list[dict]) -> list[dict]:
-    seen, out = set(), []
-    for f in flags:
-        key = (f.get("check"), f.get("message"))
-        if key not in seen:
-            seen.add(key)
-            out.append(f)
+    """One flag per finding, newest context first, at most MAX_CONTEXT_FLAGS context flags."""
+    seen, out, context = set(), [], 0
+    for f in sorted(flags, key=lambda f: f.get("check") != "guard_injection"):
+        msg = str(f.get("message"))
+        key = (f.get("check"), msg.split("): ", 1)[-1] if f.get("check") == "guard_injection" else msg)
+        if key in seen:
+            continue
+        if f.get("check") == "guard_injection":
+            if context >= guard.MAX_CONTEXT_FLAGS:
+                continue
+            context += 1
+        seen.add(key)
+        out.append(f)
     return out
 
 
@@ -152,6 +159,8 @@ def _make_guard_observers(ctx: Any) -> tuple[Callable[..., Any], Callable[..., A
             return None
         try:
             store = runtime.store()
+            if not guard.matches(tool_name, settings.guard_tools) and not guard.context_source_counts(tool_name):
+                return None
             if guard.matches(tool_name, settings.guard_tools):
                 if status in ("ok", "", None):
                     info = guard.extract(args if isinstance(args, dict) else {})
@@ -168,11 +177,11 @@ def _make_guard_observers(ctx: Any) -> tuple[Callable[..., Any], Callable[..., A
         if _guard_settings(ctx) is None:
             return None
         try:
-            texts = [("your message", user_message or "")]
-            for m in (conversation_history or [])[-8:]:
-                if isinstance(m, dict) and isinstance(m.get("content"), str):
-                    texts.append((f"earlier {m.get('role', 'message')}", m["content"]))
-            runtime.store().add_guard_context(_session_key(kwargs), guard.scan_context(texts))
+            # Tool outputs are scanned as they arrive (after_tool); the assistant's own replies are not
+            # context, since they quote attacks when reporting them.
+            store, session = runtime.store(), _session_key(kwargs)
+            store.start_guard_turn(session)
+            store.add_guard_context(session, guard.scan_context([("your message", user_message or "")]))
         except Exception:
             logger.exception("obol: Guard pre_llm_call observer failed")
         return None  # observer only: never injects context or blocks the turn
