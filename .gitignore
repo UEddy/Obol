@@ -10,4 +10,4 @@ video/out/
 # demo outputs and local capture state
 demo/remotion/out/
 demo/captures/
-demo/.hermes-home/
+demo/.hermes-home/   # (use OBOL_DEMO_HOME outside the repo instead; Hermes copies its bundled skills into a home)
