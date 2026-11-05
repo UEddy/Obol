@@ -7,8 +7,10 @@ last 30 days of Stripe events.
 Checks (each one turned off by setting its config value to 0):
 * duplicate        same customer, same amount and currency, created within N days
 * unusual_amount   amount above N x the customer's average invoice (needs enough history)
-* contact_change   the customer's email or payment details changed in Stripe within N days,
-                   or the same client name was billed before at a different email
+* contact_change   the customer's email or payment details changed in Stripe within N days
+* impersonation    a client name you've billed before, now at a domain you've never used for them
+* lookalike_domain the email's domain imitates one you've billed (acrne.example vs acme.example)
+* prompt_injection the invoice was drafted from a forwarded message that tried to inject instructions
 """
 
 from __future__ import annotations
@@ -18,7 +20,7 @@ import json
 import time
 from typing import Any, Optional
 
-from . import money
+from . import money, security
 from .service import Settings
 from .store import Store
 from .stripe_client import StripeClient, StripeError
@@ -107,12 +109,6 @@ def assess(store: Store, settings: Settings, *, customer_email: Optional[str], c
     # contact / payment details change ----------------------------------------------------------
     days = settings.risk_contact_change_days
     if days:
-        if customer_name:
-            known = store.emails_for_name(customer_name) - {email}
-            if known:
-                flags.append(flag("contact_change", "high",
-                                  f"{customer_name} was billed before at {', '.join(sorted(known))}, not {email}. "
-                                  "Confirm the new address with the client through a channel you already trust."))
         if client is not None and customer:
             try:
                 events = client.list_events(types=["customer.updated"], created_gte=int(now - days * 86400)).get("data") or []
@@ -133,4 +129,24 @@ def assess(store: Store, settings: Settings, *, customer_email: Optional[str], c
                                   f"This customer's {', '.join(c.replace('_', ' ') for c in changed)} changed in Stripe "
                                   f"{_ago(now - (ev.get('created') or now))}{detail}. Verify before sending."))
                 break
+    # impersonation: a client you know, writing from a domain you've never billed for them ---------
+    if settings.risk_impersonation and customer_name:
+        known = store.emails_for_name(customer_name) - {email}
+        known_domains = {e.rsplit("@", 1)[1] for e in known if "@" in e}
+        if known and email.rsplit("@", 1)[-1] not in known_domains:
+            flags.append(flag("impersonation", "high",
+                              f"{customer_name} was billed before at {', '.join(sorted(known))}, not {email}. "
+                              "Confirm the new address with the client through a channel you already trust."))
+
+    # lookalike domains ---------------------------------------------------------------------------
+    if settings.risk_lookalike_domains:
+        flags.extend(security.lookalike_findings(email, store.all_emails() - {email}))
+
+    # carried over from message intake (a prompt-injection attempt in the forwarded message) -------
+    carried = store.recent_intake_flags([email, customer_name or ""])
+    if any(f.get("check") == "prompt_injection" for f in carried):
+        worst = next(f for f in carried if f.get("check") == "prompt_injection")
+        flags.append(flag("prompt_injection", "high",
+                          "This invoice was drafted from a forwarded message that tried to inject instructions: "
+                          + worst["message"]))
     return flags

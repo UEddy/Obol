@@ -48,6 +48,21 @@ CREATE TABLE IF NOT EXISTS invoice_risk (
     flags       TEXT NOT NULL,
     assessed_at INTEGER NOT NULL
 );
+CREATE TABLE IF NOT EXISTS security_events (
+    seq        INTEGER PRIMARY KEY AUTOINCREMENT,
+    at         INTEGER NOT NULL,
+    check_name TEXT NOT NULL,
+    severity   TEXT NOT NULL,
+    outcome    TEXT NOT NULL,
+    invoice_id TEXT,
+    ref        TEXT,
+    detail     TEXT
+);
+CREATE TABLE IF NOT EXISTS intake_flags (
+    key   TEXT NOT NULL,
+    at    INTEGER NOT NULL,
+    flags TEXT NOT NULL
+);
 CREATE TABLE IF NOT EXISTS pending_risk (
     fingerprint TEXT PRIMARY KEY,
     flags       TEXT NOT NULL,
@@ -179,6 +194,47 @@ class Store:
             self._conn.execute("DELETE FROM pending_risk WHERE fingerprint = ?", (fingerprint,))
             self._conn.commit()
         return json.loads(rows[0]["flags"])
+
+    # -- security events ------------------------------------------------------------------------
+    def record_security(self, check: str, severity: str, outcome: str, detail: str,
+                        invoice_id: Optional[str] = None, ref: Optional[str] = None, at: Optional[int] = None) -> None:
+        """outcome: 'flagged' (shown in an approval prompt), 'withheld' (intake refused to auto-fill),
+        'blocked' (the hook refused the call)."""
+        with self._lock:
+            self._conn.execute(
+                "INSERT INTO security_events (at, check_name, severity, outcome, invoice_id, ref, detail) "
+                "VALUES (?, ?, ?, ?, ?, ?, ?)",
+                (int(at or time.time()), check, severity, outcome, invoice_id, ref, detail[:500]))
+            self._conn.commit()
+
+    def link_security_ref(self, ref: str, invoice_id: str) -> None:
+        with self._lock:
+            self._conn.execute("UPDATE security_events SET invoice_id = ? WHERE ref = ? AND invoice_id IS NULL",
+                               (invoice_id, ref))
+            self._conn.commit()
+
+    def security_events(self, limit: int = 100) -> list[dict]:
+        return self._rows("SELECT * FROM security_events ORDER BY seq DESC LIMIT ?", (max(1, min(limit, 1000)),))
+
+    def stash_intake_flags(self, keys: Iterable[str], flags: list[dict]) -> None:
+        now = int(time.time())
+        with self._lock:
+            self._conn.execute("DELETE FROM intake_flags WHERE at < ?", (now - 6 * 3600,))
+            for k in {k.strip().lower() for k in keys if k and k.strip()}:
+                self._conn.execute("INSERT INTO intake_flags (key, at, flags) VALUES (?, ?, ?)", (k, now, json.dumps(flags)))
+            self._conn.commit()
+
+    def recent_intake_flags(self, keys: Iterable[str], within: int = 6 * 3600) -> list[dict]:
+        ks = [k.strip().lower() for k in keys if k and k.strip()]
+        if not ks:
+            return []
+        rows = self._rows(f"SELECT flags FROM intake_flags WHERE at >= ? AND key IN ({','.join('?' for _ in ks)}) "
+                          "ORDER BY at DESC LIMIT 1", [int(time.time()) - within, *ks])
+        return json.loads(rows[0]["flags"]) if rows else []
+
+    def all_emails(self) -> set[str]:
+        rows = self._rows("SELECT DISTINCT lower(customer_email) AS e FROM invoices WHERE customer_email IS NOT NULL")
+        return {r["e"] for r in rows if r["e"]}
 
     def emails_for_name(self, name: str) -> set[str]:
         """Billing emails previously used for a client name (case-insensitive)."""

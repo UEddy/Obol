@@ -63,9 +63,12 @@ def test_unusual_amount_needs_history(fake, client, store):
 def test_same_name_new_email(fake, client, store):
     service.create_invoice(client, store, S, ACME)
     flags = _assess(store, client, email="payments@acme-billing.test", amount=5000)
-    assert checks(flags) == {"contact_change"} and "billing@acme.test" in flags[0]["message"]
-    assert _assess(store, client, email="payments@acme-billing.test", amount=5000,
-                   settings=dataclasses.replace(S, risk_contact_change_days=0)) == []
+    assert checks(flags) == {"impersonation", "lookalike_domain"}
+    assert "billing@acme.test" in next(f["message"] for f in flags if f["check"] == "impersonation")
+    off = dataclasses.replace(S, risk_impersonation=False, risk_lookalike_domains=False)
+    assert _assess(store, client, email="payments@acme-billing.test", amount=5000, settings=off) == []
+    # same organisation, another mailbox: not impersonation
+    assert _assess(store, client, email="ap@acme.test", amount=5000) == []
 
 
 def test_stripe_customer_updated_event(fake, client, store):

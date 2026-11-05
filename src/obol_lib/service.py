@@ -31,6 +31,8 @@ class Settings:
     risk_amount_multiplier: float = 3.0
     risk_amount_min_history: int = 3
     risk_contact_change_days: int = 14
+    risk_lookalike_domains: bool = True
+    risk_impersonation: bool = True
 
 
 class ValidationError(ValueError):

@@ -56,4 +56,14 @@ config_schema:
     type: int
     default: 14
     label: "Risk check: recent contact/payment change (days)"
-    description: "Flag when the customer's email or payment details changed in Stripe this recently, or when the same client name was billed at a different email. 0 turns it off. Max 30 (Stripe keeps 30 days of events)."
+    description: "Flag when the customer's email or payment details changed in Stripe this recently. 0 turns it off. Max 30 (Stripe keeps 30 days of events)."
+  risk_lookalike_domains:
+    type: bool
+    default: true
+    label: "Risk check: lookalike domains"
+    description: "Flag a billing email whose domain imitates one you've billed (acrne.example vs acme.example)."
+  risk_impersonation:
+    type: bool
+    default: true
+    label: "Risk check: known client, new domain"
+    description: "Flag a client name you've billed before when the email is at a domain you've never used for them."

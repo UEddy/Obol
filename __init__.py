@@ -78,9 +78,14 @@ def _make_gate(ctx: Any) -> Callable[..., Any]:
                 inv_id = str(args.get("invoice_id"))
                 return gate_policy.describe_existing(tool_name, inv_id, runtime.store().get(inv_id))
 
-            return gate_policy.decide(tool_name, args, mode=mode, allow_live=settings.allow_live,
-                                      unattended=_unattended(ctx), summary=summary,
-                                      assess=lambda: _assess(ctx, settings, tool_name, args))
+            unattended = _unattended(ctx)
+            directive = gate_policy.decide(tool_name, args, mode=mode, allow_live=settings.allow_live,
+                                           unattended=unattended, summary=summary,
+                                           assess=lambda: _assess(ctx, settings, tool_name, args))
+            if directive and directive.get("action") == "block":
+                check = "unattended_write" if unattended else "live_key"
+                runtime.store().record_security(check, "high", "blocked", f"{tool_name}: {directive['message']}")
+            return directive
         except Exception:
             logger.exception("obol: approval gate failed; blocking the call")
             return {"action": "block", "message": f"Obol could not check {tool_name} safely, so nothing was sent."}
@@ -109,6 +114,7 @@ def _assess(ctx: Any, settings: service.Settings, tool_name: str, args: dict) ->
             fp = risk.create_fingerprint(args, settings.default_currency)
             if fp:
                 store.stash_pending_risk(fp, flags)
+            _record_flags(store, tool_name, flags, ref=fp)
             return flags
         inv_id = service.invoice_id(args.get("invoice_id"))
         row = store.get(inv_id)
@@ -121,6 +127,7 @@ def _assess(ctx: Any, settings: service.Settings, tool_name: str, args: dict) ->
                             customer_name=row.get("customer_name"), amount_minor=row["amount_due"],
                             currency=row["currency"], client=client, exclude_invoice_id=inv_id)
         store.set_risk(inv_id, flags)
+        _record_flags(store, tool_name, flags, invoice_id=inv_id)
         return flags
     finally:
         if client is not None:
@@ -128,11 +135,25 @@ def _assess(ctx: Any, settings: service.Settings, tool_name: str, args: dict) ->
 
 
 # -- tools --------------------------------------------------------------------------------------
+SECURITY_CHECKS = frozenset({"prompt_injection", "lookalike_domain", "impersonation", "contact_change", "duplicate",
+                             "unusual_amount"})
+
+
+def _record_flags(store: Any, tool_name: str, flags: list[dict], *, invoice_id: str | None = None,
+                  ref: str | None = None) -> None:
+    for f in flags:
+        if f.get("check") in SECURITY_CHECKS and f.get("severity") in ("high", "medium"):
+            store.record_security(f["check"], f["severity"], "flagged", f"{tool_name}: {f.get('message', '')}",
+                                  invoice_id=invoice_id, ref=ref)
+
+
 def _create_with_risk(client: Any, store: Any, settings: service.Settings, args: dict) -> dict:
     """Create the invoice, then attach the findings the approval hook showed for this exact call."""
     result = service.create_invoice(client, store, settings, args)
     fp = risk.create_fingerprint(args, settings.default_currency)
     flags = store.pop_pending_risk(fp) if fp else None
+    if fp:
+        store.link_security_ref(fp, result["invoice"]["invoice_id"])
     if flags is not None:
         store.set_risk(result["invoice"]["invoice_id"], flags)
         result["risk_flags"] = flags

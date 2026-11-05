@@ -43,6 +43,8 @@ def settings_from(getter: Callable[[str, Any], Any]) -> Settings:
         risk_amount_multiplier=_number(getter, "risk_amount_multiplier", d.risk_amount_multiplier, 0, 1000, float),
         risk_amount_min_history=_number(getter, "risk_amount_min_history", d.risk_amount_min_history, 1, 100, int),
         risk_contact_change_days=_number(getter, "risk_contact_change_days", d.risk_contact_change_days, 0, 30, int),
+        risk_lookalike_domains=getter("risk_lookalike_domains", d.risk_lookalike_domains) is not False,
+        risk_impersonation=getter("risk_impersonation", d.risk_impersonation) is not False,
     )
 
 
