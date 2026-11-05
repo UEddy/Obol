@@ -1,17 +1,59 @@
 {
- "voice": "ElevenLabs \"Brian\" (premade), model eleven_v3, stability 0.5, similarity 0.75, style 0.15, speaker boost; Obol typed as \"Oh-bol\"",
+ "voice": "ElevenLabs \"Archer - Conversational\" (eleven_v4), one take split by demo/audio/split_take.py",
  "beats": [
-  {"beat": "1 What it is", "audio": "audio/scene1.mp3", "max": 6,
-   "captions": ["Obol lets Hermes send your Stripe invoices,", "and stops scams before money moves."]},
-  {"beat": "2 Send an invoice", "audio": "audio/scene2.mp3", "max": 18,
-   "captions": ["Forward a client's message.", "Obol drafts the invoice.", "Nothing is sent until you approve."]},
-  {"beat": "3 Get paid", "audio": "audio/scene3.mp3", "max": 10,
-   "captions": ["Your client pays.", "Hermes tells you."]},
-  {"beat": "4 Stop a scam", "audio": "audio/scene4.mp3", "max": 16,
-   "captions": ["A scammer pretends to be your client.", "Obol catches it."]},
-  {"beat": "5 See everything", "audio": "audio/scene5.mp3", "max": 7,
-   "captions": ["Paid, open and overdue, in one command."]},
-  {"beat": "6 Close", "audio": "audio/scene6.mp3", "max": 5,
-   "captions": ["Obol, a security-first invoicing plugin for Hermes Agent."]}
+  {
+   "beat": "1 What it is",
+   "audio": "audio/scene1.mp3",
+   "captions": [
+    "Obol lets Hermes send your invoices from any chat,",
+    "and stops scams before money moves."
+   ]
+  },
+  {
+   "beat": "2 Send an invoice",
+   "audio": "audio/scene2.mp3",
+   "captions": [
+    "Forward a client's message.",
+    "Obol drafts the invoice.",
+    "Nothing is sent until you approve."
+   ]
+  },
+  {
+   "beat": "3 Get paid",
+   "audio": "audio/scene3.mp3",
+   "captions": [
+    "Your client pays.",
+    "Hermes tells you."
+   ]
+  },
+  {
+   "beat": "4 Works anywhere",
+   "audio": "audio/scene4.mp3",
+   "captions": [
+    "Works in Telegram, WhatsApp, Slack, email and your terminal."
+   ]
+  },
+  {
+   "beat": "5 Stop a scam",
+   "audio": "audio/scene5.mp3",
+   "captions": [
+    "A scammer pretends to be your client.",
+    "Obol catches it."
+   ]
+  },
+  {
+   "beat": "6 See everything",
+   "audio": "audio/scene6.mp3",
+   "captions": [
+    "Paid, open and overdue, in one command."
+   ]
+  },
+  {
+   "beat": "7 Close",
+   "audio": "audio/scene7.mp3",
+   "captions": [
+    "Obol, a security-first invoicing plugin for Hermes Agent."
+   ]
+  }
  ]
 }
