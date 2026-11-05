@@ -3,6 +3,7 @@ import { Composition, registerRoot, Series } from "remotion";
 import { CLIPS } from "./clips";
 import { End, Fan, Flow, Footage, Intro } from "./scenes";
 import { FPS, H, W } from "./theme";
+import { Preview, PREVIEW_SECONDS } from "./Preview";
 
 // Seconds per scene. Total must stay under 90 s (hackathon limit); currently 78 s.
 const S = { intro: 6, fan: 7, chat: 20, pay: 15, dashboard: 15, flow: 8, end: 7 };
@@ -28,7 +29,10 @@ const ObolDemo: React.FC = () => (
 );
 
 const Root: React.FC = () => (
-  <Composition id="ObolDemo" component={ObolDemo} durationInFrames={f(TOTAL)} fps={FPS} width={W} height={H} />
+  <>
+    <Composition id="ObolDemo" component={ObolDemo} durationInFrames={f(TOTAL)} fps={FPS} width={W} height={H} />
+    <Composition id="Preview" component={Preview} durationInFrames={f(PREVIEW_SECONDS)} fps={FPS} width={W} height={H} />
+  </>
 );
 
 registerRoot(Root);
