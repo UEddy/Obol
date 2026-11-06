@@ -70,9 +70,8 @@ with a real bot for the demo.
 |---|---|
 | Stripe | Supported |
 | Bank transfer with PDF invoices | Supported: no provider account, no network |
-| PayPal, Paystack, Flutterwave | Planned |
 
-The approvals, scam checks and logs sit in front of the provider and don't depend on it.
+More providers planned. The approvals, scam checks and logs sit in front of the provider and don't depend on it.
 
 **Bank-transfer mode.** Set `provider: bank_transfer` and your bank details. Obol keeps the invoices itself:
 approving an invoice issues it with a number (`INV-0001`), a due date and a PDF carrying your bank details and the
@@ -220,7 +219,6 @@ demo/             demo video sources
 
 ## Roadmap
 
-- PayPal, Paystack and Flutterwave, with the same approvals and checks.
 - Reading bank-transfer payments from a bank feed instead of marking them paid by hand.
 
 ## License
