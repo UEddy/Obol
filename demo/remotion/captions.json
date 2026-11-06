@@ -1,103 +1,144 @@
 [
  {
   "beat": "1 What it is",
-  "duration": 5.42,
+  "duration": 6.81,
   "cards": [
    {
-    "text": "Obol lets Hermes send your invoices from any chat,",
+    "text": "This is Obol, a plugin that lets Hermes Agent handle your invoices,",
     "start": 0.0,
-    "end": 2.86
+    "end": 5.36
    },
    {
-    "text": "and stops scams before money moves.",
-    "start": 2.86,
-    "end": 5.42
+    "text": "right from your chats.",
+    "start": 5.36,
+    "end": 6.81
    }
   ]
  },
  {
   "beat": "2 Send an invoice",
-  "duration": 5.71,
+  "duration": 12.22,
   "cards": [
    {
-    "text": "Forward a client's message.",
+    "text": "When a client says “send me the invoice,”",
     "start": 0.0,
-    "end": 1.96
+    "end": 2.94
    },
    {
-    "text": "Obol drafts the invoice.",
-    "start": 1.96,
-    "end": 3.8
+    "text": "just forward the message to Hermes.",
+    "start": 2.94,
+    "end": 5.22
    },
    {
-    "text": "Nothing is sent until you approve.",
-    "start": 3.8,
-    "end": 5.71
-   }
-  ]
- },
- {
-  "beat": "3 Get paid",
-  "duration": 2.34,
-  "cards": [
-   {
-    "text": "Your client pays.",
-    "start": 0.0,
-    "end": 1.38
+    "text": "It reads it and drafts the invoice:",
+    "start": 5.22,
+    "end": 8.04
    },
    {
-    "text": "Hermes tells you.",
-    "start": 1.38,
-    "end": 2.34
+    "text": "who to bill, what for, how much, and when it's due.",
+    "start": 8.04,
+    "end": 12.22
    }
   ]
  },
  {
-  "beat": "4 Works anywhere",
-  "duration": 4.01,
+  "beat": "3 Approve",
+  "duration": 6.45,
   "cards": [
    {
-    "text": "Works in Telegram, WhatsApp, Slack, email and your terminal.",
+    "text": "No invoice goes out until you approve it.",
     "start": 0.0,
-    "end": 4.01
-   }
-  ]
- },
- {
-  "beat": "5 Stop a scam",
-  "duration": 3.47,
-  "cards": [
-   {
-    "text": "A scammer pretends to be your client.",
-    "start": 0.0,
-    "end": 2.46
+    "end": 3.06
    },
    {
-    "text": "Obol catches it.",
-    "start": 2.46,
-    "end": 3.47
+    "text": "One tap, and your client gets a secure payment link.",
+    "start": 3.06,
+    "end": 6.45
    }
   ]
  },
  {
-  "beat": "6 See everything",
-  "duration": 3.2,
+  "beat": "4 Get paid",
+  "duration": 4.88,
   "cards": [
    {
-    "text": "Paid, open and overdue, in one command.",
+    "text": "They pay by card.",
     "start": 0.0,
-    "end": 3.2
+    "end": 1.48
+   },
+   {
+    "text": "Ask Hermes “have they paid?”",
+    "start": 1.48,
+    "end": 3.68
+   },
+   {
+    "text": "and it checks for you.",
+    "start": 3.68,
+    "end": 4.88
    }
   ]
  },
  {
-  "beat": "7 Close",
-  "duration": 3.89,
+  "beat": "5 Works anywhere",
+  "duration": 5.46,
   "cards": [
    {
-    "text": "Obol, a security-first invoicing plugin for Hermes Agent.",
+    "text": "It works in Telegram, WhatsApp, Slack, email, or your terminal.",
     "start": 0.0,
-    "end": 3.89
+    "end": 5.46
+   }
+  ]
+ },
+ {
+  "beat": "6 Stop a scam",
+  "duration": 14.83,
+  "cards": [
+   {
+    "text": "Now the dangerous part.",
+    "start": 0.0,
+    "end": 1.98
+   },
+   {
+    "text": "A scammer copies your client's email address,",
+    "start": 1.98,
+    "end": 4.92
+   },
+   {
+    "text": "changes one letter,",
+    "start": 4.92,
+    "end": 6.34
+   },
+   {
+    "text": "and asks for invoices to go to a new address, without your approval.",
+    "start": 6.34,
+    "end": 11.68
+   },
+   {
+    "text": "Hermes spots the fake address and blocks it.",
+    "start": 11.68,
+    "end": 14.83
+   }
+  ]
+ },
+ {
+  "beat": "7 See everything",
+  "duration": 5.17,
+  "cards": [
+   {
+    "text": "Type slash invoices to see what's paid, open and overdue.",
+    "start": 0.0,
+    "end": 5.17
+   }
+  ]
+ },
+ {
+  "beat": "8 Close",
+  "duration": 5.02,
+  "cards": [
+   {
+    "text": "Obol. Invoicing for Hermes Agent, with security built in.",
+    "start": 0.0,
+    "end": 5.02
    }
   ]
  }

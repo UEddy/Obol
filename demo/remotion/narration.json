@@ -1,58 +1,71 @@
 {
- "voice": "ElevenLabs \"Archer - Conversational\" (eleven_v4), one take split by demo/audio/split_take.py",
+ "voice": "ElevenLabs \"Archer - Conversational\" (eleven_v4), one take (demo/audio/takes4/full.mp3) built into scenes by demo/audio/build_vo.py",
  "beats": [
   {
    "beat": "1 What it is",
    "audio": "audio/scene1.mp3",
    "captions": [
-    "Obol lets Hermes send your invoices from any chat,",
-    "and stops scams before money moves."
+    "This is Obol, a plugin that lets Hermes Agent handle your invoices,",
+    "right from your chats."
    ]
   },
   {
    "beat": "2 Send an invoice",
    "audio": "audio/scene2.mp3",
    "captions": [
-    "Forward a client's message.",
-    "Obol drafts the invoice.",
-    "Nothing is sent until you approve."
+    "When a client says “send me the invoice,”",
+    "just forward the message to Hermes.",
+    "It reads it and drafts the invoice:",
+    "who to bill, what for, how much, and when it's due."
    ]
   },
   {
-   "beat": "3 Get paid",
+   "beat": "3 Approve",
    "audio": "audio/scene3.mp3",
    "captions": [
-    "Your client pays.",
-    "Hermes tells you."
+    "No invoice goes out until you approve it.",
+    "One tap, and your client gets a secure payment link."
    ]
   },
   {
-   "beat": "4 Works anywhere",
+   "beat": "4 Get paid",
    "audio": "audio/scene4.mp3",
    "captions": [
-    "Works in Telegram, WhatsApp, Slack, email and your terminal."
+    "They pay by card.",
+    "Ask Hermes “have they paid?”",
+    "and it checks for you."
    ]
   },
   {
-   "beat": "5 Stop a scam",
+   "beat": "5 Works anywhere",
    "audio": "audio/scene5.mp3",
    "captions": [
-    "A scammer pretends to be your client.",
-    "Obol catches it."
+    "It works in Telegram, WhatsApp, Slack, email, or your terminal."
    ]
   },
   {
-   "beat": "6 See everything",
+   "beat": "6 Stop a scam",
    "audio": "audio/scene6.mp3",
    "captions": [
-    "Paid, open and overdue, in one command."
+    "Now the dangerous part.",
+    "A scammer copies your client's email address,",
+    "changes one letter,",
+    "and asks for invoices to go to a new address, without your approval.",
+    "Hermes spots the fake address and blocks it."
    ]
   },
   {
-   "beat": "7 Close",
+   "beat": "7 See everything",
    "audio": "audio/scene7.mp3",
    "captions": [
-    "Obol, a security-first invoicing plugin for Hermes Agent."
+    "Type slash invoices to see what's paid, open and overdue."
+   ]
+  },
+  {
+   "beat": "8 Close",
+   "audio": "audio/scene8.mp3",
+   "captions": [
+    "Obol. Invoicing for Hermes Agent, with security built in."
    ]
   }
  ]
