@@ -1,6 +1,6 @@
 name: obol
 version: 0.1.0
-description: "Security-first Stripe invoicing for builders who bill clients (indie developers, AI consultants, agencies). Hermes drafts invoices (also from forwarded messages), sends Stripe payment links and tracks who has paid, while Obol protects the money path: prompt-injection and lookalike-domain detection, impersonation and duplicate checks, approval on every Stripe write, Radar and dispute visibility, and a hash-chained log. Test mode by default."
+description: "Safe invoicing for freelancers, consultants and agencies who bill clients, from any chat Hermes runs in. Hermes drafts invoices (also from forwarded messages), sends them as Stripe payment links or as bank-transfer PDF invoices with no provider account, and tracks who has paid. Every invoice write needs your approval, with checks for prompt injection, lookalike and impersonated client addresses, duplicates, unusual amounts and changed payout details, plus hash-chained logs. Test mode by default."
 author: UEddy
 requires_hermes: ">=0.22"
 provides_tools:
