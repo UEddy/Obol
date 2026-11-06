@@ -206,7 +206,6 @@ python -m pytest                              # no keys needed
 
 - `STRIPE_API_KEY=sk_test_…` also runs `tests/test_stripe_live.py` (refuses live keys, cleans up after itself).
 - `OBOL_LIVE_LLM=1 OBOL_LIVE_HERMES_HOME=…` runs `tests/test_intake_live.py` against a real model and records the results for `tests/test_intake_recorded.py`.
-- `demo/` holds everything that regenerates the demo video: capture scripts, VHS tapes, the voiceover builder and the Remotion project.
 
 ```text
 __init__.py       registration: tools, approval hook, /invoices, CLI, blueprint, skill
@@ -216,7 +215,6 @@ src/obol_lib/     provider client, invoice service, approval policy, risk checks
 dashboard/        Invoices and Security views (plugin SDK, no build step) and their API
 skills/invoicing/ the obol:invoicing skill
 tests/            234 tests
-demo/             demo video sources
 ```
 
 ## Roadmap

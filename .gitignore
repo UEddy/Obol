@@ -8,8 +8,7 @@ video/out/
 .DS_Store
 
 # demo outputs and local capture state
-demo/remotion/out/
-demo/captures/
-demo/.hermes-home/   # (use OBOL_DEMO_HOME outside the repo instead; Hermes copies its bundled skills into a home)
-demo/remotion/public/captures/
-demo/capture/out/
+# demo video sources and helpers stay local, never in the repo
+demo/
+tests/demo_*.py
+tests/fixtures/demo_*.json
