@@ -72,7 +72,7 @@ def test_stripe_write_asks_for_approval_in_that_chat_and_deny_sends_nothing(herm
         approval.unregister_gateway_notify(key)
     assert len(asked) == 1
     prompt = json.dumps(asked[0])
-    assert "obol_create_invoice" in prompt and "$1,800.00" in prompt and "Stripe TEST mode" in prompt
+    assert "obol_create_invoice" in prompt and "$1,800.00" in prompt and "TEST mode" in prompt
     assert "error" in out and "BLOCKED" in out["error"]
     assert not [c for c in fake.calls if c[0] == "POST"]          # nothing reached Stripe
 

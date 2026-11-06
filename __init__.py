@@ -239,7 +239,7 @@ def _llm_extractor(ctx: Any, sleep: Callable[[float], None] | None = None) -> Ca
 _USAGE = ("Usage: /invoices [open|overdue|paid|draft|sync|help]\n"
           "  /invoices          ledger summary from the local cache\n"
           "  /invoices overdue  only overdue invoices\n"
-          "  /invoices sync     pull the latest from Stripe, then show the ledger")
+          "  /invoices sync     pull the latest from the payment provider, then show the ledger")
 
 
 def _make_command(ctx: Any) -> Callable[..., str]:
@@ -282,8 +282,8 @@ def _make_cli(ctx: Any) -> Callable[[Any], int]:
         status = 0
         key = runtime.api_key()
         mode = key_mode(key)
-        print(f"Stripe key: {mode}" + ("" if mode in ("test", "live") else f" (set {runtime.KEY_ENV})"))
-        print(f"Approval: every Stripe write asks · live mode allowed: {settings.allow_live}")
+        print(f"Payment key: {mode}" + ("" if mode in ("test", "live") else f" (set {runtime.KEY_ENV})"))
+        print(f"Approval: every invoice write asks · live mode allowed: {settings.allow_live}")
         for table, label in (("events", "Activity log"), ("security_events", "Security log")):
             chain = runtime.store().verify_chain(table)
             if chain["ok"]:
@@ -298,7 +298,7 @@ def _make_cli(ctx: Any) -> Callable[[Any], int]:
         except StripeError as exc:
             print(f"✗ {exc}")
             return 1
-        print(f"✓ Stripe reachable, {out['synced']} invoice(s) synced")
+        print(f"✓ Payment provider reachable, {out['synced']} invoice(s) synced")
         if cmd == "sync":
             print(service.ledger_text(runtime.store(), livemode=mode == "live"))
         return status
@@ -329,7 +329,7 @@ def _register_blueprint(ctx: Any) -> None:
     register_bp(
         "overdue-chase",
         title="Chase overdue invoices",
-        description="Every Monday, list overdue Stripe invoices and tell you who to chase. Nothing is sent without you.",
+        description="Every Monday, list overdue invoices and tell you who to chase. Nothing is sent without you.",
         category="work",
         schedule_template="{minute} {hour} * * 1",
         prompt_template=(

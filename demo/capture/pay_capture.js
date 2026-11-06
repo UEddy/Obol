@@ -6,7 +6,7 @@ const { chromium } = require('playwright');
 const fs = require('fs');
 const path = require('path');
 const { execFileSync } = require('child_process');
-const [payUrl, out] = process.argv.slice(2);
+const [payUrl, out, cardNumber = '4242424242424242'] = process.argv.slice(2);   // other Stripe test cards: 4000000000009235 (elevated risk), 4000000000000259 (disputed)
 
 (async () => {
   const dir = path.join(out, 'stripe_frames'); fs.rmSync(dir, { recursive: true, force: true }); fs.mkdirSync(dir, { recursive: true });
@@ -31,7 +31,7 @@ const [payUrl, out] = process.argv.slice(2);
   await page.waitForTimeout(800);
   const num = f.locator('#payment-numberInput'); await num.scrollIntoViewIfNeeded();
   mark('typing');
-  await num.pressSequentially('4242424242424242', { delay: 45 });
+  await num.pressSequentially(cardNumber, { delay: 45 });
   await f.locator('#payment-expiryInput').pressSequentially('1230', { delay: 45 });
   await f.locator('#payment-cvcInput').pressSequentially('123', { delay: 45 });
   const zip = f.locator('#payment-postalCodeInput'); if (await zip.count()) await zip.pressSequentially('94107', { delay: 45 });

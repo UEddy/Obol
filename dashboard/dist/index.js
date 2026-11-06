@@ -33,8 +33,8 @@
 
   function ModeBadge(props) {
     var mode = props.mode;
-    if (mode === "test") return h("span", { className: "obol-badge test", title: "Obol is using a Stripe TEST key. No real money moves." }, "Test mode");
-    if (mode === "live") return h("span", { className: "obol-badge live", title: "Obol is using a Stripe LIVE key." }, "Live");
+    if (mode === "test") return h("span", { className: "obol-badge test", title: "Obol is using a TEST key. No real money moves." }, "Test mode");
+    if (mode === "live") return h("span", { className: "obol-badge live", title: "Obol is using a LIVE key." }, "Live");
     return h("span", { className: "obol-badge missing" }, "Not configured");
   }
 
@@ -45,19 +45,21 @@
       h("div", { className: "obol-kpi-sub obol-mono" }, props.sub));
   }
 
+  var LABEL = { dispute: "Disputed", radar_elevated: "Fraud risk: elevated", radar_highest: "Fraud risk: highest" };
+
   function RiskCell(props) {
     var inv = props.inv || {};
     var flags = (props.flags || []).slice();
     if (inv.disputed) flags.unshift({ check: "dispute", severity: "high", message: "Disputed by the client" + (inv.dispute_reason ? " (" + inv.dispute_reason + ")" : "") });
     if (inv.radar_risk_level === "elevated" || inv.radar_risk_level === "highest")
-      flags.push({ check: "radar_" + inv.radar_risk_level, severity: inv.radar_risk_level === "highest" ? "high" : "medium", message: "Stripe Radar risk: " + inv.radar_risk_level });
+      flags.push({ check: "radar_" + inv.radar_risk_level, severity: inv.radar_risk_level === "highest" ? "high" : "medium", message: "Fraud risk: " + inv.radar_risk_level });
     if (!flags.length) {
-      if (inv.radar_risk_level) return h("span", { className: "obol-risk none", title: "Stripe Radar risk level for this payment" + (inv.radar_risk_score != null ? " (score " + inv.radar_risk_score + ")" : "") }, "Radar " + inv.radar_risk_level);
+      if (inv.radar_risk_level) return h("span", { className: "obol-risk none", title: "Fraud-risk level for this payment" + (inv.radar_risk_score != null ? " (score " + inv.radar_risk_score + ")" : "") }, "Fraud risk: " + inv.radar_risk_level);
       return h("span", { className: "obol-risk none" }, "—");
     }
     var worst = flags.some(function (f) { return f.severity === "high"; }) ? "high" : "medium";
     return h("span", { className: "obol-risk " + worst, title: flags.map(function (f) { return f.message; }).join("\n") },
-      flags.length === 1 ? flags[0].check.replace(/_/g, " ") : flags.length + " flags");
+      flags.length === 1 ? (LABEL[flags[0].check] || flags[0].check.replace(/_/g, " ")) : flags.length + " flags");
   }
 
   function Row(props) {
@@ -93,7 +95,7 @@
   function Empty(props) {
     if (props.mode === "missing" || props.mode === "invalid") {
       return h("div", { className: "obol-empty" },
-        h("b", null, "No Stripe key."),
+        h("b", null, "No payment key."),
         " Set ", h("code", null, "STRIPE_API_KEY"), " to a test key (", h("code", null, "sk_test_…"), ") in Keys, then Sync.");
     }
     return h("div", { className: "obol-empty" }, props.filtered ? "No invoices with this status." :
@@ -146,7 +148,7 @@
           return h("span", { key: t.check }, h("i", { style: { background: LABEL_COLOR[t.check] || "#7a7266" } }), t.label + " · " + t.count);
         }))),
       h("section", { className: "obol-card obol-table-wrap" },
-        data.events.length === 0 ? h("div", { className: "obol-empty" }, h("b", null, "Nothing flagged."), " Every forwarded message and every Stripe write is checked; findings appear here.") :
+        data.events.length === 0 ? h("div", { className: "obol-empty" }, h("b", null, "Nothing flagged."), " Every forwarded message and every invoice write is checked; findings appear here.") :
         h("table", { className: "obol-table" },
           h("thead", null, h("tr", null, ["When", "Threat", "Severity", "What happened", "Detail", "Invoice"].map(function (c, i) { return h("th", { key: i }, c); }))),
           h("tbody", null, data.events.map(function (e) {
@@ -205,7 +207,7 @@
       setSyncing(true);
       return SDK.fetchJSON(API + "/sync", { method: "POST" })
         .then(function () { setError(null); return load(); })
-        .catch(function (err) { setError("Stripe sync failed: " + errText(err)); })
+        .catch(function (err) { setError("Sync failed: " + errText(err)); })
         .finally(function () { setSyncing(false); });
     }, [load]);
 
@@ -238,7 +240,7 @@
                 onClick: function () { setView(v[0]); } }, v[1]);
             }))),
         h("div", { className: "obol-actions" },
-          h("button", { className: "obol-btn", onClick: sync, disabled: syncing || mode === "missing" || mode === "invalid" }, syncing ? "Syncing…" : "Sync with Stripe"),
+          h("button", { className: "obol-btn", onClick: sync, disabled: syncing || mode === "missing" || mode === "invalid" }, syncing ? "Syncing…" : "Sync now"),
           h("span", { className: "obol-mono muted" }, status && status.last_sync ? "last synced " + fmtTime(status.last_sync) : "not synced yet"))),
 
       error && h("div", { className: "obol-error", role: "alert" }, error),
@@ -264,7 +266,7 @@
             })))),
 
       h(Ledger, { events: events })),
-      h("p", { className: "obol-foot obol-mono" }, "Synced from Stripe by polling every 45 s while this tab is open. Obol flags the attacks that hit invoicing and puts every decision in front of you. It does not catch all fraud."));
+      h("p", { className: "obol-foot obol-mono" }, "Synced by polling every 45 s while this tab is open. Obol flags the attacks that hit invoicing and puts every decision in front of you. It does not catch all fraud."));
   }
 
   window.__HERMES_PLUGINS__.register("obol", ObolPage);

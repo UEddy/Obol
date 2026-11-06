@@ -83,7 +83,7 @@ def invoices(status: Optional[str] = None, limit: int = 60) -> dict[str, Any]:
 SECURITY_LABELS = {
     "prompt_injection": "Prompt injection", "lookalike_domain": "Lookalike domain", "impersonation": "Impersonation",
     "contact_change": "Changed contact details", "duplicate": "Possible duplicate", "unusual_amount": "Unusual amount",
-    "payment_risk": "Radar risk", "dispute": "Dispute", "live_key": "Live key refused",
+    "payment_risk": "Fraud risk", "dispute": "Dispute", "live_key": "Live key refused",
     "unattended_write": "Unattended write refused",
 }
 
@@ -140,5 +140,5 @@ def sync() -> dict[str, Any]:
             result = service.sync(client, runtime.store())
     except StripeError as exc:
         raise HTTPException(502 if exc.kind in ("network", "timeout", "api_error") else 400, str(exc)) from None
-    runtime.store().log("synced", None, f"{result['synced']} invoices from Stripe")
+    runtime.store().log("synced", None, f"{result['synced']} invoices synced")
     return result

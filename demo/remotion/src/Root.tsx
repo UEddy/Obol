@@ -3,13 +3,11 @@ import { Composition, registerRoot } from "remotion";
 import { Demo, DEMO_FRAMES } from "./Demo";
 import { FPS, H, W } from "./theme";
 
-// Length follows the voiceover: each shot lasts as long as its line (about 62 s).
-const frames = DEMO_FRAMES;
-
+// Exactly 70.0 s (2100 frames at 30 fps): the timeline is fixed by the scene windows in vo70.json.
 const Root: React.FC = () => (
   <>
-    <Composition id="ObolDemo" component={Demo} durationInFrames={frames} fps={FPS} width={W} height={H} defaultProps={{ vertical: false }} />
-    <Composition id="ObolDemoVertical" component={Demo} durationInFrames={frames} fps={FPS} width={1080} height={1350} defaultProps={{ vertical: true }} />
+    <Composition id="ObolDemo" component={Demo} durationInFrames={DEMO_FRAMES} fps={FPS} width={W} height={H} />
+    <Composition id="ObolDemoVertical" component={Demo} durationInFrames={DEMO_FRAMES} fps={FPS} width={1080} height={1350} />
   </>
 );
 

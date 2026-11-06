@@ -100,8 +100,8 @@ class StripeClient:
                               "(expected sk_test_/rk_test_/sk_live_/rk_live_).", kind="not_configured")
         if mode == "live" and not allow_live:
             raise StripeError(
-                "STRIPE_API_KEY is a LIVE key and live mode is off. Obol only moves real money when "
-                "plugins.entries.obol.settings.allow_live is true; use a test key for demos.",
+                "This is a LIVE key and live mode is off, so nothing was sent. Obol only moves real money "
+                "when plugins.entries.obol.settings.allow_live is true; use a test key for demos.",
                 kind="live_blocked")
         self.mode = mode
         self._max_retries = max(0, int(max_retries))

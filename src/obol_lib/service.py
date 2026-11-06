@@ -268,7 +268,7 @@ def check_payment_risk(client: StripeClient, store: Store, limit: int = 25) -> i
         amount = money.fmt(row["amount_paid"], row["currency"])
         if level in ELEVATED_RADAR:
             store.record_security("payment_risk", "high" if level == "highest" else "medium", "flagged",
-                                  f"Stripe Radar rated the {amount} payment from {who} '{level}' risk"
+                                  f"Fraud risk for the {amount} payment from {who}: {level}"
                                   + (f" (score {score})" if score is not None else "") + ".", invoice_id=row["id"])
         if charge.get("disputed") and not row.get("disputed"):  # report each dispute once
             store.record_security("dispute", "high", "flagged",

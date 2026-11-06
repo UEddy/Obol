@@ -133,9 +133,9 @@ def assess(store: Store, settings: Settings, *, customer_email: Optional[str], c
                 if "email" in prev:
                     detail = f" (email was {prev.get('email') or 'empty'}, now {obj.get('email')})"
                 flags.append(flag("contact_change", "high",
-                                  f"This customer's {', '.join(c.replace('_', ' ') for c in changed)} changed in Stripe "
+                                  f"This customer's {', '.join(c.replace('_', ' ') for c in changed)} changed at the payment provider "
                                   f"{_ago(now - (ev.get('created') or now))}{detail}. Verify before sending.",
-                                  f"Customer's contact details changed in Stripe {_ago(now - (ev.get('created') or now))}"))
+                                  f"Contact details changed {_ago(now - (ev.get('created') or now))}"))
                 break
     # impersonation: a client you know, writing from a domain you've never billed for them ---------
     if settings.risk_impersonation and customer_name:

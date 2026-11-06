@@ -77,7 +77,7 @@ def test_stripe_customer_updated_event(fake, client, store):
     fake.customer_updated(cus, {"email": "old@pinemoor.test"}, at=int(time.time()) - 2 * 86400)
     flags = _assess(store, client, amount=5000)
     msg = next(f["message"] for f in flags if f["check"] == "contact_change")
-    assert "email changed in Stripe 2 days ago" in msg and "old@pinemoor.test" in msg
+    assert "email changed at the payment provider 2 days ago" in msg and "old@pinemoor.test" in msg
     fake.events.clear()
     fake.customer_updated(cus, {"invoice_settings": {"default_payment_method": None}}, at=int(time.time()) - 3600)
     assert "invoice settings" in _assess(store, client, amount=5000)[0]["message"]

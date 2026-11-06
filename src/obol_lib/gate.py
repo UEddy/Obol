@@ -67,10 +67,10 @@ def decide(tool_name: str, args: dict, *, mode: str, allow_live: bool, unattende
     if mode == "live" and not allow_live:
         return {"action": "block", "message": (
             "Obol refused: STRIPE_API_KEY is a LIVE key and live mode is off "
-            "(plugins.entries.obol.settings.allow_live). Nothing was sent to Stripe.")}
+            "(plugins.entries.obol.settings.allow_live). Nothing was sent.")}
     if unattended:
         return {"action": "block", "message": (
-            f"Obol refused {tool_name}: this is an unattended run (cron) and every Stripe write needs a "
+            f"Obol refused {tool_name}: this is an unattended run (cron) and every invoice write needs a "
             "person to approve it. Nothing was sent. Report what needs doing so the user can approve it in chat.")}
     if mode not in ("test", "live"):
         return None  # the tool itself answers with a clear not_configured error and writes nothing
@@ -79,6 +79,6 @@ def decide(tool_name: str, args: dict, *, mode: str, allow_live: bool, unattende
     except Exception as exc:  # a broken check must not hide the prompt
         flags = [{"check": "unavailable", "severity": "info",
                   "message": f"Risk checks could not run ({exc.__class__.__name__}); review carefully."}]
-    tag = "LIVE MONEY" if mode == "live" else "Stripe TEST mode"
+    tag = "LIVE MONEY" if mode == "live" else "TEST mode"
     message = f"Obol ({tag}): {summary()}.\n{format_flags(flags)}"
     return {"action": "approve", "message": message, "rule_key": f"obol:{tool_name}:{uuid.uuid4().hex}"}
