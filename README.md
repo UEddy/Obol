@@ -6,6 +6,8 @@
 approve the draft, get paid, all from the chat you already use. Built for freelancers, indie developers, AI
 consultants and agencies who bill clients.
 
+**[Watch the 70-second demo](https://x.com/DeFiRanch/status/2118752233315791051)**: real Telegram, terminal and dashboard footage.
+
 > Agents that handle money are a new target for invoice scams. Obol puts an approval in front of every invoice
 > Hermes sends, and catches the tricks that hit invoicing: lookalike addresses, impersonated clients, instructions
 > hidden in forwarded messages, duplicates and quiet edits to the record. It does not prevent all fraud; the

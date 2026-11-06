@@ -17,7 +17,7 @@ prompt. The prompt shows the amount, the recipient, the mode and Obol's risk che
 Live keys are refused unless `allow_live` is set. Writes are refused in unattended runs.
 
 - Repo: https://github.com/UEddy/Obol (pinned at `d21df0241a3c88d0def0f12ef7ffa581e6e0b59f`)
-- Demo video (70 s, real footage, Stripe test mode and a live Telegram bot): coming soon
+- Demo video (70 s, real footage, Stripe test mode and a live Telegram bot): https://x.com/DeFiRanch/status/2118752233315791051
 - Threat model with a test behind every row (T1–T20): https://github.com/UEddy/Obol#threat-model
 
 ## Related Issue
