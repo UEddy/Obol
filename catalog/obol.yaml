@@ -1,5 +1,3 @@
-# plugin-catalog/obol.yaml for NousResearch/hermes-agent, pinned to the submitted commit.
-# Validated at that sha with `hermes plugins validate` and `hermes plugins doctor --ci`.
 name: obol
 title: Obol
 repo: https://github.com/UEddy/Obol
