@@ -18,8 +18,8 @@ prompt. The prompt shows the amount, the recipient, the mode and Obol's risk che
 
 Live keys are refused unless `allow_live` is set. Writes are refused in unattended runs.
 
-- Repo: https://github.com/UEddy/Obol (pinned at `38811e15ecc07e4fa483c3c9fd121616c16aa1d3`)
-- Demo video (70 s, real footage, Stripe test mode and a live Telegram bot): <!-- link to the X post -->
+- Repo: https://github.com/UEddy/Obol (pinned at `d21df0241a3c88d0def0f12ef7ffa581e6e0b59f`)
+- Demo video (70 s, real footage, Stripe test mode and a live Telegram bot): coming soon
 - Threat model with a test behind every row (T1–T20): https://github.com/UEddy/Obol#threat-model
 
 ## Related Issue
@@ -34,7 +34,7 @@ Nous Research Hermes Plugin Hackathon submission.
 
 - `plugin-catalog/obol.yaml`: a new entry.
   - Community tier, `requires_hermes ">=0.22"` (the same floor as in `plugin.yaml`).
-  - Capabilities match the plugin's registrations: 8 tools, the `pre_tool_call` hook and `STRIPE_API_KEY`.
+  - Capabilities match the plugin's registrations: 8 tools and the `pre_tool_call` hook. `requires_env` is empty: `STRIPE_API_KEY` is `optional_env` in `plugin.yaml` (Stripe mode only), so install never asks for it and bank-transfer users don't need it.
   - Four screenshots, pinned to the SHA.
 
 ## Disclosure (rule 13)
@@ -54,7 +54,7 @@ Nous Research Hermes Plugin Hackathon submission.
 - In Stripe mode, Stripe emails the client when an invoice is sent or reminded. Bank-transfer mode emails nobody; the user sends the PDF.
 
 **Credentials**
-- `STRIPE_API_KEY` is read only through `agent.secret_scope.get_secret`. It is never stored, logged or shown; anything key-shaped is scrubbed from error messages.
+- `STRIPE_API_KEY` is optional (Stripe mode only) and read only through `agent.secret_scope.get_secret`. It is never stored, logged or shown; anything key-shaped is scrubbed from error messages. Without it, Stripe-mode tools, `/invoices sync` and the doctor answer "Stripe key not set" and make no calls.
 - The bank details for bank-transfer mode are plugin settings in the user's Hermes config, printed on the PDFs they issue. Obol's logs keep only a fingerprint of them (and the last four digits of the account in a payout-change flag).
 
 **Stored data**, all under `<HERMES_HOME>/plugin-data/obol/`:
@@ -73,13 +73,13 @@ Nous Research Hermes Plugin Hackathon submission.
 
 ## How to Test
 
-1. `hermes plugins install ueddy/obol` with a **test** key (`sk_test_…`), then `hermes obol doctor`. The doctor checks the key mode and that the provider is reachable, and verifies both hash-chained logs.
+1. `hermes plugins install ueddy/obol` (no key prompt), then `hermes config set STRIPE_API_KEY sk_test_…` and `hermes obol doctor`. The doctor checks the key mode and that the provider is reachable, and verifies both hash-chained logs.
 2. `hermes obol demo` seeds the test account with paid, open and overdue invoices and prints four prompts to try:
    - forward a client's message;
    - "have they paid?";
    - a lookalike-address scam;
    - paying with test card `4242 4242 4242 4242`.
-3. **Bank-transfer mode with no Stripe account:** set `provider: bank_transfer`, `bank_account_name` and `bank_account_number` under `plugins.entries.obol.settings`. Then:
+3. **Bank-transfer mode with no Stripe account or key:** set `provider: bank_transfer`, `bank_account_name` and `bank_account_number` under `plugins.entries.obol.settings`. Then:
    - ask Hermes to invoice a client and approve; you get an `INV-0001` PDF;
    - say the client paid, which calls `obol_mark_paid` (also approved);
    - `/invoices` shows the ledger.
@@ -96,7 +96,7 @@ Nous Research Hermes Plugin Hackathon submission.
 - [x] My commit messages follow Conventional Commits
 - [x] I searched for existing PRs to make sure this isn't a duplicate
 - [x] My PR contains **only** the catalog entry
-- [x] The plugin's suite passes in its own CI at the pinned SHA. The CI runs a unit job, and a full job inside Hermes with `validate` and `doctor`: 223 passed, 2 skipped (the live suites skip without keys). It covers adversarial cases, recorded real responses, and the Telegram/WhatsApp/Slack/email gateway paths. There are also live suites against Stripe test mode and a real model.
+- [x] The plugin's suite passes in its own CI at the pinned SHA. The CI runs a unit job, and a full job inside Hermes with `validate` and `doctor`: 230 passed, 2 skipped (the live suites skip without keys). It covers adversarial cases, recorded real responses, and the Telegram/WhatsApp/Slack/email gateway paths. There are also live suites against Stripe test mode and a real model.
 - [x] Tested on Ubuntu (Hermes from source, Python 3.14), plus a live Telegram run
 
 ### Documentation & Housekeeping
@@ -106,7 +106,7 @@ Nous Research Hermes Plugin Hackathon submission.
 
 ## Screenshots / Logs
 
-![Invoices](https://raw.githubusercontent.com/UEddy/Obol/38811e15ecc07e4fa483c3c9fd121616c16aa1d3/docs/screenshots/dashboard-invoices.png)
-![Security](https://raw.githubusercontent.com/UEddy/Obol/38811e15ecc07e4fa483c3c9fd121616c16aa1d3/docs/screenshots/dashboard-security.png)
-![Approval prompt](https://raw.githubusercontent.com/UEddy/Obol/38811e15ecc07e4fa483c3c9fd121616c16aa1d3/docs/screenshots/approval.png)
-![Approval prompt flagging a lookalike scam](https://raw.githubusercontent.com/UEddy/Obol/38811e15ecc07e4fa483c3c9fd121616c16aa1d3/docs/screenshots/approval-scam.png)
+![Invoices](https://raw.githubusercontent.com/UEddy/Obol/d21df0241a3c88d0def0f12ef7ffa581e6e0b59f/docs/screenshots/dashboard-invoices.png)
+![Security](https://raw.githubusercontent.com/UEddy/Obol/d21df0241a3c88d0def0f12ef7ffa581e6e0b59f/docs/screenshots/dashboard-security.png)
+![Approval prompt](https://raw.githubusercontent.com/UEddy/Obol/d21df0241a3c88d0def0f12ef7ffa581e6e0b59f/docs/screenshots/approval.png)
+![Approval prompt flagging a lookalike scam](https://raw.githubusercontent.com/UEddy/Obol/d21df0241a3c88d0def0f12ef7ffa581e6e0b59f/docs/screenshots/approval-scam.png)
