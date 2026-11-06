@@ -1,7 +1,7 @@
 """Send three forwarded messages with injected instructions (hidden, encoded, translated) through Obol's real
 obol_draft_from_message tool, dispatched by Hermes with the demo home's model doing the extraction.
 
-    OBOL_DEMO_HOME=/path/to/demo-home python demo/capture/intake_variants.py
+    OBOL_DEMO_HOME=/path/to/demo-home python tests/demo_intake_variants.py   (kept under tests/: it drives Hermes internals)
 
 The messages live in tests/fixtures/demo_injection_messages.json (attack examples stay under tests/). Each
 finding lands in Obol's security log, which the dashboard's Security view shows; that is what the demo films.
@@ -13,7 +13,7 @@ import os
 import sys
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parents[2]
+ROOT = Path(__file__).resolve().parents[1]
 os.environ["HERMES_HOME"] = os.environ["OBOL_DEMO_HOME"]
 from hermes_cli.plugins import discover_plugins  # noqa: E402
 from model_tools import handle_function_call  # noqa: E402
