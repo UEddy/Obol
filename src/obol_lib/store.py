@@ -411,7 +411,9 @@ class Store:
         return rows[0] if rows else None
 
     def invoices(self, *, status: Optional[str] = None, customer_email: Optional[str] = None,
-                 livemode: Optional[bool] = None, limit: int = 200, now: Optional[float] = None) -> list[dict]:
+                 livemode: Optional[bool] = None, bank: Optional[bool] = None, limit: int = 200,
+                 now: Optional[float] = None) -> list[dict]:
+        """``bank`` True: only bank-transfer invoices; False: only the payment provider's; None: both."""
         clauses, args = [], []
         if status == "overdue":
             clauses.append("status = 'open' AND due_date IS NOT NULL AND due_date < ?")
@@ -427,6 +429,8 @@ class Store:
         if livemode is not None:
             clauses.append("livemode = ?")
             args.append(1 if livemode else 0)
+        if bank is not None:
+            clauses.append(("" if bank else "NOT ") + "substr(id, 1, 7) = 'in_bank'")
         where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
         args.append(max(1, min(int(limit), 1000)))
         return self._rows(f"SELECT * FROM invoices {where} ORDER BY created DESC LIMIT ?", args)
@@ -434,11 +438,12 @@ class Store:
     def events(self, limit: int = 30) -> list[dict]:
         return self._rows("SELECT * FROM events ORDER BY seq DESC LIMIT ?", (max(1, min(limit, 200)),))
 
-    def summary(self, *, livemode: Optional[bool] = None, now: Optional[float] = None) -> dict[str, Any]:
+    def summary(self, *, livemode: Optional[bool] = None, bank: Optional[bool] = None,
+                now: Optional[float] = None) -> dict[str, Any]:
         """Totals per currency: outstanding / overdue / paid / draft, with counts."""
         now = now or time.time()
         out: dict[str, dict[str, Any]] = {}
-        for row in self.invoices(livemode=livemode, limit=1000, now=now):
+        for row in self.invoices(livemode=livemode, bank=bank, limit=1000, now=now):
             cur = out.setdefault(row["currency"], {
                 "outstanding": 0, "overdue": 0, "paid": 0, "draft": 0,
                 "count_outstanding": 0, "count_overdue": 0, "count_paid": 0, "count_draft": 0})

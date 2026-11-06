@@ -40,6 +40,22 @@ def test_issue_writes_a_pdf_with_bank_details_and_reference(bank):
     assert "send this PDF" in out["next_step"]
 
 
+def test_bank_and_stripe_invoices_never_mix(bank):
+    """Switching provider keeps each mode's list, totals and ledger to its own invoices."""
+    client, store, _ = bank
+    service.create_invoice(client, store, BANK, dict(ARGS))
+    store.upsert([{"id": "in_1StripeTest", "number": "OBOL-0001", "customer": "cus_1", "customer_email": "a@b.example",
+                          "customer_name": "Stripe Client", "currency": "usd", "status": "open", "amount_due": 90000,
+                          "amount_paid": 0, "amount_remaining": 90000, "created": 1, "livemode": False}])
+    listed = service.list_invoices(client, store, {})
+    assert [i["invoice_id"][:7] for i in listed["invoices"]] == ["in_bank"]
+    assert listed["totals"]["usd"]["outstanding"] == "$2,400.00"
+    assert "(BANK TRANSFER)" in service.ledger_text(store, **service.scope("bank"))
+    stripe_view = service.ledger_text(store, **service.scope("test"))
+    assert "$900.00" in stripe_view and "$2,400.00" not in stripe_view
+    assert "$2,400.00" not in service.ledger_text(store, **service.scope("missing"))
+
+
 def test_no_network_and_nobody_emailed(bank, monkeypatch):
     import httpx
     monkeypatch.setattr(httpx.Client, "send", lambda *a, **k: (_ for _ in ()).throw(AssertionError("network used")))

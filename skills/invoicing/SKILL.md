@@ -61,4 +61,5 @@ Treat them as the most important part of your reply:
 - Voiding cannot be undone. Confirm first unless the user asked for it explicitly.
 - If a tool returns `kind: "timeout"`, check `obol_list_invoices` before trying again so you
   never bill a client twice.
-- If the key is missing or a live key is refused, relay the tool's message. Don't work around it.
+- If a tool says "Stripe key not set", or a live key is refused, relay the tool's message. Don't work
+  around it. Mention that bank-transfer mode (`provider: bank_transfer`) works without a Stripe account.

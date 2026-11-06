@@ -92,9 +92,10 @@ class StripeClient:
         mode = key_mode(api_key)
         if mode == "missing":
             raise StripeError(
-                "No Stripe key configured. Set STRIPE_API_KEY to a test key (sk_test_...) from "
-                "https://dashboard.stripe.com/test/apikeys, e.g. `hermes config set` or the "
-                "plugin's settings page, then retry.", kind="not_configured")
+                "Stripe key not set. Set STRIPE_API_KEY to a test key (sk_test_...) from "
+                "https://dashboard.stripe.com/test/apikeys (`hermes config set` or the plugin's settings "
+                "page), then retry. No Stripe account? Set provider: bank_transfer to issue PDF invoices "
+                "paid by bank transfer instead.", kind="not_configured")
         if mode == "invalid":
             raise StripeError("STRIPE_API_KEY does not look like a Stripe secret or restricted key "
                               "(expected sk_test_/rk_test_/sk_live_/rk_live_).", kind="not_configured")

@@ -14,9 +14,10 @@ provides_tools:
   - obol_draft_from_message
 provides_hooks:
   - pre_tool_call
-requires_env:
+# Optional: only Stripe mode uses it. Bank-transfer mode (provider: bank_transfer) needs no key.
+optional_env:
   - name: STRIPE_API_KEY
-    description: "Stripe secret or restricted key. Use a TEST key (sk_test_...) unless you have turned on allow_live."
+    description: "Stripe secret or restricted key, for Stripe mode only. Use a TEST key (sk_test_...) unless you have turned on allow_live."
     url: "https://dashboard.stripe.com/test/apikeys"
     secret: true
 config_schema:

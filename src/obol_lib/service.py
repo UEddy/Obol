@@ -331,22 +331,30 @@ def list_invoices(client: Optional[StripeClient], store: Store, args: dict) -> d
     synced = None
     if client is not None and args.get("refresh", True):
         synced = sync(client, store)["synced"]
-    livemode = None if client is None else client.mode == "live"
-    rows = store.invoices(status=status, customer_email=email, livemode=livemode, limit=limit)
+    sc = {} if client is None else scope(client.mode)
+    rows = store.invoices(status=status, customer_email=email, limit=limit, **sc)
     return {"invoices": [view(r) for r in rows], "count": len(rows), "synced_from_stripe": synced,
-            "totals": summary_text(store, livemode=livemode)}
+            "totals": summary_text(store, **sc)}
 
 
-def summary_text(store: Store, *, livemode: Optional[bool] = None) -> dict[str, dict[str, str]]:
+def scope(mode: str) -> dict[str, Optional[bool]]:
+    """Which cached invoices a mode shows: bank-transfer ones in bank mode, else the provider's (test or live)."""
+    if mode == "bank":
+        return {"livemode": None, "bank": True}
+    return {"livemode": mode == "live" if mode in ("test", "live") else None, "bank": False}
+
+
+def summary_text(store: Store, *, livemode: Optional[bool] = None,
+                 bank: Optional[bool] = None) -> dict[str, dict[str, str]]:
     return {cur: {k: (money.fmt(v, cur) if not k.startswith("count_") else v) for k, v in t.items()}
-            for cur, t in store.summary(livemode=livemode).items()}
+            for cur, t in store.summary(livemode=livemode, bank=bank).items()}
 
 
-def ledger_text(store: Store, *, livemode: Optional[bool] = None, status: Optional[str] = None,
-                limit: int = 10) -> str:
+def ledger_text(store: Store, *, livemode: Optional[bool] = None, bank: Optional[bool] = None,
+                status: Optional[str] = None, limit: int = 10) -> str:
     """Plain-text ledger for slash commands and messaging surfaces."""
-    totals = store.summary(livemode=livemode)
-    lines = ["OBOL LEDGER" + (" (TEST MODE)" if livemode is False else "")]
+    totals = store.summary(livemode=livemode, bank=bank)
+    lines = ["OBOL LEDGER" + (" (BANK TRANSFER)" if bank else " (TEST MODE)" if livemode is False else "")]
     if not totals:
         lines.append("No invoices yet. Ask Hermes to invoice someone, or run /invoices sync.")
         return "\n".join(lines)
@@ -356,7 +364,7 @@ def ledger_text(store: Store, *, livemode: Optional[bool] = None, status: Option
         for label, key in (("Paid", "paid"), ("Open", "outstanding"), ("Overdue", "overdue")):
             amount = money.fmt(t[key], cur)
             lines.append(f"  {label:<8}{amount:>12}  ({t['count_' + key]})")
-    rows = [r for r in store.invoices(status=status, livemode=livemode, limit=limit + 50)
+    rows = [r for r in store.invoices(status=status, livemode=livemode, bank=bank, limit=limit + 50)
             if status or r["status"] != "void"][:limit]
     if rows:
         lines.append("")

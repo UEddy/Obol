@@ -41,10 +41,6 @@ def _mode() -> str:
         return "missing"
 
 
-def _livemode(mode: str) -> Optional[bool]:
-    return mode == "live" if mode in ("test", "live") else None
-
-
 @router.get("/status")
 def status() -> dict[str, Any]:
     settings = _settings()
@@ -56,7 +52,7 @@ def status() -> dict[str, Any]:
 @router.get("/summary")
 def summary() -> dict[str, Any]:
     mode = _mode()
-    totals = runtime.store().summary(livemode=_livemode(mode))
+    totals = runtime.store().summary(**service.scope(mode))
     return {"mode": mode, "currencies": [
         {"currency": cur, **t, **{f"{k}_fmt": money.fmt(t[k], cur) for k in ("outstanding", "overdue", "paid", "draft")}}
         for cur, t in sorted(totals.items(), key=lambda kv: -(kv[1]["outstanding"] + kv[1]["paid"]))]}
@@ -68,7 +64,7 @@ def invoices(status: Optional[str] = None, limit: int = 60) -> dict[str, Any]:
         raise HTTPException(400, f"status must be one of {', '.join(service.LIST_STATUSES)}")
     now = time.time()
     store = runtime.store()
-    rows = store.invoices(status=status, livemode=_livemode(_mode()), limit=max(1, min(limit, 200)))
+    rows = store.invoices(status=status, limit=max(1, min(limit, 200)), **service.scope(_mode()))
     risk = store.risk(r["id"] for r in rows)
     out = []
     for r in rows:

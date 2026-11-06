@@ -4,7 +4,7 @@ name: obol
 title: Obol
 repo: https://github.com/UEddy/Obol
 sha: 38811e15ecc07e4fa483c3c9fd121616c16aa1d3
-description: "Safe invoicing for freelancers, consultants and agencies who bill clients, from any chat Hermes runs in (tested: Telegram, WhatsApp, Slack, email and the terminal). Hermes drafts invoices (also from forwarded messages via ctx.llm), sends them as Stripe payment links or as bank-transfer PDF invoices with no provider account, tracks who has paid, and adds Invoices and Security dashboard views plus /invoices in every chat. Every invoice write needs approval, with deterministic checks for prompt injection (a message can never choose the recipient), lookalike and impersonated client addresses, duplicates, unusual amounts and changed payout details; live keys are refused unless allowed, writes are refused in unattended runs, and the activity and security logs are hash-chained. Disclosure: Stripe mode makes HTTPS calls to api.stripe.com only; bank-transfer mode makes no network calls; forwarded messages go to the user's configured model through ctx.llm; Stripe emails clients when invoices are sent or reminded; STRIPE_API_KEY is read via get_secret only; data stays in plugin-data/obol/ (data.db and bank-transfer PDFs); polling, no webhooks; no telemetry, shell commands or background processes."
+description: "Safe invoicing for freelancers, consultants and agencies who bill clients, from any chat Hermes runs in (tested: Telegram, WhatsApp, Slack, email and the terminal). Hermes drafts invoices (also from forwarded messages via ctx.llm), sends them as Stripe payment links or as bank-transfer PDF invoices with no provider account, tracks who has paid, and adds Invoices and Security dashboard views plus /invoices in every chat. Every invoice write needs approval, with deterministic checks for prompt injection (a message can never choose the recipient), lookalike and impersonated client addresses, duplicates, unusual amounts and changed payout details; live keys are refused unless allowed, writes are refused in unattended runs, and the activity and security logs are hash-chained. Disclosure: Stripe mode makes HTTPS calls to api.stripe.com only; bank-transfer mode makes no network calls; forwarded messages go to the user's configured model through ctx.llm; Stripe emails clients when invoices are sent or reminded; STRIPE_API_KEY is optional (Stripe mode only, not asked for at install) and read via get_secret only; data stays in plugin-data/obol/ (data.db and bank-transfer PDFs); polling, no webhooks; no telemetry, shell commands or background processes."
 maintainer: UEddy
 tier: community
 category: tools
@@ -30,5 +30,4 @@ capabilities:
   provides_hooks:
     - pre_tool_call
   provides_middleware: []
-  requires_env:
-    - STRIPE_API_KEY
+  requires_env: []   # STRIPE_API_KEY is optional_env in plugin.yaml: Stripe mode only, never asked for at install

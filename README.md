@@ -81,12 +81,14 @@ same, and if your own payout details change, the next invoice's approval says so
 
 ## Quick start
 
-1. Get a **test** secret key (`sk_test_…`) from a free Stripe account in test mode.
+1. Get a **test** secret key (`sk_test_…`) from a free Stripe account in test mode. Skip this for bank-transfer
+   mode, which needs no key.
 2. Install and check:
 
    ```bash
-   hermes plugins install ueddy/obol     # asks for STRIPE_API_KEY
+   hermes plugins install ueddy/obol
    hermes plugins enable obol
+   hermes config set STRIPE_API_KEY sk_test_…   # Stripe mode only
    hermes obol doctor                    # key mode, provider reachable, log integrity
    ```
 
@@ -110,7 +112,7 @@ Requires Hermes Agent 0.22+. No extra Python dependencies.
 |---|---|
 | Try it in two minutes | `hermes obol demo` with a Stripe test key: sample clients, then four prompts to try |
 | Installs cleanly | `hermes plugins validate . --install-deps && hermes plugins doctor . --ci` → 8 tools, 1 hook, install scan **safe** |
-| Tests | `python -m pytest`: 227 tests, no keys needed (unit, adversarial, recorded real responses, gateway, Hermes integration) |
+| Tests | `python -m pytest`: 234 tests, no keys needed (unit, adversarial, recorded real responses, gateway, Hermes integration) |
 | Claims are proven | `tests/test_readme_claims.py` fails if any test named in this README doesn't exist |
 | Real, not mocked | live test-mode suite (`tests/test_stripe_live.py`), real-model intake suite (`tests/test_intake_live.py`), recorded real responses, live Telegram run |
 | More than a skill | tools, an approval hook, structured extraction via `ctx.llm`, dashboard tab + API, slash command, CLI, automation blueprint, skill |
@@ -190,7 +192,7 @@ Injection detection is always on.
 - **Network:** the payment provider's API only (today `api.stripe.com`), over HTTPS: when a tool, `/invoices sync` or `hermes obol doctor|sync` runs; in the approval hook before a write (5-second timeout); during sync for fraud-risk and dispute reads (read-only); every 45 s while the dashboard tab is open. Polling only; no webhooks, no open ports. In bank-transfer mode Obol makes no network calls at all.
 - **Your model:** `obol_draft_from_message` sends the forwarded message to the model Hermes is configured to use, through `ctx.llm`.
 - **Emails:** sending and reminding make the payment provider email your client. In bank-transfer mode nobody is emailed; PDFs are written to `<HERMES_HOME>/plugin-data/obol/invoices/`.
-- **Credentials:** `STRIPE_API_KEY`, read only through Hermes's secret route; never logged or stored.
+- **Credentials:** `STRIPE_API_KEY` (optional, Stripe mode only; install doesn't ask for it), read only through Hermes's secret route; never logged or stored. Without it, Stripe-mode tools answer "Stripe key not set" and do nothing.
 - **Local data:** `<HERMES_HOME>/plugin-data/obol/data.db`: cached invoice metadata, risk findings, and hash-chained activity and security logs (forwarded message text is not stored). Delete the file to clear it.
 - **No telemetry, shell commands, background processes or self-updating code.**
 
@@ -213,7 +215,7 @@ src/obol_lib/     provider client, invoice service, approval policy, risk checks
                   injection + lookalike detection, message intake, SQLite store with hash-chained logs
 dashboard/        Invoices and Security views (plugin SDK, no build step) and their API
 skills/invoicing/ the obol:invoicing skill
-tests/            227 tests
+tests/            234 tests
 demo/             demo video sources
 ```
 

@@ -254,7 +254,6 @@ def _make_command(ctx: Any) -> Callable[..., str]:
         if arg in ("help", "-h", "--help"):
             return _USAGE
         mode = runtime.mode(runtime.settings_from(ctx.get_config))
-        livemode = None if mode not in ("test", "live") else mode == "live"
         status = None
         try:
             if arg == "sync":
@@ -264,7 +263,7 @@ def _make_command(ctx: Any) -> Callable[..., str]:
                 status = arg
             elif arg:
                 return _USAGE
-            return service.ledger_text(runtime.store(), livemode=livemode, status=status)
+            return service.ledger_text(runtime.store(), status=status, **service.scope(mode))
         except StripeError as exc:
             return f"Obol: {exc}"
     return handle
@@ -298,7 +297,9 @@ def _make_cli(ctx: Any) -> Callable[[Any], int]:
             print(f"Provider: bank transfer (no network) · paying into account ending {account_tail(settings)}"
                   + ("" if ready else " · set bank_account_name and bank_account_number before issuing invoices"))
         else:
-            print(f"Payment key: {mode}" + ("" if mode in ("test", "live") else f" (set {runtime.KEY_ENV})"))
+            print(f"Payment key: {mode}" + ("" if mode in ("test", "live") else
+                  f" (Stripe key not set: set {runtime.KEY_ENV}, or use provider: bank_transfer)" if mode == "missing"
+                  else f" (set {runtime.KEY_ENV})"))
         print(f"Approval: every invoice write asks · live mode allowed: {settings.allow_live}")
         for table, label in (("events", "Activity log"), ("security_events", "Security log")):
             chain = runtime.store().verify_chain(table)
@@ -317,7 +318,7 @@ def _make_cli(ctx: Any) -> Callable[[Any], int]:
         print(f"✓ {out['synced']} bank-transfer invoice(s) on record" if bank
               else f"✓ Payment provider reachable, {out['synced']} invoice(s) synced")
         if cmd == "sync":
-            print(service.ledger_text(runtime.store(), livemode=mode == "live"))
+            print(service.ledger_text(runtime.store(), **service.scope(mode)))
         return status
     return run
 
@@ -335,7 +336,7 @@ def _run_demo(settings: service.Settings) -> int:
         print(f"✗ {exc}")
         return 1
     print()
-    print(service.ledger_text(runtime.store(), livemode=False, limit=0))
+    print(service.ledger_text(runtime.store(), limit=0, **service.scope("test")))
     print()
     print(demo_seed.TRY)
     runtime.store().log("demo_seeded", None, "sample clients and invoices (test mode)")
