@@ -270,6 +270,7 @@ def _cli_setup(subparser: Any) -> None:
     subs.add_parser("doctor", help="Check the Stripe key, mode and connectivity")
     subs.add_parser("sync", help="Pull recent invoices from Stripe into the local ledger")
     subs.add_parser("ledger", help="Print the local ledger")
+    subs.add_parser("demo", help="Fill a Stripe TEST account with sample clients and invoices to try Obol")
 
 
 def _make_cli(ctx: Any) -> Callable[[Any], int]:
@@ -279,6 +280,8 @@ def _make_cli(ctx: Any) -> Callable[[Any], int]:
         if cmd == "ledger":
             print(service.ledger_text(runtime.store()))
             return 0
+        if cmd == "demo":
+            return _run_demo(settings)
         status = 0
         key = runtime.api_key()
         mode = key_mode(key)
@@ -305,6 +308,26 @@ def _make_cli(ctx: Any) -> Callable[[Any], int]:
     return run
 
 
+def _run_demo(settings: service.Settings) -> int:
+    from .src.obol_lib import demo_seed
+    if key_mode(runtime.api_key()) != "test":
+        print(f"✗ `hermes obol demo` needs a Stripe TEST key (sk_test_…) in {runtime.KEY_ENV}. It never touches live data.")
+        return 1
+    try:
+        with runtime.make_client(settings) as client:
+            demo_seed.seed(client)
+            service.sync(client, runtime.store())
+    except StripeError as exc:
+        print(f"✗ {exc}")
+        return 1
+    print()
+    print(service.ledger_text(runtime.store(), livemode=False, limit=0))
+    print()
+    print(demo_seed.TRY)
+    runtime.store().log("demo_seeded", None, "sample clients and invoices (test mode)")
+    return 0
+
+
 # -- register -----------------------------------------------------------------------------------
 def register(ctx: Any) -> None:
     handlers = _tool_handlers(ctx)
@@ -314,7 +337,7 @@ def register(ctx: Any) -> None:
     ctx.register_hook("pre_tool_call", _make_gate(ctx))
     ctx.register_command("invoices", _make_command(ctx), description="Obol receivables ledger",
                          args_hint="[open|overdue|paid|draft|sync]")
-    ctx.register_cli_command(name="obol", help="Obol invoicing: doctor, sync, ledger",
+    ctx.register_cli_command(name="obol", help="Obol invoicing: doctor, sync, ledger, demo",
                              setup_fn=_cli_setup, handler_fn=_make_cli(ctx))
     skill = _PLUGIN_DIR / "skills" / "invoicing" / "SKILL.md"
     if skill.exists():

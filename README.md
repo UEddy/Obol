@@ -85,8 +85,14 @@ The approvals, scam checks and logs sit in front of the provider and don't depen
    hermes obol doctor                    # key mode, provider reachable, log integrity
    ```
 
-3. In any chat with Hermes: *"Invoice billing@example.com $1,200 for the landing page and send it."* Approve, then
-   pay the link with test card `4242 4242 4242 4242`.
+3. Fill the test account with sample clients (about 40 seconds; test keys only, re-run anytime):
+
+   ```bash
+   hermes obol demo
+   ```
+
+   It creates paid, open and overdue invoices with real past dates and prints four things to try: forward a client's
+   message, "have they paid?", a lookalike-address scam, and paying with test card `4242 4242 4242 4242`.
 
 Requires Hermes Agent 0.22+. No extra Python dependencies.
 
@@ -94,6 +100,7 @@ Requires Hermes Agent 0.22+. No extra Python dependencies.
 
 | Check | How |
 |---|---|
+| Try it in two minutes | `hermes obol demo` with a Stripe test key: sample clients, then four prompts to try |
 | Installs cleanly | `hermes plugins validate . --install-deps && hermes plugins doctor . --ci` → 7 tools, 1 hook, install scan **safe** |
 | Tests | `python -m pytest`: 206 tests, no keys needed (unit, adversarial, recorded real responses, gateway, Hermes integration) |
 | Claims are proven | `tests/test_readme_claims.py` fails if any test named in this README doesn't exist |
