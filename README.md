@@ -69,10 +69,16 @@ with a real bot for the demo.
 | Provider | Status |
 |---|---|
 | Stripe | Supported |
+| Bank transfer with PDF invoices | Supported: no provider account, no network |
 | PayPal, Paystack, Flutterwave | Planned |
-| Bank transfer with PDF invoices | Planned |
 
 The approvals, scam checks and logs sit in front of the provider and don't depend on it.
+
+**Bank-transfer mode.** Set `provider: bank_transfer` and your bank details. Obol keeps the invoices itself:
+approving an invoice issues it with a number (`INV-0001`), a due date and a PDF carrying your bank details and the
+invoice number as the payment reference. You send the PDF yourself; when the money lands, say so and Obol records
+it with `obol_mark_paid` (approved like every other write). Every check, `/invoices` and the dashboard work the
+same, and if your own payout details change, the next invoice's approval says so.
 
 ## Quick start
 
@@ -94,6 +100,9 @@ The approvals, scam checks and logs sit in front of the provider and don't depen
    It creates paid, open and overdue invoices with real past dates and prints four things to try: forward a client's
    message, "have they paid?", a lookalike-address scam, and paying with test card `4242 4242 4242 4242`.
 
+No Stripe account? Use bank-transfer mode instead (see [Configure](#configure)); `hermes obol doctor` then
+checks your bank details.
+
 Requires Hermes Agent 0.22+. No extra Python dependencies.
 
 ## For judges
@@ -101,8 +110,8 @@ Requires Hermes Agent 0.22+. No extra Python dependencies.
 | Check | How |
 |---|---|
 | Try it in two minutes | `hermes obol demo` with a Stripe test key: sample clients, then four prompts to try |
-| Installs cleanly | `hermes plugins validate . --install-deps && hermes plugins doctor . --ci` → 7 tools, 1 hook, install scan **safe** |
-| Tests | `python -m pytest`: 206 tests, no keys needed (unit, adversarial, recorded real responses, gateway, Hermes integration) |
+| Installs cleanly | `hermes plugins validate . --install-deps && hermes plugins doctor . --ci` → 8 tools, 1 hook, install scan **safe** |
+| Tests | `python -m pytest`: 227 tests, no keys needed (unit, adversarial, recorded real responses, gateway, Hermes integration) |
 | Claims are proven | `tests/test_readme_claims.py` fails if any test named in this README doesn't exist |
 | Real, not mocked | live test-mode suite (`tests/test_stripe_live.py`), real-model intake suite (`tests/test_intake_live.py`), recorded real responses, live Telegram run |
 | More than a skill | tools, an approval hook, structured extraction via `ctx.llm`, dashboard tab + API, slash command, CLI, automation blueprint, skill |
@@ -135,6 +144,7 @@ Each row is an attack that hits invoicing in practice, how Obol responds, and th
 | T17 | **A broken check silently hiding the prompt** | A failing risk check still shows the approval prompt, marked incomplete; a failing hook blocks the call | `tests/test_gate.py::test_flags_shown_and_broken_checks_do_not_hide_prompt`, `tests/test_risk.py::test_stripe_failures_degrade_to_info` |
 | T18 | **Hostile input** (malformed invoice ids, path tricks, bad amounts) | Validated locally before any provider call | `tests/test_service.py::test_bad_invoice_id_rejected_locally`, `tests/test_service.py::test_validation_happens_before_any_call` |
 | T19 | **Obol reaching beyond invoicing** | Obol's only hook gates its own invoice writes; other plugins' tools pass through untouched, and it registers no observers | `tests/test_hermes_integration.py::test_other_plugins_tools_are_left_alone` |
+| T20 | **Your own payout details swapped** (someone edits your bank account in Obol's settings so clients pay them) | In bank-transfer mode, a change to your payout details is flagged HIGH in the next invoice's approval with the new account's last four digits; only a fingerprint is logged, never the number. Marking paid is a write that needs approval and is refused in scheduled runs | `tests/test_bank.py::test_changed_payout_details_are_flagged_on_the_next_invoice`, `tests/test_bank.py::test_approval_prompt_says_bank_transfer` |
 
 **No noise in normal use.** The checks stay quiet on everyday client messages ("send the invoice to
 ap@…", "please ignore my previous email, the amount is $500", "invoice us right away") and on the
@@ -169,14 +179,18 @@ Settings live under `plugins.entries.obol.settings` (Hermes Desktop shows them a
 | `risk_contact_change_days` | `14` | Contact details changed this recently (max 30, `0` = off) |
 | `risk_lookalike_domains` | `true` | Flag domains that imitate one you've billed |
 | `risk_impersonation` | `true` | Flag a known client at a new domain |
+| `provider` | `stripe` | `bank_transfer` for PDF invoices paid by bank transfer (no provider account) |
+| `business_name` | | Shown at the top of bank-transfer PDFs |
+| `bank_account_name`, `bank_account_number` | | Required in bank-transfer mode |
+| `bank_name`, `bank_routing` | | Optional: bank, and routing / sort code / IBAN / SWIFT |
 
 Injection detection is always on.
 
 ## What Obol touches
 
-- **Network:** the payment provider's API only (today `api.stripe.com`), over HTTPS: when a tool, `/invoices sync` or `hermes obol doctor|sync` runs; in the approval hook before a write (5-second timeout); during sync for fraud-risk and dispute reads (read-only); every 45 s while the dashboard tab is open. Polling only; no webhooks, no open ports.
+- **Network:** the payment provider's API only (today `api.stripe.com`), over HTTPS: when a tool, `/invoices sync` or `hermes obol doctor|sync` runs; in the approval hook before a write (5-second timeout); during sync for fraud-risk and dispute reads (read-only); every 45 s while the dashboard tab is open. Polling only; no webhooks, no open ports. In bank-transfer mode Obol makes no network calls at all.
 - **Your model:** `obol_draft_from_message` sends the forwarded message to the model Hermes is configured to use, through `ctx.llm`.
-- **Emails:** sending and reminding make the payment provider email your client.
+- **Emails:** sending and reminding make the payment provider email your client. In bank-transfer mode nobody is emailed; PDFs are written to `<HERMES_HOME>/plugin-data/obol/invoices/`.
 - **Credentials:** `STRIPE_API_KEY`, read only through Hermes's secret route; never logged or stored.
 - **Local data:** `<HERMES_HOME>/plugin-data/obol/data.db`: cached invoice metadata, risk findings, and hash-chained activity and security logs (forwarded message text is not stored). Delete the file to clear it.
 - **No telemetry, shell commands, background processes or self-updating code.**
@@ -200,13 +214,14 @@ src/obol_lib/     provider client, invoice service, approval policy, risk checks
                   injection + lookalike detection, message intake, SQLite store with hash-chained logs
 dashboard/        Invoices and Security views (plugin SDK, no build step) and their API
 skills/invoicing/ the obol:invoicing skill
-tests/            206 tests
+tests/            227 tests
 demo/             demo video sources
 ```
 
 ## Roadmap
 
-- PayPal, Paystack, Flutterwave and bank transfer, with the same approvals and checks.
+- PayPal, Paystack and Flutterwave, with the same approvals and checks.
+- Reading bank-transfer payments from a bank feed instead of marking them paid by hand.
 
 ## License
 

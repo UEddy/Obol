@@ -70,13 +70,14 @@ def _make_gate(ctx: Any) -> Callable[..., Any]:
         args = args if isinstance(args, dict) else {}
         try:
             settings = runtime.settings_from(ctx.get_config)
-            mode = key_mode(runtime.api_key())
+            mode = runtime.mode(settings)
+            bank = mode == "bank"
 
             def summary() -> str:
                 if tool_name == "obol_create_invoice":
-                    return gate_policy.describe_create(args, settings.default_currency)
+                    return gate_policy.describe_create(args, settings.default_currency, bank=bank)
                 inv_id = str(args.get("invoice_id"))
-                return gate_policy.describe_existing(tool_name, inv_id, runtime.store().get(inv_id))
+                return gate_policy.describe_existing(tool_name, inv_id, runtime.store().get(inv_id), bank=bank)
 
             unattended = _unattended(ctx)
             directive = gate_policy.decide(tool_name, args, mode=mode, allow_live=settings.allow_live,
@@ -94,8 +95,8 @@ def _make_gate(ctx: Any) -> Callable[..., Any]:
 
 def _assess(ctx: Any, settings: service.Settings, tool_name: str, args: dict) -> list[dict]:
     """Run the risk checks for one write. Network calls use a short timeout and no retries."""
-    if tool_name == "obol_void_invoice":
-        return []  # cancelling cannot bill anyone
+    if tool_name in ("obol_void_invoice", "obol_mark_paid"):
+        return []  # cancelling or recording a payment cannot bill anyone
     store = runtime.store()
     try:
         client = runtime.make_client(settings, timeout=5.0, max_retries=0)
@@ -111,6 +112,8 @@ def _assess(ctx: Any, settings: service.Settings, tool_name: str, args: dict) ->
                 amount = None
             flags = risk.assess(store, settings, customer_email=args.get("customer_email"),
                                 customer_name=args.get("customer_name"), amount_minor=amount, currency=cur, client=client)
+            if args.get("send"):
+                flags += risk.payout_change(store, settings)
             fp = risk.create_fingerprint(args, settings.default_currency)
             if fp:
                 store.stash_pending_risk(fp, flags)
@@ -126,6 +129,8 @@ def _assess(ctx: Any, settings: service.Settings, tool_name: str, args: dict) ->
         flags = risk.assess(store, settings, customer_email=row.get("customer_email"),
                             customer_name=row.get("customer_name"), amount_minor=row["amount_due"],
                             currency=row["currency"], client=client, exclude_invoice_id=inv_id)
+        if tool_name == "obol_send_invoice":
+            flags += risk.payout_change(store, settings)
         store.set_risk(inv_id, flags)
         _record_flags(store, tool_name, flags, invoice_id=inv_id)
         return flags
@@ -136,7 +141,7 @@ def _assess(ctx: Any, settings: service.Settings, tool_name: str, args: dict) ->
 
 # -- tools --------------------------------------------------------------------------------------
 SECURITY_CHECKS = frozenset({"prompt_injection", "lookalike_domain", "impersonation", "contact_change", "duplicate",
-                             "unusual_amount"})
+                             "unusual_amount", "payout_change"})
 
 
 def _record_flags(store: Any, tool_name: str, flags: list[dict], *, invoice_id: str | None = None,
@@ -178,6 +183,7 @@ def _tool_handlers(ctx: Any) -> dict[str, Callable[..., str]]:
         "obol_list_invoices": with_client(lambda c, s, st, a: service.list_invoices(c, s, a)),
         "obol_send_reminder": with_client(lambda c, s, st, a: service.send_reminder(c, s, a)),
         "obol_void_invoice": with_client(lambda c, s, st, a: service.void_invoice(c, s, a)),
+        "obol_mark_paid": with_client(lambda c, s, st, a: service.mark_paid(c, s, a)),
     }
 
     def draft_from_message(args: dict) -> dict:
@@ -247,7 +253,7 @@ def _make_command(ctx: Any) -> Callable[..., str]:
         arg = (raw_args or "").strip().lower()
         if arg in ("help", "-h", "--help"):
             return _USAGE
-        mode = key_mode(runtime.api_key())
+        mode = runtime.mode(runtime.settings_from(ctx.get_config))
         livemode = None if mode not in ("test", "live") else mode == "live"
         status = None
         try:
@@ -283,9 +289,16 @@ def _make_cli(ctx: Any) -> Callable[[Any], int]:
         if cmd == "demo":
             return _run_demo(settings)
         status = 0
-        key = runtime.api_key()
-        mode = key_mode(key)
-        print(f"Payment key: {mode}" + ("" if mode in ("test", "live") else f" (set {runtime.KEY_ENV})"))
+        bank = settings.provider == "bank_transfer"
+        key = None if bank else runtime.api_key()
+        mode = "bank" if bank else key_mode(key)
+        if bank:
+            from .src.obol_lib.bank_client import account_tail
+            ready = settings.bank_account_name and settings.bank_account_number
+            print(f"Provider: bank transfer (no network) · paying into account ending {account_tail(settings)}"
+                  + ("" if ready else " · set bank_account_name and bank_account_number before issuing invoices"))
+        else:
+            print(f"Payment key: {mode}" + ("" if mode in ("test", "live") else f" (set {runtime.KEY_ENV})"))
         print(f"Approval: every invoice write asks · live mode allowed: {settings.allow_live}")
         for table, label in (("events", "Activity log"), ("security_events", "Security log")):
             chain = runtime.store().verify_chain(table)
@@ -301,7 +314,8 @@ def _make_cli(ctx: Any) -> Callable[[Any], int]:
         except StripeError as exc:
             print(f"✗ {exc}")
             return 1
-        print(f"✓ Payment provider reachable, {out['synced']} invoice(s) synced")
+        print(f"✓ {out['synced']} bank-transfer invoice(s) on record" if bank
+              else f"✓ Payment provider reachable, {out['synced']} invoice(s) synced")
         if cmd == "sync":
             print(service.ledger_text(runtime.store(), livemode=mode == "live"))
         return status

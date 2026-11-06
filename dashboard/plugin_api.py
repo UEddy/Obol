@@ -34,6 +34,8 @@ def _settings() -> service.Settings:
 
 def _mode() -> str:
     try:
+        if _settings().provider == "bank_transfer":
+            return "bank"
         return key_mode(runtime.api_key())
     except Exception:
         return "missing"

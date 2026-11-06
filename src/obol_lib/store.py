@@ -44,6 +44,12 @@ CREATE TABLE IF NOT EXISTS events (
     detail     TEXT
 );
 CREATE TABLE IF NOT EXISTS meta (key TEXT PRIMARY KEY, value TEXT);
+CREATE TABLE IF NOT EXISTS local_objects (
+    kind TEXT NOT NULL,
+    id   TEXT NOT NULL,
+    data TEXT NOT NULL,
+    PRIMARY KEY (kind, id)
+);
 CREATE TABLE IF NOT EXISTS invoice_risk (
     invoice_id  TEXT PRIMARY KEY,
     flags       TEXT NOT NULL,
@@ -361,6 +367,34 @@ class Store:
         rows = self._rows(f"SELECT flags FROM intake_flags WHERE at >= ? AND key IN ({','.join('?' for _ in ks)}) "
                           "ORDER BY at DESC LIMIT 1", [int(time.time()) - within, *ks])
         return json.loads(rows[0]["flags"]) if rows else []
+
+    # -- bank-transfer mode: Obol is the system of record --------------------------------------
+    def local_put(self, kind: str, obj_id: str, obj: dict) -> None:
+        with self._lock:
+            self._conn.execute("INSERT INTO local_objects (kind, id, data) VALUES (?, ?, ?) "
+                               "ON CONFLICT(kind, id) DO UPDATE SET data = excluded.data", (kind, obj_id, json.dumps(obj)))
+            self._conn.commit()
+
+    def local_get(self, kind: str, obj_id: str) -> Optional[dict]:
+        rows = self._rows("SELECT data FROM local_objects WHERE kind = ? AND id = ?", (kind, obj_id))
+        return json.loads(rows[0]["data"]) if rows else None
+
+    def local_list(self, kind: str) -> list[dict]:
+        return [json.loads(r["data"]) for r in self._rows("SELECT data FROM local_objects WHERE kind = ?", (kind,))]
+
+    def local_delete(self, kind: str, obj_id: str) -> None:
+        with self._lock:
+            self._conn.execute("DELETE FROM local_objects WHERE kind = ? AND id = ?", (kind, obj_id))
+            self._conn.commit()
+
+    def next_counter(self, name: str) -> int:
+        with self._lock:
+            row = self._conn.execute("SELECT value FROM meta WHERE key = ?", (f"counter:{name}",)).fetchone()
+            n = int(row[0]) + 1 if row else 1
+            self._conn.execute("INSERT INTO meta (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value = excluded.value",
+                               (f"counter:{name}", str(n)))
+            self._conn.commit()
+            return n
 
     def all_emails(self) -> set[str]:
         rows = self._rows("SELECT DISTINCT lower(customer_email) AS e FROM invoices WHERE customer_email IS NOT NULL")

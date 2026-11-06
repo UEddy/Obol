@@ -89,6 +89,18 @@ VOID_INVOICE = {
     }, "required": ["invoice_id"], "additionalProperties": False},
 }
 
+MARK_PAID = {
+    "name": "obol_mark_paid",
+    "description": (
+        "Record that an open invoice was paid outside the payment page: a bank transfer, cash or a cheque. Use it "
+        "only when the user says the money has arrived. In bank-transfer mode this is how invoices become paid."
+    ),
+    "parameters": {"type": "object", "properties": {
+        "invoice_id": _INVOICE_ID,
+        "note": {"type": "string", "description": "Optional: how it was paid, e.g. 'bank transfer, ref INV-0004'."},
+    }, "required": ["invoice_id"], "additionalProperties": False},
+}
+
 DRAFT_FROM_MESSAGE = {
     "name": "obol_draft_from_message",
     "description": (
@@ -110,4 +122,4 @@ DRAFT_FROM_MESSAGE = {
     },
 }
 
-ALL = (CREATE_INVOICE, SEND_INVOICE, GET_INVOICE, LIST_INVOICES, SEND_REMINDER, VOID_INVOICE, DRAFT_FROM_MESSAGE)
+ALL = (CREATE_INVOICE, SEND_INVOICE, GET_INVOICE, LIST_INVOICES, SEND_REMINDER, VOID_INVOICE, MARK_PAID, DRAFT_FROM_MESSAGE)

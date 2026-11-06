@@ -25,6 +25,7 @@ capabilities:
     - obol_list_invoices
     - obol_send_reminder
     - obol_void_invoice
+    - obol_mark_paid
     - obol_draft_from_message
   provides_hooks:
     - pre_tool_call

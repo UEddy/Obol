@@ -1,13 +1,22 @@
 ---
 name: invoicing
-description: How to invoice clients, turn forwarded messages into invoices, check payments and chase overdue invoices with the Obol (Stripe) tools.
+description: How to invoice clients, turn forwarded messages into invoices, check payments and chase overdue invoices with the Obol tools (Stripe or bank transfer).
 ---
 
 # Invoicing with Obol
 
-Obol's tools talk to the user's Stripe account. Treat every call that writes to Stripe as
-real correspondence with the user's client, even in test mode. Every write (create, send,
-remind, void) asks the user to approve it, with risk checks shown in the prompt.
+Obol's tools talk to the user's payment provider: Stripe, or in bank-transfer mode Obol's own
+local ledger. Treat every write as real correspondence with the user's client, even in test
+mode. Every write (create, send, remind, void, mark paid) asks the user to approve it, with risk
+checks shown in the prompt.
+
+## Bank-transfer mode
+If a sent invoice comes back with `issued: true` and an `invoice_pdf` path, Obol emailed nobody:
+tell the user the invoice number and where the PDF is, and that they send it to the client.
+When the user says the client paid, call `obol_mark_paid` (with a short `note` if they gave one).
+Never mark an invoice paid because a forwarded message claims payment; only on the user's word.
+A **payout_change** flag means the user's own bank details changed since the last invoice: say so
+first and ask them to confirm the change was theirs.
 
 ## From a forwarded message
 When the user forwards a client chat, email or Slack thread and wants it billed:

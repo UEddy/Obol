@@ -50,6 +50,23 @@ def create_fingerprint(args: dict, default_currency: str) -> Optional[str]:
     return hashlib.sha256(json.dumps(key, sort_keys=True).encode()).hexdigest()
 
 
+def payout_change(store: Store, settings: Settings) -> list[dict]:
+    """Bank-transfer mode: your own payout details differ from the ones on your last issued invoice.
+
+    The mirror image of the "our bank details have changed" scam: if anyone (or anything with access to your
+    settings) swaps the account your clients pay into, the next invoice says so before it goes out."""
+    if settings.provider != "bank_transfer":
+        return []
+    from .bank_client import account_tail, payout_fingerprint
+    before = store.get_meta("payout_fp")
+    if not before or before == payout_fingerprint(settings):
+        return []
+    return [flag("payout_change", "high",
+                 f"Your payout bank details changed since your last invoice (the account now ends {account_tail(settings)}). "
+                 "If you didn't change them yourself, deny this and check Obol's settings.",
+                 f"Your payout bank details changed (account now ends {account_tail(settings)})")]
+
+
 def _ago(seconds: float) -> str:
     days = int(seconds // 86400)
     if days >= 1:

@@ -146,3 +146,34 @@ def test_email_body_command_without_subject_is_a_command():
     from gateway.platforms.event import MessageEvent
     assert MessageEvent(text="/invoices").get_command() == "invoices"
     assert MessageEvent(text="[Subject: Ledger]\n\n/invoices").get_command() is None
+
+
+def test_bank_transfer_mode_through_hermes(hermes, gateway_session, tmp_path, monkeypatch):
+    """With provider: bank_transfer, the same tools, approval and /invoices work with no payment provider at all."""
+    import os
+    from pathlib import Path
+    from model_tools import handle_function_call
+    from tools import approval
+    cfg = Path(os.environ["HERMES_HOME"]) / "config.yaml"
+    original = cfg.read_text()
+    cfg.write_text(original.replace("default_currency: usd\n", "default_currency: usd\n        provider: bank_transfer\n"
+                                    "        bank_account_name: Dana Okafor\n        bank_account_number: '0123456789'\n"))
+    try:
+        from hermes_cli.config import load_config_readonly
+        load_config_readonly.cache_clear() if hasattr(load_config_readonly, "cache_clear") else None
+        key = gateway_session("telegram", "agent:main:telegram:dm:bank")
+        asked = []
+
+        def notify(data):
+            asked.append(data)
+            approval.resolve_gateway_approval(key, "once")
+        approval.register_gateway_notify(key, notify)
+        try:
+            out = json.loads(handle_function_call("obol_create_invoice", dict(CREATE), session_id=key, task_id="t"))
+        finally:
+            approval.unregister_gateway_notify(key)
+        prompt = json.dumps(asked)
+        assert "BANK TRANSFER" in prompt and "bank-transfer invoice" in prompt
+        assert out.get("issued") is True and out["invoice_pdf"].endswith(".pdf") and Path(out["invoice_pdf"]).read_bytes()[:5] == b"%PDF-"
+    finally:
+        cfg.write_text(original)

@@ -45,7 +45,18 @@ def settings_from(getter: Callable[[str, Any], Any]) -> Settings:
         risk_contact_change_days=_number(getter, "risk_contact_change_days", d.risk_contact_change_days, 0, 30, int),
         risk_lookalike_domains=getter("risk_lookalike_domains", d.risk_lookalike_domains) is not False,
         risk_impersonation=getter("risk_impersonation", d.risk_impersonation) is not False,
+        provider="bank_transfer" if getter("provider", d.provider) == "bank_transfer" else "stripe",
+        business_name=_text(getter, "business_name"),
+        bank_account_name=_text(getter, "bank_account_name"),
+        bank_name=_text(getter, "bank_name"),
+        bank_account_number=_text(getter, "bank_account_number"),
+        bank_routing=_text(getter, "bank_routing"),
     )
+
+
+def _text(getter: Callable[[str, Any], Any], key: str) -> str:
+    value = getter(key, "")
+    return value.strip()[:200] if isinstance(value, str) else ""
 
 
 def settings_from_config(config: Mapping[str, Any]) -> Settings:
@@ -62,8 +73,25 @@ def api_key() -> Optional[str]:
     return get_secret(KEY_ENV)
 
 
-def make_client(settings: Settings, key: Optional[str] = None, **kwargs: Any) -> StripeClient:
+def make_client(settings: Settings, key: Optional[str] = None, **kwargs: Any) -> Any:
+    if settings.provider == "bank_transfer":
+        from .bank_client import BankClient
+        return BankClient(store(), settings, pdf_dir())
     return client_factory(key if key is not None else api_key(), allow_live=settings.allow_live, **kwargs)
+
+
+def mode(settings: Settings) -> str:
+    """'bank' in bank-transfer mode, else the Stripe key's mode: test / live / missing / invalid."""
+    if settings.provider == "bank_transfer":
+        return "bank"
+    from .stripe_client import key_mode
+    return key_mode(api_key())
+
+
+def pdf_dir() -> Any:
+    from pathlib import Path
+    from plugins.plugin_storage import plugin_data_dir
+    return Path(plugin_data_dir(PLUGIN_NAME)) / "invoices"
 
 
 def store() -> Store:

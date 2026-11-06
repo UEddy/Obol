@@ -10,6 +10,7 @@ provides_tools:
   - obol_list_invoices
   - obol_send_reminder
   - obol_void_invoice
+  - obol_mark_paid
   - obol_draft_from_message
 provides_hooks:
   - pre_tool_call
@@ -61,9 +62,39 @@ config_schema:
     type: bool
     default: true
     label: "Risk check: lookalike domains"
-    description: "Flag a billing email whose domain imitates one you've billed (pinernoor.example vs pinemoor.example)."
+    description: "Flag a billing email whose domain imitates one you've billed (acrnestudio.example vs acmestudio.example)."
   risk_impersonation:
     type: bool
     default: true
     label: "Risk check: known client, new domain"
     description: "Flag a client name you've billed before when the email is at a domain you've never used for them."
+  provider:
+    type: str
+    default: "stripe"
+    label: "Payment provider"
+    description: "stripe: hosted payment link, card payments. bank_transfer: a PDF invoice with your bank details; Obol makes no network calls and emails nobody (you send the PDF). Record payments with obol_mark_paid."
+  business_name:
+    type: str
+    default: ""
+    label: "Business name (bank-transfer invoices)"
+    description: "Printed at the top of PDF invoices. Defaults to the account name."
+  bank_account_name:
+    type: str
+    default: ""
+    label: "Bank account name"
+    description: "Printed on bank-transfer invoices. A change is flagged on your next invoice."
+  bank_name:
+    type: str
+    default: ""
+    label: "Bank name"
+    description: "Printed on bank-transfer invoices."
+  bank_account_number:
+    type: str
+    default: ""
+    label: "Bank account number"
+    description: "Printed on bank-transfer invoices. A change is flagged on your next invoice."
+  bank_routing:
+    type: str
+    default: ""
+    label: "Routing / sort code / IBAN / SWIFT"
+    description: "Printed on bank-transfer invoices. A change is flagged on your next invoice."

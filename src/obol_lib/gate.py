@@ -17,12 +17,13 @@ from typing import Any, Callable, Optional
 
 from . import money
 
-WRITE_TOOLS = frozenset({"obol_create_invoice", "obol_send_invoice", "obol_send_reminder", "obol_void_invoice"})
+WRITE_TOOLS = frozenset({"obol_create_invoice", "obol_send_invoice", "obol_send_reminder", "obol_void_invoice",
+                         "obol_mark_paid"})
 _VERBS = {"obol_send_invoice": "finalize and email", "obol_send_reminder": "re-send the payment email for",
-          "obol_void_invoice": "VOID (cannot be undone)"}
+          "obol_void_invoice": "VOID (cannot be undone)", "obol_mark_paid": "mark as PAID (money received outside the payment page)"}
 
 
-def describe_create(args: dict, default_currency: str) -> str:
+def describe_create(args: dict, default_currency: str, bank: bool = False) -> str:
     cur = str(args.get("currency") or default_currency).lower()
     try:
         total = sum(money.to_minor(i.get("amount"), cur) * int(i.get("quantity", 1) or 1)
@@ -31,13 +32,15 @@ def describe_create(args: dict, default_currency: str) -> str:
     except (money.MoneyError, TypeError, ValueError, AttributeError):
         amount = "an invoice (amount could not be read)"
     who = args.get("customer_name") or args.get("customer_email")
+    if args.get("send") and bank:
+        return f"ISSUE a {amount} bank-transfer invoice (PDF) to {who} <{args.get('customer_email')}>"
     if args.get("send"):
         return f"EMAIL a {amount} payment link to {who} <{args.get('customer_email')}>"
     return f"Draft a {amount} invoice for {who} <{args.get('customer_email')}> (not sent yet)"
 
 
-def describe_existing(tool_name: str, invoice_id: str, row: Optional[dict]) -> str:
-    verb = _VERBS[tool_name]
+def describe_existing(tool_name: str, invoice_id: str, row: Optional[dict], bank: bool = False) -> str:
+    verb = "issue the bank-transfer PDF for" if bank and tool_name == "obol_send_invoice" else _VERBS[tool_name]
     if row:
         who = row.get("customer_name") or row.get("customer_email")
         return (f"{verb[0].upper()}{verb[1:]} {row.get('number') or invoice_id}: "
@@ -72,13 +75,13 @@ def decide(tool_name: str, args: dict, *, mode: str, allow_live: bool, unattende
         return {"action": "block", "message": (
             f"Obol refused {tool_name}: this is an unattended run (cron) and every invoice write needs a "
             "person to approve it. Nothing was sent. Report what needs doing so the user can approve it in chat.")}
-    if mode not in ("test", "live"):
+    if mode not in ("test", "live", "bank"):
         return None  # the tool itself answers with a clear not_configured error and writes nothing
     try:
         flags = assess()
     except Exception as exc:  # a broken check must not hide the prompt
         flags = [{"check": "unavailable", "severity": "info",
                   "message": f"Risk checks could not run ({exc.__class__.__name__}); review carefully."}]
-    tag = "LIVE MONEY" if mode == "live" else "TEST mode"
+    tag = {"live": "LIVE MONEY", "bank": "BANK TRANSFER"}.get(mode, "TEST mode")
     message = f"Obol ({tag}): {summary()}.\n{format_flags(flags)}"
     return {"action": "approve", "message": message, "rule_key": f"obol:{tool_name}:{uuid.uuid4().hex}"}

@@ -188,6 +188,12 @@ class FakeStripe:
                     return self._err(400, "invoice is not open")
                 self.sent.append(inv["id"])
                 return self._json(200, inv)
+            if action == "pay" and form.get("paid_out_of_band") == "true":
+                if inv["status"] != "open":
+                    return self._err(400, "invoice is not open")
+                inv.update(status="paid", amount_paid=inv["amount_due"], amount_remaining=0)
+                inv["status_transitions"]["paid_at"] = self.now
+                return self._json(200, inv)
             if action == "void":
                 if inv["status"] != "open":
                     return self._err(400, "invoice is not open")

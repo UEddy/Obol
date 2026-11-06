@@ -35,6 +35,7 @@
     var mode = props.mode;
     if (mode === "test") return h("span", { className: "obol-badge test", title: "Obol is using a TEST key. No real money moves." }, "Test mode");
     if (mode === "live") return h("span", { className: "obol-badge live", title: "Obol is using a LIVE key." }, "Live");
+    if (mode === "bank") return h("span", { className: "obol-badge test", title: "Bank-transfer mode: PDF invoices with your bank details. No network." }, "Bank transfer");
     return h("span", { className: "obol-badge missing" }, "Not configured");
   }
 

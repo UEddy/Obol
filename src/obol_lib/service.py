@@ -33,6 +33,14 @@ class Settings:
     risk_contact_change_days: int = 14
     risk_lookalike_domains: bool = True
     risk_impersonation: bool = True
+    # Payment provider: "stripe" (hosted payment link, card) or "bank_transfer" (PDF invoice with your bank details,
+    # no network). Bank details are printed on the PDF.
+    provider: str = "stripe"
+    business_name: str = ""
+    bank_account_name: str = ""
+    bank_name: str = ""
+    bank_account_number: str = ""
+    bank_routing: str = ""
 
 
 class ValidationError(ValueError):
@@ -102,8 +110,10 @@ def view(row: dict, now: Optional[float] = None) -> dict[str, Any]:
         "amount_remaining": money.fmt(row["amount_remaining"], cur),
         "due_date": time.strftime("%Y-%m-%d", time.gmtime(row["due_date"])) if row.get("due_date") else None,
         "payment_link": row.get("hosted_url"),
-        "mode": "live" if row.get("livemode") else "test",
+        "mode": "bank transfer" if str(row.get("id", "")).startswith("in_bank") else "live" if row.get("livemode") else "test",
     }
+    if row.get("pdf_url"):
+        out["invoice_pdf"] = row["pdf_url"]
     if row.get("paid_at"):
         out["paid_at"] = time.strftime("%Y-%m-%d %H:%M UTC", time.gmtime(row["paid_at"]))
     if is_overdue(row, now):
@@ -170,8 +180,30 @@ def send_invoice(client: StripeClient, store: Store, args: dict) -> dict:
     inv = client.send_invoice(inv_id, idempotency_key=f"obol-{op}-send")
     store.upsert([inv])
     row = store.get(inv_id) or {}
+    if getattr(client, "mode", "") == "bank":
+        from .bank_client import account_tail, payout_fingerprint
+        store.set_meta("payout_fp", payout_fingerprint(client.settings))
+        store.log("issued", inv_id, f"PDF for {row.get('customer_email')}, paying into account ending {account_tail(client.settings)}")
+        return {"issued": True, "invoice": view(row), "invoice_pdf": row.get("pdf_url"),
+                "next_step": "Bank-transfer invoice issued. Obol does not email clients in this mode: send this PDF to "
+                             f"{row.get('customer_email')} yourself. When the money arrives, call obol_mark_paid."}
     store.log("sent", inv_id, f"to {row.get('customer_email')}")
     return {"sent": True, "invoice": view(row), "payment_link": row.get("hosted_url")}
+
+
+def mark_paid(client: Any, store: Store, args: dict) -> dict:
+    """Record a payment that arrived outside the payment page (a bank transfer, cash, a cheque)."""
+    inv_id = invoice_id(args.get("invoice_id"))
+    inv = client.get_invoice(inv_id)
+    if inv.get("status") != "open":
+        raise ValidationError(f"invoice {inv_id} is {inv.get('status')}; only open invoices can be marked paid")
+    inv = client.mark_paid(inv_id, idempotency_key=f"obol-{uuid.uuid4().hex}-paid")
+    store.upsert([inv])
+    row = store.get(inv_id) or {}
+    note = args.get("note")
+    store.log("paid", inv_id, f"{money.fmt(row.get('amount_paid') or 0, row.get('currency') or 'usd')} marked paid"
+              + (f": {str(note)[:120]}" if note else ""))
+    return {"marked_paid": True, "invoice": view(row)}
 
 
 def send_reminder(client: StripeClient, store: Store, args: dict) -> dict:

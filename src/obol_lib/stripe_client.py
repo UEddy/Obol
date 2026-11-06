@@ -208,6 +208,11 @@ class StripeClient:
     def send_invoice(self, invoice_id: str, *, idempotency_key: str) -> dict:
         return self.request("POST", f"/v1/invoices/{invoice_id}/send", idempotency_key=idempotency_key)
 
+    def mark_paid(self, invoice_id: str, *, idempotency_key: str) -> dict:
+        """Record a payment made outside Stripe (e.g. a bank transfer): Stripe's paid_out_of_band."""
+        return self.request("POST", f"/v1/invoices/{invoice_id}/pay", idempotency_key=idempotency_key,
+                            data={"paid_out_of_band": "true"})
+
     def void_invoice(self, invoice_id: str, *, idempotency_key: str) -> dict:
         return self.request("POST", f"/v1/invoices/{invoice_id}/void", idempotency_key=idempotency_key)
 
