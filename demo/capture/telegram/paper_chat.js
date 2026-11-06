@@ -9,32 +9,41 @@
 // <out-dir>/<name>.png with every bubble whole (text size is reduced until the conversation fits) and the screen
 // positions of the listed phrases (in screenshot pixels) to <out-dir>/telegram.json.
 const { chromium } = require('playwright');
-const fs = require('fs'); const path = require('path');
+const fs = require('fs'); const path = require('path'); const { execFileSync } = require('child_process');
 const [profile, bot, stepsFile, out] = process.argv.slice(2);
 const VIEW = { width: 430, height: 932 }; const SCALE = 2;
 const CLEAN = `
-  .chat-background, .chat-background-item { background: #f3efe7 !important; }
-  .chat-background canvas, .chat-background-item-pattern, .chat-background-item-image { display: none !important; }
+  html, body, #page-chats, .whole, #column-center, .chat, .chat-background, .chat-background-item { background: #f3efe7 !important; }
+  canvas[class*="_CanvasCommon_"], .chat-background canvas, .chat-background-item-pattern, .chat-background-item-image { visibility: hidden !important; }
   .bubbles-date-group .bubble.service.is-date, .bubbles .is-sticky { display: none !important; }`;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-async function bubblesText(page) {
-  return page.evaluate(() => [...document.querySelectorAll('.bubbles .bubble')].slice(-6).map((b) => b.innerText).join('\n---\n'));
+async function bubblesText(page, incomingOnly = false) {
+  return page.evaluate((inc) => [...document.querySelectorAll('.bubbles .bubble')].filter((b) => !inc || !b.classList.contains('is-out'))
+    .slice(-6).map((b) => b.innerText).join('\n---\n'), incomingOnly);
 }
-async function waitFor(page, rx, ms = 240000) {
+async function waitFor(page, rx, ms = 240000, quiet = 6000) {
   const re = new RegExp(rx, 'i'); const end = Date.now() + ms;
-  while (Date.now() < end) { if (re.test(await bubblesText(page))) return; await page.waitForTimeout(700); }
+  while (Date.now() < end) {
+    if (re.test(await bubblesText(page, true))) {
+      let last = await bubblesText(page); let since = Date.now();     // then wait until Hermes stops writing
+      while (Date.now() - since < quiet && Date.now() < end) {
+        await page.waitForTimeout(700); const now = await bubblesText(page);
+        if (now !== last) { last = now; since = Date.now(); }
+      }
+      return;
+    }
+    await page.waitForTimeout(700);
+  }
   throw new Error('timed out waiting for ' + rx + '\n' + await bubblesText(page));
 }
 async function clearChat(page) {
-  const ids = await page.evaluate(() => [...document.querySelectorAll('.bubbles .bubble[data-mid]')]
-    .map((b) => Number(b.dataset.mid)).filter((n) => n > 0 && n < 2 ** 31));
-  for (let i = 0; i < ids.length; i += 100) {
-    const r = await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/deleteMessages`, {
-      method: 'POST', headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ chat_id: Number(process.env.TG_CHAT_ID), message_ids: ids.slice(i, i + 100) }) });
-    const j = await r.json(); if (!j.ok) console.error('deleteMessages:', j.description);
-  }
+  // Telegram numbers messages per account, so the bot can't delete what this account sees: use the chat menu.
+  if (!(await page.locator('.bubbles .bubble').count())) return;
+  await page.locator('.topbar .btn-menu-toggle:visible').first().click();
+  await page.locator('.btn-menu-item:visible').filter({ hasText: /clear history/i }).first().click();
+  const ok = page.locator('.popup-buttons button:visible').filter({ hasText: /clear|delete/i }).last();
+  await ok.waitFor({ timeout: 10000 }); await ok.click();
   await page.waitForTimeout(2500);
 }
 async function send(page, text) {
@@ -64,6 +73,8 @@ const phraseBoxes = (page, phrases) => page.evaluate((phrases) => {
       out[p] = [...r.getClientRects()].map((b) => ({ x: b.x, y: b.y, w: b.width, h: b.height }));
     }
   }
+  const links = [...document.querySelectorAll('.bubbles a[href*="invoice."], .bubbles a[href*="pay."]')];
+  if (links.length) out.link = [...links[links.length - 1].getClientRects()].map((b) => ({ x: b.x, y: b.y, w: b.width, h: b.height }));
   for (const b of document.querySelectorAll('.reply-markup-button, .reply-markup button')) {
     const r = b.getBoundingClientRect(); out['button:' + b.innerText.trim()] = [{ x: r.x, y: r.y, w: r.width, h: r.height }];
   }
@@ -81,7 +92,11 @@ const phraseBoxes = (page, phrases) => page.evaluate((phrases) => {
   await page.addStyleTag({ content: CLEAN }); await page.waitForTimeout(2500);
   const meta = fs.existsSync(path.join(out, 'telegram.json')) ? JSON.parse(fs.readFileSync(path.join(out, 'telegram.json'), 'utf8')) : {};
   for (const s of steps) {
-    if (!s.name) { if (s.pause) await page.waitForTimeout(s.pause); continue; }   // e.g. let the test payment go through
+    if (!s.name) {   // a step without a screenshot: a pause (e.g. let the test payment go through) or a plain message
+      if (s.send) { await send(page, s.send); await page.waitForTimeout(4000); }
+      if (s.pause) await page.waitForTimeout(s.pause);
+      continue;
+    }
     if (s.clear) await clearChat(page);
     if (s.send) await send(page, s.send);
     if (s.click) await page.locator('.reply-markup-button, .reply-markup button').filter({ hasText: new RegExp(s.click, 'i') }).last().click();

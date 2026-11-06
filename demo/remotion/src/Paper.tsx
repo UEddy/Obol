@@ -181,9 +181,24 @@ const pushState = (t: number, keys: Push[], fx0: number, fy0: number) => {
   return { s, fx, fy };
 };
 const boxes = (name: TgName, key: string): Box[] => ((tg[name] as { boxes: Record<string, Box[]> }).boxes[key] ?? []);
-const lastBubble = (name: TgName, out = false): Box => {
-  const all = boxes(name, "bubbles").filter((b) => !!b.out === out);
+const lastBubble = (name: TgName, out = false): Box => {   // the lowest message of that side (Hermes's last reply)
+  const all = boxes(name, "bubbles").filter((b) => !!b.out === out).sort((a, b) => a.y + a.h - (b.y + b.h));
   return all[all.length - 1] ?? { x: 0, y: 600, w: 860, h: 600 };
+};
+
+/** The payment page's address, shown as its link text "Pay invoice" (no provider domain on screen). */
+const PayLink: React.FC<{ name: TgName; k: number; o?: number }> = ({ name, k, o = 1 }) => {
+  const rects = boxes(name, "link");
+  if (!rects.length) return null;
+  const x0 = Math.min(...rects.map((r) => r.x)) - 4;
+  const y0 = rects[0].y - 2;
+  const x1 = Math.max(...rects.map((r) => r.x + r.w)) + 6;
+  const y1 = Math.max(...rects.map((r) => r.y + r.h)) + 2;
+  return (
+    <div style={{ position: "absolute", left: x0 * k, top: y0 * k, width: (x1 - x0) * k, height: (y1 - y0) * k, background: "#ffffff", opacity: o }}>
+      <span style={{ position: "absolute", left: 4 * k, top: 0, fontFamily: "Roboto, -apple-system, 'Segoe UI', Arial, sans-serif", fontSize: 32 * k, lineHeight: `${rects[0].h * k}px`, color: "#3390ec", textDecoration: "underline" }}>Pay invoice</span>
+    </div>
+  );
 };
 const firstBox = (name: TgName, key: string, fallback: Box): Box => boxes(name, key)[0] ?? fallback;
 const centre = (b: Box) => ({ fx: b.x + b.w / 2, fy: b.y + b.h / 2 });
@@ -226,12 +241,34 @@ const Circle: React.FC<{ x: number; y: number; w: number; h: number; at: number;
   const p = tw(t, at, at + 0.42, 0, 1, Easing.inOut(Easing.quad));
   const rx = w / 2 + 12;
   const ry = h / 2 + 10;
-  const len = 2 * Math.PI * Math.sqrt((rx * rx + ry * ry) / 2) * 1.08;
   return (
     <svg style={{ position: "absolute", left: x - rx - stroke, top: y - ry - stroke, overflow: "visible" }} width={2 * (rx + stroke)} height={2 * (ry + stroke)}>
-      <path d={`M ${rx + stroke + rx * 0.95} ${ry + stroke - ry * 0.3} A ${rx} ${ry} 0 1 1 ${rx + stroke + rx * 0.9} ${ry + stroke - ry * 0.45} l -8 -14`}
-        fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={len} strokeDashoffset={len * (1 - p)} opacity={0.9} />
+      <ellipse cx={rx + stroke} cy={ry + stroke} rx={rx} ry={ry} transform={`rotate(-6 ${rx + stroke} ${ry + stroke})`} pathLength={1}
+        fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={1.06} strokeDashoffset={1.06 * (1 - p)} opacity={0.9} />
     </svg>
+  );
+};
+
+/** A magnifying glass resting on a real capture: (tx, ty) in image px; w x h is the image's displayed size. */
+const Loupe: React.FC<{ src: string; imgW: number; w: number; h: number; tx: number; ty: number; zoom: number; r: number; at: number; until: number }> = ({ src, imgW, w, h, tx, ty, zoom, r: R, at, until }) => {
+  const t = useT();
+  if (t < at - 0.05 || t > until + 0.5) return null;
+  const k = w / imgW;
+  const kin = tw(t, at, at + 0.55, 0, 1, OUT);
+  const kout = tw(t, until, until + 0.45, 0, 1, IN);
+  const dx = 260 * (1 - kin) + 320 * kout;
+  const dy = 220 * (1 - kin) + 260 * kout;
+  const s = 1.15 - 0.15 * kin;
+  const cx = tx * k;
+  const cy = ty * k;
+  return (
+    <div style={{ position: "absolute", left: cx - R, top: cy - R, width: 2 * R, height: 2 * R, zIndex: 9, transform: `translate(${dx}px, ${dy}px) scale(${s})`, opacity: Math.min(1, kin * 3) * (1 - kout) }}>
+      <div style={{ position: "absolute", left: R * 1.55, top: R * 1.55, width: R * 0.28, height: R * 1.05, borderRadius: R * 0.1, background: "linear-gradient(90deg, #2a1d14, #5b3c27 45%, #2a1d14)", transform: "rotate(-45deg)", transformOrigin: "50% 0", boxShadow: "6px 10px 18px rgba(30,18,6,0.4)" }} />
+      <div style={{ position: "absolute", inset: 0, borderRadius: "50%", overflow: "hidden", background: "#fff", boxShadow: `0 ${18 + 30 * (s - 1)}px 40px rgba(30,18,6,0.42), 0 0 0 ${Math.round(R * 0.07)}px #2f2b27, 0 0 0 ${Math.round(R * 0.09)}px #8b8378` }}>
+        <Img src={staticFile(src)} style={{ position: "absolute", width: w * zoom, height: h * zoom, left: R - cx * zoom, top: R - cy * zoom, maxWidth: "none" }} />
+        <div style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "radial-gradient(circle at 32% 26%, rgba(255,255,255,0.45), rgba(255,255,255,0) 38%), radial-gradient(circle, rgba(0,0,0,0) 72%, rgba(40,30,20,0.18) 100%)" }} />
+      </div>
+    </div>
   );
 };
 
@@ -274,8 +311,8 @@ const S1: React.FC = () => {
 const INV = {
   client: "Acme Studio",
   email: "billing@acmestudio.example.com",
-  lines: [["Website build", "$1,800.00"], ["Revisions", "$350.00"]] as [string, string][],
-  total: "$2,150.00",
+  lines: [["Build", "$2,000.00"], ["Revisions", "$350.00"]] as [string, string][],   // the real invoice, AKLIDBHW-0005
+  total: "$2,350.00",
   due: "Due 20 Nov 2026 · 14 days",
 };
 
@@ -352,7 +389,7 @@ const Invoice: React.FC = () => {
   // Push in on the bank details after the flip (scene 4), back out before the stamp.
   const pushIn = tw(t, flipB + 0.15, flipB + 0.85, 0, 1, INOUT) * (1 - tw(t, sceneAt(5).start - 0.3, sceneAt(5).start + 0.15, 0, 1, INOUT));
   const ps = 1 + pick(v, 0.26, 0.2) * pushIn;
-  const fy = h * 0.43;
+  const fy = h * (1040 / 2339);
   const e = Math.max(1 - out, exit, flip * (1 - flip) * 2.2, toCentre * (1 - toCentre) * 2);
   return (
     <At x={x} y={y} r={r} s={sAside} z={6}>
@@ -368,6 +405,7 @@ const Invoice: React.FC = () => {
             <div style={{ position: "absolute", inset: 0, backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}>
               <div style={{ width: w, height: h, boxShadow: shadow(e), borderRadius: 2, overflow: "hidden", background: "#fff" }}>
                 <Img src={staticFile("captures/paper/bank-invoice.png")} style={{ width: w, height: h, display: "block" }} />
+                {flip > 0.99 ? <Loupe src="captures/paper/bank-invoice.png" imgW={assets.pdf[0]} w={w} h={h} tx={380} ty={1040} zoom={pick(v, 2.5, 2.2)} r={pick(v, 235, 240)} at={flipB + 0.3} until={sceneAt(5).start - 0.35} /> : null}
                 <div style={{ position: "absolute", inset: 0, backgroundImage: `url(${GRAIN})`, backgroundSize: "320px", mixBlendMode: "multiply", opacity: 0.55 }} />
               </div>
               <div style={{ position: "absolute", right: pick(v, 46, 40), top: pick(v, 250, 300) }}>
@@ -389,7 +427,7 @@ const S2: React.FC = () => {
   const m = move(t, [5.0, W * 0.7, 40, 9], [15.0, -W * 0.75, 30, -10]);
   const draft = centre(lastBubble("draft"));
   const push = pushState(t, [
-    { a: wt(2, "forward") - 0.1, b: wt(2, "drafts") + 0.2, s: pick(v, 1.25, 1.18), ...draft },
+    { a: wt(2, "forward") - 0.1, b: wt(2, "drafts") + 0.2, s: pick(v, 1.25, 1.3), ...draft },
     { a: wt(2, "who") - 0.35, b: wt(2, "who") + 0.3, s: 1, ...draft },
   ], draft.fx, draft.fy);
   return (
@@ -410,16 +448,19 @@ const S3: React.FC = () => {
   const swap = tw(t, tap + 0.12, tap + 0.3, 0, 1);
   const ripple = tw(t, tap, tap + 0.45, 0, 1, OUT);
   const push = pushState(t, [
-    { a: 15.7, b: 16.6, s: pick(v, 1.14, 1.1), ...centre(btn) },
+    { a: 15.7, b: 16.6, s: pick(v, 1.14, 1.3), ...centre(btn) },
     { a: tap + 0.5, b: tap + 1.3, s: 1, ...centre(btn) },
   ], centre(btn).fx, centre(btn).fy);
   return (
     <At x={phoneX(v) + m.dx} y={phoneY(v) + m.dy} r={1 + m.dr} z={5}>
       <Phone src={tgSrc("approval")} over={{ src: tgSrc("approved"), o: swap }} h={phoneH(v)} e={m.e} push={push}>
-        {(k) => (t > tap && ripple < 1 ? (
+        {(k) => (<>
+          <PayLink name="approved" k={k} o={swap} />
+          {t > tap && ripple < 1 ? (
           <div style={{ position: "absolute", left: (btn.x + btn.w / 2) * k, top: (btn.y + btn.h / 2) * k, width: 0, height: 0 }}>
             <div style={{ position: "absolute", left: -90 * ripple, top: -90 * ripple, width: 180 * ripple, height: 180 * ripple, borderRadius: "50%", background: PINK, opacity: 0.45 * (1 - ripple) }} />
-          </div>) : null)}
+          </div>) : null}
+        </>)}
       </Phone>
     </At>
   );
@@ -432,7 +473,7 @@ const S5: React.FC = () => {
   if (t < 27.9 || t > 33.2) return null;
   const m = move(t, [28.05, -W * 0.7, 40, -9], [32.45, -W * 0.75, -20, -8]);
   const ans = centre(lastBubble("paid"));
-  const push = pushState(t, [{ a: wt(5, "checks") - 0.3, b: wt(5, "you") + 0.3, s: pick(v, 1.22, 1.16), ...ans }], ans.fx, ans.fy);
+  const push = pushState(t, [{ a: wt(5, "checks") - 0.3, b: wt(5, "you") + 0.3, s: pick(v, 1.22, 1.3), ...ans }], ans.fx, ans.fy);
   return (
     <At x={phoneX(v) + m.dx} y={phoneY(v) + m.dy} r={-1 + m.dr} z={7}>
       <Phone src={tgSrc("paid")} h={phoneH(v)} e={m.e} push={push} />
@@ -506,7 +547,7 @@ const S6: React.FC = () => {
 // Scene 7 (37.5-50): the scam message; the changed letter circled, the injected order underlined, BLOCKED, three flags.
 const MONO = '"Courier Prime", "Courier New", monospace';
 const Compare: React.FC<{ v: boolean; at: number }> = ({ v, at }) => {
-  const fs = pick(v, 40, 23);
+  const fs = pick(v, 40, 31);
   const cwid = fs * 0.6;
   const real = flags.real_email.split("@")[1];
   const fake = flags.fake_email.split("@")[1];
@@ -518,11 +559,11 @@ const Compare: React.FC<{ v: boolean; at: number }> = ({ v, at }) => {
     <div style={{ position: "relative" }}>
       <div style={lab}>{label}</div>
       <div style={{ fontFamily: MONO, fontSize: fs, color, whiteSpace: "nowrap", position: "relative" }}>
-        <span style={{ fontSize: fs * 0.7, color: MUTED }}>billing@</span>
+        {v ? null : <span style={{ fontSize: fs * 0.7, color: MUTED }}>billing@</span>}
         <span>{dom.slice(0, d)}</span>
         <span style={{ position: "relative", display: "inline-block" }}>{dom.slice(d, d + n)}
           <span style={{ position: "absolute", left: "50%", top: "50%", width: 0, height: 0 }}>
-            <Circle x={0} y={0} w={n * cwid} h={fs * 0.8} at={at + (color === RED ? 0.18 : 0)} />
+            <Circle x={cwid * 0.25} y={0} w={n * cwid - 10} h={fs * 0.7} at={at + (color === RED ? 0.18 : 0)} stroke={v ? 4 : 5} />
           </span>
         </span>
         <span>{dom.slice(d + n)}</span>
@@ -548,8 +589,8 @@ const S7: React.FC = () => {
   const skip = boxes("scam", "skip the approval step");
   const skipC = skip.length ? centre({ x: skip[0].x, y: skip[0].y, w: skip[skip.length - 1].x + skip[skip.length - 1].w - skip[0].x, h: skip[skip.length - 1].y + skip[skip.length - 1].h - skip[0].y }) : centre(addr);
   const push = pushState(t, [
-    { a: wt(7, "someone") - 0.3, b: wt(7, "email") + 0.1, s: pick(v, 1.28, 1.15), ...centre(addr) },
-    { a: wt(7, "tells") - 0.2, b: wt(7, "skip") - 0.05, s: pick(v, 1.28, 1.15), ...skipC },
+    { a: wt(7, "someone") - 0.3, b: wt(7, "email") + 0.1, s: pick(v, 1.28, 1.3), ...centre(addr) },
+    { a: wt(7, "tells") - 0.2, b: wt(7, "skip") - 0.05, s: pick(v, 1.28, 1.3), ...skipC },
     { a: wt(7, "flags") - 0.55, b: wt(7, "flags") + 0.1, s: 1, ...skipC },
   ], centre(addr).fx, centre(addr).fy);
   const colX = pick(v, 1385, 822);
@@ -621,7 +662,7 @@ const S8: React.FC = () => {
   const { v, W, H } = useL();
   const s8 = sceneAt(8);
   if (t < s8.start - 0.2 || t > s8.end + 0.7) return null;
-  const tm = move(t, [s8.start, 0, H * 0.75, 3], [s8.end - 0.05, 0, -H, -4], 0.6);
+  const tm = move(t, [s8.start, 0, H * 0.75, 3], [s8.end + 0.12, 0, -H, -4], 0.6);
   const tw8 = pick(v, 1040, 1000);
   const th8 = pick(v, 790, 720);
   const tx = pick(v, 640, 540);
@@ -629,7 +670,7 @@ const S8: React.FC = () => {
   const sw = (tw8 - 70) / 3;
   const sh = (th8 - 70) / 3;
   const payout = wt(8, "payout");
-  const at = CHECKS.map((c, i) => (c.word ? wt(8, c.word) - 0.1 : payout + 0.42 * (i - 6)));
+  const at = CHECKS.map((c, i) => (c.word ? wt(8, c.word) - 0.1 : payout + 0.37 + 0.25 * (i - 7)));
   let cur = -1;
   at.forEach((a, i) => { if (t >= a + 0.25) cur = i; });
   const lineIn = cur >= 0 ? tw(t, at[cur] + 0.25, at[cur] + 0.45, 0, 1) : 0;
@@ -686,7 +727,7 @@ const S9: React.FC = () => {
   const { v, W, H } = useL();
   const s9 = sceneAt(9);
   if (t < s9.start - 0.2 || t > s9.end + 0.7) return null;
-  const bm = move(t, [s9.start - 0.05, 0, H * 0.8, -3], [s9.end - 0.05, 0, -H * 1.05, 3], 0.55);
+  const bm = move(t, [s9.start + 0.08, 0, H * 0.8, -3], [s9.end - 0.05, 0, -H * 1.05, 3], 0.55);
   const pw = pick(v, 800, 512);
   const ph = pick(v, 790, 730);
   const open = tw(t, s9.start + 0.35, s9.start + 1.05, 0, 1, INOUT);
@@ -763,9 +804,12 @@ const S9: React.FC = () => {
         </div>
       </At>
       {dm.on ? (
-        <At x={pick(v, 1440, 540) + dm.dx} y={pick(v, 790, 1020) + dm.dy} r={1.2 + dm.dr} z={8}>
+        <At x={pick(v, 1440, 540) + dm.dx} y={pick(v, 700, 935) + dm.dy} r={1.2 + dm.dr} z={8}>
           <div style={{ padding: 12, borderRadius: 6, boxShadow: shadow(dm.e), ...surface() }}>
-            <Img src={staticFile("captures/paper/term_doctor.png")} style={{ width: dW, height: dH, display: "block", borderRadius: 4 }} />
+            <div style={{ position: "relative" }}>
+              <Img src={staticFile("captures/paper/term_doctor.png")} style={{ width: dW, height: dH, display: "block", borderRadius: 4 }} />
+              <Loupe src="captures/paper/term_doctor.png" imgW={assets.term_doctor[0]} w={dW} h={dH} tx={516} ty={233} zoom={pick(v, 2.6, 2.2)} r={pick(v, 250, 262)} at={caught + 0.45} until={s9.end - 0.3} />
+            </div>
           </div>
         </At>
       ) : null}

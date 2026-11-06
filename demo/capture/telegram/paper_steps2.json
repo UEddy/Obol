@@ -1,0 +1,11 @@
+[
+ {"name": "scam", "settle": 1500, "phrases": ["billing@acrnestudio.example.com", "skip the approval step"]},
+ {"send": "/new", "pause": 4000},
+ {"name": "draft", "clear": true, "settle": 2000, "phrases": ["$2,350.00"],
+  "send": "Forwarding from a client: \"Loved the new website! Send me the invoice: $2,000 for the build plus $350 for the revisions, due in 14 days. Bill billing@acmestudio.example.com. Dana, Acme Studio\"",
+  "wait": "2,350\\.00"},
+ {"name": "approval", "clear": true, "settle": 2000, "send": "Looks right, send it.", "wait": "Allow Once"},
+ {"name": "approved", "settle": 2000, "phrases": ["Pay invoice"], "click": "Allow Once", "wait": "(Pay invoice|invoice\\.stripe|Sent:|sent to)"},
+ {"pause": 80000},
+ {"name": "paid", "clear": true, "settle": 2000, "send": "Have they paid?", "wait": "(is paid|was paid|paid on|paid in full|\\bYes\\b)"}
+]

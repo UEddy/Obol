@@ -2,7 +2,7 @@
 
     python demo/capture/bank_pdf.py demo/remotion/public/captures/paper
 
-Issues the same invoice the Telegram scene sends (Acme Studio: website build and revisions, due in 14 days) in
+Issues the same invoice the Telegram scene sends (Acme Studio: build and revisions, $2,350, due in 14 days) in
 bank-transfer mode, then renders the PDF Obol writes to bank-invoice.png (pdftoppm, 200 dpi). Sample payout details only.
 """
 
@@ -27,7 +27,7 @@ with tempfile.TemporaryDirectory() as tmp:
     res = service.create_invoice(BankClient(store, st, Path(tmp)), store, st, {
         "customer_email": "billing@acmestudio.example.com", "customer_name": "Acme Studio", "send": True,
         "days_until_due": 14,
-        "line_items": [{"description": "Website build", "amount": 1800}, {"description": "Revisions", "amount": 350}]})
+        "line_items": [{"description": "Build", "amount": 2000}, {"description": "Revisions", "amount": 350}]})
     pdf = Path(res["invoice_pdf"])
     (out / "bank-invoice.pdf").write_bytes(pdf.read_bytes())
     subprocess.run(["pdftoppm", "-png", "-r", "200", "-singlefile", str(pdf), str(out / "bank-invoice")], check=True)
