@@ -21,7 +21,7 @@ const waitFile = async (f, ms) => {
   const page = ctx.pages()[0] || await ctx.newPage();
   await page.goto('https://web.telegram.org/k/', { waitUntil: 'domcontentloaded' });
   await page.getByText(/log in by phone number/i).click({ timeout: 60000 });
-  const input = page.locator('.input-field-phone .input-field-input, input[type="tel"], [contenteditable="true"]').first();
+  const input = page.locator('.input-field-phone .input-field-input').first();   // not the country picker before it
   await input.waitFor({ timeout: 30000 });
   await input.click(); await page.keyboard.press('Control+A'); await page.keyboard.press('Backspace');
   await input.pressSequentially(phone, { delay: 40 });
