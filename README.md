@@ -1,5 +1,7 @@
 # Obol
 
+[![tests](https://github.com/UEddy/Obol/actions/workflows/tests.yml/badge.svg)](https://github.com/UEddy/Obol/actions/workflows/tests.yml)
+
 **Safe invoicing for [Hermes Agent](https://github.com/NousResearch/hermes-agent).** Forward a client's message,
 approve the draft, get paid, all from the chat you already use. Built for freelancers, indie developers, AI
 consultants and agencies who bill clients.

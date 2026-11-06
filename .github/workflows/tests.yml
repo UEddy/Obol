@@ -9,6 +9,7 @@ permissions:
 
 jobs:
   unit:
+    name: Unit and adversarial tests (no Hermes)
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -24,3 +25,33 @@ jobs:
         env:
           STRIPE_API_KEY: ${{ secrets.STRIPE_API_KEY }}
         run: python -m pytest -q
+
+  hermes:
+    name: Full suite inside Hermes (plugin manager, gateways, validate, doctor)
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: obol
+      - uses: actions/checkout@v4
+        with:
+          repository: NousResearch/hermes-agent
+          path: hermes-agent
+      - uses: astral-sh/setup-uv@v6
+      - name: Install Hermes Agent
+        run: |
+          uv venv --python 3.14 hvenv
+          cd hermes-agent && VIRTUAL_ENV=../hvenv uv pip install -e . "pytest>=8,<10" "pytest-asyncio>=0.23"
+      - name: Run every test, with Hermes importable
+        working-directory: obol
+        env:
+          STRIPE_API_KEY: ${{ secrets.STRIPE_API_KEY }}
+        run: ../hvenv/bin/python -m pytest -q
+      - name: hermes plugins validate and doctor
+        env:
+          HERMES_HOME: ${{ runner.temp }}/hermes-home
+        run: |
+          mkdir -p "$HERMES_HOME"
+          hvenv/bin/hermes plugins validate obol --install-deps
+          hvenv/bin/hermes plugins doctor --ci obol
