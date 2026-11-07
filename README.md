@@ -108,6 +108,46 @@ checks your bank details.
 
 Requires Hermes Agent 0.22+. No extra Python dependencies.
 
+## Going live
+
+Out of the box Obol refuses live Stripe keys (`sk_live_…`, `rk_live_…`), both in the provider client and again in
+the approval hook. Once you turn live mode on, it runs exactly the same code as test mode: the same Stripe calls,
+the same approval prompts, the same scam checks. Bank-transfer mode needs no Stripe key, so none of this applies
+to it.
+
+1. **Activate your Stripe account.** Stripe won't accept live invoices until the account is activated (business
+   details and a payout bank account). That happens on Stripe's side, not in Obol.
+2. **Use a restricted key.** A restricted key (`rk_live_…`) is safer than a full secret key. Create one in the
+   Stripe dashboard with only what Obol uses:
+
+   | Resource | Access |
+   |---|---|
+   | Customers | Write |
+   | Invoices (includes invoice items) | Write |
+   | Charges | Read (fraud-risk level on paid invoices) |
+   | Disputes | Read |
+   | Events | Read (recent contact or payment-detail changes) |
+
+3. **Set the key and allow live mode:**
+
+   ```bash
+   hermes config set STRIPE_API_KEY rk_live_…
+   hermes config set plugins.entries.obol.settings.allow_live true
+   hermes obol doctor                    # should report live mode and Stripe reachable
+   ```
+
+4. **Do one small real run before you rely on it.** Send yourself a small real invoice (for example $1 to your
+   own email), pay it, then void it or refund it in the Stripe dashboard. Obol's live path is the same code as
+   test mode, but the automated suite (`tests/test_stripe_live.py`) only runs against test keys, so this is the
+   check that confirms your account and key work end to end.
+
+> **In live mode, Stripe emails your client for real.** In test mode, sending only produces a payment link. With
+> a live key, approving a send or a reminder makes Stripe email the actual customer, so one approval puts a real
+> email in front of a real person. Read the recipient in the approval prompt before you approve.
+
+Two things stay test-only on purpose: `hermes obol demo` refuses anything but a test key, and syncing invoices from
+Stripe test clocks only exists in test mode.
+
 ## For judges
 
 | Check | How |
@@ -173,7 +213,7 @@ Settings live under `plugins.entries.obol.settings` (Hermes Desktop shows them a
 
 | Setting | Default | Meaning |
 |---|---|---|
-| `allow_live` | `false` | Must be `true` before a live key is accepted |
+| `allow_live` | `false` | Must be `true` before a live key is accepted (see [Going live](#going-live)) |
 | `default_currency` | `usd` | Currency when a request doesn't name one |
 | `default_days_until_due` | `14` | Payment terms for new invoices |
 | `risk_duplicate_window_days` | `30` | Same customer and amount within this many days (`0` = off) |
