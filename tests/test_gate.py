@@ -38,6 +38,16 @@ def test_live_key_blocked_unless_allowed():
     assert allowed["action"] == "approve" and "LIVE MONEY" in allowed["message"]
 
 
+def test_live_sends_warn_that_a_real_client_is_emailed():
+    for tool in ("obol_create_invoice", "obol_send_invoice", "obol_send_reminder"):
+        assert gate.LIVE_EMAIL_WARNING in _decide(tool=tool, mode="live", allow_live=True)["message"], tool
+    for tool in ("obol_void_invoice", "obol_mark_paid"):
+        assert gate.LIVE_EMAIL_WARNING not in _decide(tool=tool, mode="live", allow_live=True)["message"], tool
+    assert gate.LIVE_EMAIL_WARNING not in _decide(args={**CREATE, "send": False}, mode="live",
+                                                  allow_live=True)["message"]
+    assert gate.LIVE_EMAIL_WARNING not in _decide()["message"]
+
+
 def test_unattended_runs_are_blocked_cleanly():
     d = _decide(unattended=True)
     assert d["action"] == "block" and "unattended" in d["message"] and "Nothing was sent" in d["message"]
