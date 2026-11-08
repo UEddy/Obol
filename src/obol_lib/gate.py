@@ -22,6 +22,15 @@ WRITE_TOOLS = frozenset({"obol_create_invoice", "obol_send_invoice", "obol_send_
 _VERBS = {"obol_send_invoice": "finalize and email", "obol_send_reminder": "re-send the payment email for",
           "obol_void_invoice": "VOID (cannot be undone)", "obol_mark_paid": "mark as PAID (money received outside the payment page)"}
 
+LIVE_EMAIL_WARNING = "LIVE: approving makes Stripe email this real client now. Check the address."
+
+
+def _emails_client(tool_name: str, args: dict) -> bool:
+    """True for the writes that make Stripe email the customer."""
+    if tool_name == "obol_create_invoice":
+        return bool(args.get("send"))
+    return tool_name in ("obol_send_invoice", "obol_send_reminder")
+
 
 def describe_create(args: dict, default_currency: str, bank: bool = False) -> str:
     cur = str(args.get("currency") or default_currency).lower()
@@ -84,4 +93,6 @@ def decide(tool_name: str, args: dict, *, mode: str, allow_live: bool, unattende
                   "message": f"Risk checks could not run ({exc.__class__.__name__}); review carefully."}]
     tag = {"live": "LIVE MONEY", "bank": "BANK TRANSFER"}.get(mode, "TEST mode")
     message = f"Obol ({tag}): {summary()}.\n{format_flags(flags)}"
+    if mode == "live" and _emails_client(tool_name, args):
+        message += f"\n{LIVE_EMAIL_WARNING}"
     return {"action": "approve", "message": message, "rule_key": f"obol:{tool_name}:{uuid.uuid4().hex}"}
