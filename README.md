@@ -23,7 +23,7 @@ You:     Have they paid?
 Hermes:  Yes, paid in full today.
 ```
 
-**Demo (70 s):** link in the catalog PR · **Install:** `hermes plugins install ueddy/obol`
+**Demo (70 s):** [watch on X](https://x.com/DeFiRanch/status/2118752233315791051) · **Install:** `hermes plugins install ueddy/obol` · Listed in the [official plugin catalog](https://github.com/NousResearch/hermes-agent/pull/149915)
 
 ---
 
@@ -235,7 +235,7 @@ Injection detection is always on.
 - **Your model:** `obol_draft_from_message` sends the forwarded message to the model Hermes is configured to use, through `ctx.llm`.
 - **Emails:** sending and reminding make the payment provider email your client. In bank-transfer mode nobody is emailed; PDFs are written to `<HERMES_HOME>/plugin-data/obol/invoices/`.
 - **Credentials:** `STRIPE_API_KEY` (optional, Stripe mode only; install doesn't ask for it), read only through Hermes's secret route; never logged or stored. Without it, Stripe-mode tools answer "Stripe key not set" and do nothing.
-- **Local data:** `<HERMES_HOME>/plugin-data/obol/data.db`: cached invoice metadata, risk findings, and hash-chained activity and security logs (forwarded message text is not stored). Delete the file to clear it.
+- **Local data:** `<HERMES_HOME>/plugin-data/obol/data.db`: cached invoice metadata, risk findings, and hash-chained activity and security logs (forwarded message text is not stored). Delete the file to clear it. Bank-transfer details (account name, number, bank, routing) are plugin settings, stored in plain text in Hermes's `config.yaml`. The full number appears only there and on the PDFs: Obol's logs and database hold a fingerprint of the details and the account's last four digits, never the number itself.
 - **No telemetry, shell commands, background processes or self-updating code.**
 
 ## Development
