@@ -154,7 +154,7 @@ Stripe test clocks only exists in test mode.
 |---|---|
 | Try it in two minutes | `hermes obol demo` with a Stripe test key: sample clients, then four prompts to try |
 | Installs cleanly | `hermes plugins validate . --install-deps && hermes plugins doctor . --ci` → 8 tools, 1 hook, install scan **safe** |
-| Tests | `python -m pytest`: 235 tests, no keys needed (unit, adversarial, recorded real responses, gateway, Hermes integration) |
+| Tests | `python -m pytest`: 231 tests, no keys needed (unit, adversarial, recorded real responses, gateway, Hermes integration) |
 | Claims are proven | `tests/test_readme_claims.py` fails if any test named in this README doesn't exist |
 | Real, not mocked | live test-mode suite (`tests/test_stripe_live.py`), real-model intake suite (`tests/test_intake_live.py`), recorded real responses, live Telegram run |
 | More than a skill | tools, an approval hook, structured extraction via `ctx.llm`, dashboard tab + API, slash command, CLI, automation blueprint, skill |
