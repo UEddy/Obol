@@ -7,7 +7,7 @@ maintainer: UEddy
 tier: community
 category: tools
 requires_hermes: ">=0.22"
-version: "0.1.0"
+version: "0.1.1"
 docs_url: https://github.com/UEddy/Obol#readme
 screenshots:
   - https://raw.githubusercontent.com/UEddy/Obol/d21df0241a3c88d0def0f12ef7ffa581e6e0b59f/docs/screenshots/dashboard-invoices.png

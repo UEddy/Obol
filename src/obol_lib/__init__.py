@@ -4,4 +4,4 @@ Nothing in this package imports Hermes at module import time, so it can be unit-
 plain pytest.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"

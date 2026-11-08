@@ -1,5 +1,5 @@
 name: obol
-version: 0.1.0
+version: 0.1.1
 description: "Safe invoicing for freelancers, consultants and agencies who bill clients, from any chat Hermes runs in. Hermes drafts invoices (also from forwarded messages), sends them as Stripe payment links or as bank-transfer PDF invoices with no provider account, and tracks who has paid. Every invoice write needs your approval, with checks for prompt injection, lookalike and impersonated client addresses, duplicates, unusual amounts and changed payout details, plus hash-chained logs. Test mode by default."
 author: UEddy
 requires_hermes: ">=0.22"

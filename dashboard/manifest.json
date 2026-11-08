@@ -3,7 +3,7 @@
   "label": "Invoices",
   "description": "Obol receivables ledger: outstanding, overdue and paid Stripe invoices",
   "icon": "FileText",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "tab": {
     "path": "/invoices",
     "position": "after:sessions"
